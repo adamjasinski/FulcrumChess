@@ -1,0 +1,37 @@
+﻿;Black Rook at c6; white pawn at c2
+8/8/2r5/8/8/8/2P5/8 w - -
+Rc7
+Rc8
+Rd6
+Re6
+Rf6
+Rg6
+Rh6
+Rc5
+Rc4
+Rc3
+Rxc2
+Rb6
+Ra6
+
+;White bishop at g4 (light-squared); black knight at e6
+8/8/4n3/8/6B1/8/8/8 w - -
+Bh5
+Bh3
+Bf3
+Be2
+Bd1
+Bf5
+Bxe6
+
+;Black knight at e6; white pawn at g5
+8/8/4n3/6P1/8/8/8/8 w - -
+Nf8
+Ng7
+Nxg5
+Nf4
+Nd4
+Nc5
+Nc7
+Nd8
+
