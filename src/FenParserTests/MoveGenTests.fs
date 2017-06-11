@@ -18,24 +18,24 @@ module MoveGenTests =
         let rookMagicMovesDb = Bitboards.bootstrapRookDatabase()
         Bitboards.generateRookMoveDestinationBitboard rookMagicMovesDb allPieces friendlyPieces startBitref
 
-    [<Theory;MoveGenTestDataFileAttribute("MoveGenTestData.txt")>]
+    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
     let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
         printfn "%s %s %A" record.Header record.FEN record.ExpectedMoves 
         //TODO
         ()
 
-    //[<Fact>]
+    [<Fact>]
     let ``verify moves of Black Rook at c6; white pawn at c2`` ()   =
         let startBitRef = 18
-        let opponentOccupancy = 1L <<< 23
-        let friendlyOccupancy = 1L <<< startBitRef
+        let opponentOccupancy = 1UL <<< 23
+        let friendlyOccupancy = 1UL <<< startBitRef
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
         let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
         printfn "%s" "Got raw results"
-        test <@ result <> 0L @>
-        // let targetBitRefs = result |> Bitboards.getSetBits
-        // let algNotations = targetBitRefs |> Array.map Bitboards.bitRefToAlgebraicNotation
-        // printfn "%A" (algNotations)
-        // test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
-        // ()
+        test <@ result <> 0UL @>
+        let targetBitRefs = result |> Bitboards.getSetBits
+        printfn "BitRefs: %A" targetBitRefs
+        let algNotations = targetBitRefs |> Array.map Bitboards.bitRefToAlgebraicNotation
+        printfn "%A" (algNotations)
+        test <@ algNotations |> Array.exists (fun x -> x = "f6") @>

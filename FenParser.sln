@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FenParser", "src\FenParser\FenParser.fsproj", "{96245B6B-D4F0-4E44-B8FC-F4B6D9AD785F}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParser", "src\FenParser\FenParser.fsproj", "{96245B6B-D4F0-4E44-B8FC-F4B6D9AD785F}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FenParserTests", "src\FenParserTests\FenParserTests.fsproj", "{CF780288-DF3F-4B06-B0A3-D6ABE201AC98}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParserTests", "src\FenParserTests\FenParserTests.fsproj", "{CF780288-DF3F-4B06-B0A3-D6ABE201AC98}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParserTests.NUnit", "FenParserTests.NUnit\FenParserTests.NUnit.fsproj", "{050D8900-D3C8-46FF-925A-7C78B358B3C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CF780288-DF3F-4B06-B0A3-D6ABE201AC98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF780288-DF3F-4B06-B0A3-D6ABE201AC98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF780288-DF3F-4B06-B0A3-D6ABE201AC98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
