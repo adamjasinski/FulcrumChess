@@ -34,11 +34,11 @@ Target "xUnitTest" (fun _ ->
         |> xUnit2 (fun p -> 
             {p with 
                 ShadowCopy = false;
-                ToolPath = "./packages/xunit.runner.console.2.1.0/tools/xunit.console.exe" })
+                ToolPath = "./packages/xunit.runner.console.2.2.0/tools/xunit.console.exe" })
 )
 
 // Target "xUnitTestDebug" (fun _ ->  
-//     Shell.Exec("mono", "./packages/xunit.runner.console.2.1.0/tools/xunit.console.exe FenParserTests.dll", "testDir") |> ignore
+//     Shell.Exec("mono", "./packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FenParserTests.dll", "testDir") |> ignore
 // )
 
 Target "Deploy" (fun _ ->

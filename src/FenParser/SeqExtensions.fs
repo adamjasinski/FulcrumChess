@@ -17,3 +17,18 @@ module Seq =
         // (making sure that the enumerator gets disposed)
         seq { use en = s.GetEnumerator()
             yield! loop en  }
+
+
+module RandomExtensions = //no pun intended
+    open System
+
+    type Random with 
+        member x.NextInt64 () = 
+            let buffer = Array.zeroCreate sizeof<int64>
+            x.NextBytes(buffer)
+            BitConverter.ToInt64(buffer, 0)
+
+        member x.NextUInt64 () = 
+            let buffer = Array.zeroCreate sizeof<uint64>
+            x.NextBytes(buffer)
+            BitConverter.ToUInt64(buffer, 0)     

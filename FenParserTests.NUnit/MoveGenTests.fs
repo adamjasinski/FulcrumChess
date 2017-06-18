@@ -15,8 +15,8 @@ module MoveGenTests =
         Moves.BitboardGenerator.generateRayBitboardsForSlidingPiece
 
     let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
-        let rookMagicMovesDb = Bitboards.bootstrapRookDatabase()
-        Bitboards.generateRookMoveDestinationBitboard rookMagicMovesDb allPieces friendlyPieces startBitref
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
+        Bitboards.generateRookMoves rookMagicMovesDb allPieces friendlyPieces startBitref
 
 //    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
 //    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
@@ -30,7 +30,7 @@ module MoveGenTests =
 
     [<TestCase>]
     let ``verify moves of first variant of rook on h1 with no other occupancy`` () =
-        let rookMagicMovesDb = Bitboards.bootstrapRookDatabase()
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
         let moves = rookMagicMovesDb.[0].[0]
         let algNotations = moves |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -81,6 +81,16 @@ module MoveGenTests =
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
+        ()
+
+    [<TestCase>]
+    let ``dry run of magic number generation`` () =
+        let magick = Bitboards.bootstrapMagicNumberGenerationForRook()
+        printfn "%A" magick
+        ()
+
+    //[<TestCase>]
+    //let ``verify attack set of Black Rook at a5; a few other black and white pieces on the board`` () = 
 
   
 
