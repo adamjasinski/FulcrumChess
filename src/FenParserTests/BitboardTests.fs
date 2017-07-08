@@ -13,7 +13,7 @@ module BitboardTests =
 
     // [<Fact>]
     // let ``bitRefToAlgebraicNotation A8`` () =
-    //     let result = Bitboards.bitRefToAlgebraicNotation 62
+    //     let result = Bitboards.bitRefToAlgebraicNotation 63
     //     test <@ "a8" = result @>
 
     [<Theory>]
@@ -29,11 +29,13 @@ module BitboardTests =
     
     [<Fact>]
     let ``quick test of getSetBits (1)`` () =
-        let input = System.Int64.MaxValue
-        let result = input |> Bitboards.getSetBits
+        let input = 2017
+        let expectedResult = [|0;5;6;7;8;9;10|]
+        let result = input |> FenParser.BitUtils.getSetBits
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
         test <@ (result |> Array.length) > 0 @>
+        test <@ expectedResult = result  @>
 
  
  

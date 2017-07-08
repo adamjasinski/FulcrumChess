@@ -23,7 +23,7 @@ module MoveGenTests =
 //        ()
 
     let setBitsToAlgebraicNotations (bitboard:Bitboards.Bitboard) =
-        let targetBitRefs = bitboard |> Bitboards.getSetBits
+        let targetBitRefs = bitboard |> BitUtils.getSetBits
         targetBitRefs |> Array.map Bitboards.bitRefToAlgebraicNotation
 
     [<Fact>]

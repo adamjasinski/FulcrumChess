@@ -25,7 +25,7 @@ module MoveGenTests =
 //        ()
 
     let setBitsToAlgebraicNotations (bitboard:Bitboards.Bitboard) =
-        let targetBitRefs = bitboard |> Bitboards.getSetBits
+        let targetBitRefs = bitboard |> BitUtils.getSetBits
         targetBitRefs |> Array.map Bitboards.bitRefToAlgebraicNotation
 
     [<TestCase>]
@@ -79,7 +79,6 @@ module MoveGenTests =
         let algNotations = result |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
-        test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
         ()
 

@@ -54,6 +54,8 @@
     <Compile Include="Tutorial.fs" />
     <None Include="packages.config" />
     <Compile Include="SeqExtensionTests.fs" />
+    <Compile Include="PseudoRandomTests.fs" />
+    <Compile Include="BitUtilsTests.fs" />
     <Compile Include="MoveGenTests.fs" />
   </ItemGroup>
   <ItemGroup>

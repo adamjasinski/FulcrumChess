@@ -4,31 +4,6 @@ open RandomExtensions
 
 type Bitboard = uint64
 
-module Hamming = 
-    //https://en.wikipedia.org/wiki/Hamming_weight
-    [<Literal>] 
-    let private m1  = 0x5555555555555555UL //binary: 0101...
-    [<Literal>] 
-    let private m2  = 0x3333333333333333UL //binary: 00110011..
-    [<Literal>] 
-    let private m4  = 0x0f0f0f0f0f0f0f0fUL //binary:  4 zeros,  4 ones ...
-    [<Literal>] 
-    let private m8  = 0x00ff00ff00ff00ffUL //binary:  8 zeros,  8 ones ...
-    [<Literal>] 
-    let private m16 = 0x0000ffff0000ffffUL //binary: 16 zeros, 16 ones ...
-    [<Literal>] 
-    let private m32 = 0x00000000ffffffffUL //binary: 32 zeros, 32 ones
-    [<Literal>] 
-    let private hff = 0xffffffffffffffffUL //binary: all ones
-    [<Literal>] 
-    let private h01 = 0x0101010101010101UL //the sum of 256 to the power of 0,1,2,3...
-
-    let popcount_3 (input:uint64) =
-        let mutable x = input
-        x <- x - (x >>> 1) &&& m1             //put count of each 2 bits into those 2 bits
-        x <- (x &&& m2) + ((x >>> 2) &&& m2)  //put count of each 4 bits into those 4 bits 
-        x <- (x + (x >>> 4)) &&& m4         //put count of each 8 bits into those 8 bits 
-        int ((x * h01) >>> 56)                    //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
 
 //Magic numbers taken from http://www.afewmorelines.com/understanding-magic-bitboards-in-chess-programming/ (also at http://www.rivalchess.com/magic-bitboards/)
 let private magicNumberRook = [|
@@ -62,53 +37,40 @@ let private magicNumberShiftsBishop = [|
         59; 59; 59; 59; 59; 59; 59; 59; 58; 59; 59; 59; 59; 59; 59; 58
     |]
 
-let countSetBits = Hamming.popcount_3
-
-let inline setBit (i:int) (b:^a) =
-    let one:^a = LanguagePrimitives.GenericOne
-    b ||| (one <<< i)
-
-let inline getSetBits (b:^a) =
-    let zero:^a = LanguagePrimitives.GenericZero
-    let one:^a = LanguagePrimitives.GenericOne
-    let rec loop x i acc =
-        if(x = zero) then acc
-        else
-            if x &&& one = one then 
-                loop (x >>> 1) (i+1) (i::acc)
-            else 
-                loop (x >>> 1) (i+1) acc
-    loop b 0 [] 
-    |> List.rev
-    |> Array.ofList
-
-
 let generateOccupancyVariations (occupancyMasks:uint64[]) =
     [|
         let generateVariationsForBitRef  variationCount (setBitsInOccupancyMask:int[]) =
             [|
-                for i = 0 to variationCount do
+                for i = 0 to variationCount-1 do
                     // find bits set in index "i" and map them to bits in the 64 bit "occupancyVariation"
-                    yield getSetBits i 
-                    |>  Array.fold(fun acc setBitNumber ->
-                        acc ||| 1UL <<< setBitsInOccupancyMask.[setBitNumber]
-                        ) 0UL
+                    let setBitsInIndex = BitUtils.getSetBits i 
+                    let variation = 
+                        setBitsInIndex
+                        |>  Array.fold(fun acc setBitNumber ->
+                            acc ||| (1UL <<< setBitsInOccupancyMask.[setBitNumber])
+                            ) 0UL
+                    yield variation
             |]
         for bitRef = 0 to 63 do
             let occupancyMask = occupancyMasks.[bitRef]
-            let setBitsInOccupancyMask = getSetBits occupancyMask
-            let variationCount = 1 <<< countSetBits occupancyMask
-            yield setBitsInOccupancyMask |> generateVariationsForBitRef variationCount 
+            let setBitsInOccupancyMask = BitUtils.getSetBits occupancyMask
+            let variationCount = 1 <<< (BitUtils.countSetBits occupancyMask)
+            #if DIAG
+            let actualBitCount = BitUtils.countSetBits occupancyMask
+            if actualBitCount > 12 then raise (invalidOp <| sprintf "Internal error: found occupancy mask with more than 12 bits set: %d" actualBitCount)
+            #endif
+            let variationsForBitRef = setBitsInOccupancyMask |> generateVariationsForBitRef variationCount 
+            yield variationsForBitRef
     |]
 
 let generateRookMagicMoves (occupancyMasks:uint64[]) (magicNumbers:uint64[]) (magicNumberShifts:int[]) (occupancyVariations:uint64[][])  =
     //Magic moves indexes may not be consecutitve
-    let mutable magicMoves:uint64[][] = [| for i in 0 .. 63 -> Array.zeroCreate (1 <<< 15) |]   //TODO - fix hardcoded upper bound of magic index
+    let mutable magicMoves:uint64[][] = [| for i in 0 .. 63 -> Array.zeroCreate (1 <<< 12) |]   //TODO - is 12 upperbound sufficient?
     //if magicMoves.[0].Length < 100 then invalidOp "Expected something else"
     for bitRef = 0 to 63 do
         let occupancyMask = occupancyMasks.[bitRef]
-        let variationCount = 1 <<< (countSetBits occupancyMask)
-        for i = 0 to variationCount do
+        let variationCount = 1 <<< (BitUtils.countSetBits occupancyMask)
+        for i = 0 to variationCount-1 do
             //System.Diagnostics.Debug.Assert(occupancyVariations |> Array.length >= bitRef, "message1")
             //System.Diagnostics.Debug.Assert(occupancyVariations.[bitRef] |> Array.length >= i, "message2")
        
@@ -126,7 +88,7 @@ let generateRookMagicMoves (occupancyMasks:uint64[]) (magicNumbers:uint64[]) (ma
             let nonOccupiedSquaresAllDirs = squaresAllDirs |> Seq.map (Seq.takeUntilInclusive matchesOccupancyVariation)
 
             let combined = nonOccupiedSquaresAllDirs |> Seq.collect id
-            let moves = combined |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> setBit j)) 0UL 
+            let moves = combined |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
             //if(magicMoves.[bitRef].[magicIndex] <> 0UL) then 
             //    invalidOp "Weird, wasn't supposed to happen"
 
@@ -147,7 +109,7 @@ let bootstrapRookMagicMoves () =
 let generateRookMoves (magicMovesRook:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) =
     let bbBlockers = bbAllPieces &&& occupancyMaskRook.[srcIndex]
     //let databaseIndex = int ((uint64(bbBlockers) * magicNumberRook.[srcIndex]) >>> magicNumberShiftsRook.[srcIndex])
-    let databaseIndexUint64 = (uint64(bbBlockers) * uint64(magicNumberRook.[srcIndex])) >>> magicNumberShiftsRook.[srcIndex]
+    let databaseIndexUint64 = (uint64(bbBlockers) * magicNumberRook.[srcIndex]) >>> magicNumberShiftsRook.[srcIndex]
     let databaseIndex = (int)databaseIndexUint64
     let bbMoveSquares = magicMovesRook.[srcIndex].[databaseIndex] &&& ~~~bbFriendlyPieces
     bbMoveSquares
@@ -166,11 +128,10 @@ let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]
     [|
         for bitRef = 0 to 63 do
             let occupancyMask = occupancyMasks.[bitRef]
-            let variationCount = 1 <<< (countSetBits occupancyMask)
+            let variationCount = 1 <<< (BitUtils.countSetBits occupancyMask)
 
-            //yield [|0UL..1UL|]
             yield [|
-                    for i = 0 to variationCount do
+                    for i = 0 to variationCount-1 do
                         let matchesOccupancyVariation j =
                             occupancyVariations.[bitRef].[i] &&& (1UL <<< j) <> 0UL
 
@@ -183,15 +144,16 @@ let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]
                         let squaresW = seq { for j in bitRef+1 .. 1 .. ((bitRef/8)+1)*8-1 -> j}
 
                       
-                        let squaresAllDirs = [(squaresN, Seq.max); (squaresS, Seq.min); (squaresE, Seq.min); (squaresW, Seq.max)]
+                        let squaresAllDirs = [|(squaresN, Seq.max); (squaresS, Seq.min); (squaresE, Seq.min); (squaresW, Seq.max)|]
                         let maxAttackedOrEdgeInAllDirs = 
                             squaresAllDirs 
+                            |> Seq.where (fst >> Seq.isEmpty >> not)
                             |> Seq.map (fun (squares, minOrMax) -> 
                                 squares |> Seq.takeUntilInclusive matchesOccupancyVariation |> minOrMax)
                             
                         let attackSetCombined = 
                             maxAttackedOrEdgeInAllDirs 
-                            |> Seq.fold (fun (attackSetInDir:uint64) j ->  (attackSetInDir |> setBit j)) 0UL 
+                            |> Seq.fold (fun (attackSetInDir:uint64) j ->  (attackSetInDir |> BitUtils.setBit j)) 0UL 
                         yield attackSetCombined
 
                         //for (j=bitRef+8; j<=55 && (occupancyVariation[bitRef][i] & (1L << j)) == 0; j+=8);
@@ -208,33 +170,94 @@ let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]
     |]
 
 
+let initRandomUInt64Generator (seed:uint64) =
+    let mutable s:uint64 = seed
+    let mutable counter = 0
+    fun() -> 
+        s <- s ^^^ (s >>> 12)
+        s <- s ^^^ (s <<< 25)
+        s <- s ^^^ (s >>> 27)
+        counter <- counter + 1
+        if(counter % 100000 = 0) then
+            printfn "Total attempts: %d" counter
+        s * 2685821657736338717UL
+
 let generateMagicNumbersAndShiftsRook (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) =
+
     let rnd = System.Random()
     let generateSparseUInt64 () = rnd.NextUInt64() &&& rnd.NextUInt64() &&& rnd.NextUInt64() // generate a random number with not many bits set
+    //let generateRandomUInt64 = initRandomUInt64Generator 8977UL //TODO
+    //let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
     let infiniteMagicSequence = 
         Seq.initInfinite (fun i -> 
-            if i > (1 <<< 15) then invalidOp("Magic number generation: Sanity check failed")
+            //if i > (1 <<< 32) then invalidOp("Magic number generation: Sanity check failed")
             generateSparseUInt64())
 
     [|
         for bitRef = 0 to 63 do
-            let bitCount = countSetBits occupancyMaskRook.[bitRef]
+            let bitCount = BitUtils.countSetBits occupancyMaskRook.[bitRef]
             let variationCount = 1 <<< bitCount;
             let magicShift = 64-bitCount
-      
+            //let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
+            let currentBitRefOccupancyVariations = occupancyVariations.[bitRef]
+            let currentBitRefOccupancyMask = occupancyMaskRook.[bitRef]
+            let currentBitRefAttackSet = occupancyAttackSets.[bitRef]
             //let mutable fail = true
+            let mutable candidateCount = 0
+
             let magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet (magicNumber:uint64) =
+                #if DIAG
+                candidateCount <- candidateCount + 1
+                if(candidateCount % 100000 = 0) then
+                    printfn "Total magic attempts: %d" candidateCount
+                //magicAttemptsPerBitCount.[bitRef] <- candidateCount
+                #endif
+
+                let magic32Shifted = uint32(magicNumber>>>32)
+                let magicTruncated = uint32(magicNumber)
+                let bitsToShiftFrom32 = 32-bitCount
                 let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
-                let variations = seq { 0..variationCount }
+                let variations = [|0..variationCount-1|]
+           
                 let noClashes = 
-                    variations |> Seq.forall (fun i -> 
-                        let index = int((occupancyVariations.[bitRef].[i] * magicNumber) >>> magicShift)
+                    variations |> Array.forall (fun i -> 
+                        let attackSet = currentBitRefAttackSet.[i]
+                        //32-bit mult
+                        // (unsigned)((int)b*(int)magic ^ (int)(b>>32)*(int)(magic>>32)) >> (32-bits);
+                        let b= currentBitRefOccupancyVariations.[i]
+                        //let index:int = int(uint32(uint32(b)*uint32(magicNumber) ^^^ uint32(b>>>32)*(uint32(magicNumber>>>32))  >>> (32-bitCount)))
+                        let index:int = int(uint32(uint32(b)*magicTruncated ^^^ uint32(b>>>32)*magic32Shifted)  >>> bitsToShiftFrom32)
+                        //let index = int((currentBitRefOccupancyVariations.[i] * magicNumber) >>> magicShift)
                         // fail if this index is used by an attack set that is incorrect for this occupancy variation
-                        let collision = usedBy.[index] <> 0UL && usedBy.[index] <> occupancyAttackSets.[bitRef].[i]
-                        usedBy.[index] <- occupancyAttackSets.[bitRef].[i]
-                        collision )
+                        let collision = usedBy.[index] <> 0UL && usedBy.[index] <> attackSet
+                        usedBy.[index] <- attackSet
+                        not collision )
                 noClashes
-            let magicNumber = infiniteMagicSequence |> Seq.find magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet
+
+            let mutable decentMagicAttemptCounter = 0
+            let goodMagicPredicate m =
+                //if countBits_slow ((m * currentBitRefOccupancyMask) >>> 56 )  >= 6 then
+                if BitUtils.Hamming.popcount_3 (uint64(uint32(m)*uint32(currentBitRefOccupancyMask) ^^^ uint32(m>>>32)*uint32(currentBitRefOccupancyMask>>>32) >>> 24)) >= 6 then
+                    true
+                else
+                    //System.Threading.Interlocked.Increment()
+                    //let  g= decentMagicAttemptCounter + 1
+                    #if DIAGPLUS
+                    decentMagicAttemptCounter <- decentMagicAttemptCounter + 1
+                    if(decentMagicAttemptCounter % 100000 = 0) then
+                        printfn "Total decent magic  attempts: %d" decentMagicAttemptCounter
+                    #endif
+                    false
+
+            let curatedInfiniteMagicSequence = 
+                infiniteMagicSequence 
+                //|> Seq.where (fun m -> countSetBits ((m * occupancyMaskRook.[bitRef]) &&&  0xFF00000000000000UL )  >= 6)
+                //|> Seq.where (fun m -> countBits_slow ((m * currentBitRefOccupancyMask) >>> 56 )  >= 6)
+                |> Seq.where goodMagicPredicate
+            let magicNumber = curatedInfiniteMagicSequence |> Seq.find magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet
+            //let magicNumber = curatedInfiniteMagicSequence |> Seq.take 500 |> Seq.last  //test only!!!
+            printfn "Found magic number for bitref %d: %x" bitRef magicNumber
+            printfn "Magic attempts: %d" candidateCount
             yield (magicNumber, magicShift)
      |]         
             
@@ -250,9 +273,10 @@ let generateMagicNumbersAndShiftsRook (occupancyMasks:uint64[]) (occupancyVariat
 
 let bootstrapMagicNumberGenerationForRook () =
     let occupancyVariations = occupancyMaskRook  |>  generateOccupancyVariations
-    let attackSets = generateAttackSets occupancyVariations occupancyMaskRook
+    //if(occupancyVariations[0] |> Array.forall (fun x -> x > 0)))
+    let attackSets = generateAttackSets occupancyVariations occupancyMaskRook |> Array.ofSeq
     let magick = generateMagicNumbersAndShiftsRook occupancyMaskRook occupancyVariations attackSets
-    magick
+    magick |> Array.ofSeq
 
 //public void generateMagicNumbers(boolean isRook)
     //{
