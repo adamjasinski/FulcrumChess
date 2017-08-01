@@ -144,13 +144,14 @@
     <Compile Include="BitboardTests.fs" />
     <Compile Include="FenParsingTests.fs" />
     <Compile Include="PuzzlesTest1.fs" />
-    <Compile Include="BoardTests.fs" />
+    <Compile Include="Board64Tests.fs" />
     <Compile Include="MoveGenTestDataFileAttribute.fs" />
     <Compile Include="MoveGenTests.fs" />
     <Content Include="MoveGenTestData.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Choose>

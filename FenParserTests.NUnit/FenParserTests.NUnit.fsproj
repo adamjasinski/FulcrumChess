@@ -57,6 +57,7 @@
     <Compile Include="PseudoRandomTests.fs" />
     <Compile Include="BitUtilsTests.fs" />
     <Compile Include="MoveGenTests.fs" />
+    <Compile Include="FastMultiplicationTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\FenParser\FenParser.fsproj">

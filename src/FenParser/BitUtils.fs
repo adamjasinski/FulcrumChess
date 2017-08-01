@@ -21,7 +21,7 @@ module BitUtils =
         [<Literal>] 
         let private h01 = 0x0101010101010101UL //the sum of 256 to the power of 0,1,2,3...
 
-        let popcount_3 (input:uint64) =
+        let inline popcount_64 (input:uint64) =
             let mutable x = input
             //x <- x - (x >>> 1) &&& m1;             //put count of each 2 bits into those 2 bits
             //x <- (x &&& m2) + ((x >>> 2) &&& m2); //put count of each 4 bits into those 4 bits 
@@ -35,7 +35,21 @@ module BitUtils =
             x <- (x + (x >>> 4)) &&& m4         //put count of each 8 bits into those 8 bits 
             int ((x * h01) >>> 56)                    //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
 
-        let popcount_64 (input:uint64) =
+        let inline popcount_32 (input:uint32) =
+            //https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+            let mutable x = input
+            x <- x - ((x >>> 1) &&& 0x55555555u);
+            x <- (x &&& 0x33333333u) + ((x >>> 2) &&& 0x33333333u)
+            (((x + (x >>> 4)) &&& 0x0F0F0F0Fu) * 0x01010101u) >>> 24
+
+        let inline popcount_32_signed (input:int) =
+            //https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+            let mutable x = input
+            x <- x - ((x >>> 1) &&& 0x55555555);
+            x <- (x &&& 0x33333333) + ((x >>> 2) &&& 0x33333333)
+            (((x + (x >>> 4)) &&& 0x0F0F0F0F) * 0x01010101) >>> 24
+
+        let popcount_64_alt (input:uint64) =
             //https://stackoverflow.com/questions/2709430/count-number-of-bits-in-a-64-bit-long-big-integer
             let mutable i = input
             i <- i - ((i >>> 1) &&& 0x5555555555555555UL)
@@ -86,5 +100,5 @@ module BitUtils =
         |> List.rev
         |> Array.ofList
 
-    let countSetBits = Hamming.popcount_3
+    let countSetBits = Hamming.popcount_64
     //let countSetBits = countBits_slow

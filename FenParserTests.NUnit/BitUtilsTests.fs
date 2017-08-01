@@ -29,7 +29,7 @@
     [<TestCase(141UL, 4)>]
     [<TestCase(2017UL, 7)>]
     let ``Hamming.popcount returns expected result`` (input:uint64, expectedResult:int) =
-        let result = input |> BitUtils.Hamming.popcount_3
+        let result = input |> BitUtils.Hamming.popcount_64
         test <@ expectedResult = result  @>
 
     [<TestCase(1UL, 1)>]

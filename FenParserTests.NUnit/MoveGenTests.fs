@@ -16,7 +16,7 @@ module MoveGenTests =
 
     let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
-        Bitboards.generateRookMoves rookMagicMovesDb allPieces friendlyPieces startBitref
+        Bitboards.generateRookMovesForPosition rookMagicMovesDb allPieces friendlyPieces startBitref Magic.PregeneratedMagic.magicNumbersAndShiftsRook
 
 //    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
 //    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
@@ -83,10 +83,38 @@ module MoveGenTests =
         ()
 
     [<TestCase>]
-    let ``dry run of magic number generation`` () =
-        let magick = Bitboards.bootstrapMagicNumberGenerationForRook()
-        printfn "%A" magick
+    //[<Slow>]
+    let ``dry run of magic number and moves generation for rook `` () =
+        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
+        printfn "%A" magicNumbersAndShifts
+        let occupancyMasks = Bitboards.Constants.occupancyMaskRook
+        let rookMovesDb = 
+            occupancyMasks  |>  
+            (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
         ()
+
+    [<TestCase>]
+    //[<Slow>]
+    //FEN: 8/p7/8/r2N4/8/8/p7/8 w - -
+    let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
+        //let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
+        let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
+        let occupancyMasks = Bitboards.Constants.occupancyMaskRook
+        let rookMovesDb = 
+            occupancyMasks  |>  
+            (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
+        
+        let startBitRef = 39    //a5
+        let opponentOccupancy = 1UL <<< 36  //d5
+        let friendlyOccupancy = (1UL <<< startBitRef) ||| (1UL <<< 55) ||| (1UL <<< 15)    //a5, a7, a2
+        let allOccupancy = opponentOccupancy ||| friendlyOccupancy
+
+        let result =  Bitboards.generateRookMovesForPosition rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        test <@ result <> 0UL @>
+        let algNotations = result |> setBitsToAlgebraicNotations
+        printfn "%A" (algNotations)
+        let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
+        test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
     //[<TestCase>]
     //let ``verify attack set of Black Rook at a5; a few other black and white pieces on the board`` () = 

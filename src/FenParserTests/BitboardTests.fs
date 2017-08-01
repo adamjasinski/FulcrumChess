@@ -24,7 +24,8 @@ module BitboardTests =
     [<InlineDataAttribute(63, "a8")>]
     let ``bitRefToAlgebraicNotation should map to expected notation`` bitRef expectedNotation =
         let result = Bitboards.bitRefToAlgebraicNotation bitRef
-        test <@ expectedNotation = result @>
+        //test <@ expectedNotation = result @>
+        Assert.Equal(result, expectedNotation)
 
     
     [<Fact>]
@@ -34,8 +35,10 @@ module BitboardTests =
         let result = input |> FenParser.BitUtils.getSetBits
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
-        test <@ (result |> Array.length) > 0 @>
-        test <@ expectedResult = result  @>
+        Assert.True((result |> Array.length) > 0 )
+        Assert.Equal<int[]>(result, expectedResult)
+        //test <@ (result |> Array.length) > 0 @>
+        //test <@ expectedResult = result  @>
 
  
  
