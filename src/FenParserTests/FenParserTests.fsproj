@@ -139,6 +139,10 @@
       <Name>FenParser</Name>
       <Project>{96245B6B-D4F0-4E44-B8FC-F4B6D9AD785F}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\FenParser.Extras\FenParser.Extras.fsproj">
+      <Project>{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}</Project>
+      <Name>FenParser.Extras</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitboardTests.fs" />

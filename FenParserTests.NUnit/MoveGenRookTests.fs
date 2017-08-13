@@ -1,28 +1,15 @@
-﻿namespace FenParserTests.NUnit
+﻿namespace FenParserTests.NUnit.MoveGeneration
 
-module MoveGenTests =
+module MoveGenRookTests =
 
     open NUnit.Framework
     //open TestHelpers
     open FenParser
     open Swensen.Unquote
 
-    let generateViaBoard64 (occupancy:Board64.T) pieceCode startSquareAlg =
-        let pieceColorInsensitive = pieceCode |> Pieces.fenCharacterAsNumber |> Pieces.numberAsPieceCodeColorInsensitive
-        let startSquareIndex = Board64.algebraicStringAsSquareIndex startSquareAlg
-        let board64Functs = { Moves.BoardFuncts.IsOnBoard=Board64.isOnBoard; Moves.MakeBitboard=Board64.makeBitboardFromIndexes; Moves.Move=Board64.moveTo}
-        //TODO
-        Moves.BitboardGenerator.generateRayBitboardsForSlidingPiece
-
     let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
         Bitboards.generateRookMovesForPosition rookMagicMovesDb allPieces friendlyPieces startBitref Magic.PregeneratedMagic.magicNumbersAndShiftsRook
-
-//    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
-//    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
-//       printfn "%s %s %A" record.Header record.FEN record.ExpectedMoves 
-//        //TODO
-//        ()
 
     let setBitsToAlgebraicNotations (bitboard:Bitboards.Bitboard) =
         let targetBitRefs = bitboard |> BitUtils.getSetBits
@@ -97,8 +84,8 @@ module MoveGenTests =
     //[<Slow>]
     //FEN: 8/p7/8/r2N4/8/8/p7/8 w - -
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
-        //let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
-        let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
+        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
+        //let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
         let rookMovesDb = 
             occupancyMasks  |>  
@@ -118,6 +105,31 @@ module MoveGenTests =
 
     //[<TestCase>]
     //let ``verify attack set of Black Rook at a5; a few other black and white pieces on the board`` () = 
+
+    [<TestCase>]
+    //[<Slow>]
+    //FEN: 8/p7/8/r2N4/8/8/p7/8 w - -
+    let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic and FEN`` () =
+        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
+        //let magicNumbersAndShifts = MagicGenerationSetupFixture.currentMagic
+        //let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
+        let occupancyMasks = Bitboards.Constants.occupancyMaskRook
+        let rookMovesDb = 
+            occupancyMasks  |>  
+            (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
+        
+        let startBitRef = 39    //a5
+        let pos = Positions.fromFenString "8/p7/8/r2N4/8/8/p7/8 w - -"
+        let opponentOccupancy = pos |> Positions.whiteBitboard  //d5
+        let friendlyOccupancy = pos |> Positions.blackBitboard    //a5, a7, a2
+        let allOccupancy = opponentOccupancy ||| friendlyOccupancy
+
+        let result =  Bitboards.generateRookMovesForPosition rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        test <@ result <> 0UL @>
+        let algNotations = result |> setBitsToAlgebraicNotations
+        printfn "%A" (algNotations)
+        let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
+        test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
   
 

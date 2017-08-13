@@ -3,6 +3,12 @@
 //Magic numbers are used to hash equivalent occupancy values/attack set
 //See also https://chessprogramming.wikispaces.com/Magic+Bitboards; https://chessprogramming.wikispaces.com/Looking+for+Magics
 
+type MagicValues ={
+    MagicNumbersAndShiftsRook:(uint64*int)[];
+    MagicNumbersAndShiftsBishop:(uint64*int)[];
+}
+
+
 module PregeneratedMagic =
     //Magic numbers taken from http://www.afewmorelines.com/understanding-magic-bitboards-in-chess-programming/ (also at http://www.rivalchess.com/magic-bitboards/)
     let magicNumberRook = [|
@@ -28,3 +34,6 @@ module PregeneratedMagic =
         |]
 
     let magicNumbersAndShiftsRook = Array.zip magicNumberRook magicNumberShiftsRook
+    let magicNumbersAndShiftsBishop = Array.zip magicNumberBishop magicNumberShiftsBishop
+
+    let magicNumbersAndShiftsAll = {MagicValues.MagicNumbersAndShiftsRook=magicNumbersAndShiftsRook;MagicNumbersAndShiftsBishop=magicNumbersAndShiftsBishop}

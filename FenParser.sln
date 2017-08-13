@@ -9,6 +9,8 @@ Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParserTests", "src\FenPa
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParserTests.NUnit", "FenParserTests.NUnit\FenParserTests.NUnit.fsproj", "{050D8900-D3C8-46FF-925A-7C78B358B3C1}"
 EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FenParser.Extras", "FenParser.Extras\FenParser.Extras.fsproj", "{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{050D8900-D3C8-46FF-925A-7C78B358B3C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A1BF652-6C0C-41A5-BC2C-5328F613D4EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

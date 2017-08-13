@@ -56,7 +56,8 @@
     <Compile Include="SeqExtensionTests.fs" />
     <Compile Include="PseudoRandomTests.fs" />
     <Compile Include="BitUtilsTests.fs" />
-    <Compile Include="MoveGenTests.fs" />
+    <Compile Include="MoveGenerationTestSetup.fs" />
+    <Compile Include="MoveGenRookTests.fs" />
     <Compile Include="FastMultiplicationTests.fs" />
   </ItemGroup>
   <ItemGroup>

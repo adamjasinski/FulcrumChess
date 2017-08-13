@@ -19,7 +19,7 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;DIAG;SLOW_64BIT_MULT</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;DIAG</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\FenParser.XML</DocumentationFile>
@@ -51,12 +51,10 @@
     <None Include="App.config" />
     <Compile Include="BitUtils.fs" />
     <Compile Include="SeqExtensions.fs" />
+    <Compile Include="Randomness.fs" />
     <Compile Include="Pieces.fs" />
     <Compile Include="Common.fs" />
-    <Compile Include="Board64.fs" />
     <Compile Include="FenParsing.fs" />
-    <Compile Include="Moves.fs" />
-    <Compile Include="Puzzles1.fs" />
     <Compile Include="Magic.fs" />
     <Compile Include="Bitboards.fs" />
     <Compile Include="Position.fs" />

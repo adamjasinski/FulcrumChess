@@ -2,6 +2,8 @@
 open FenParser
 open RandomExtensions
 
+// Bit ordering: 0=h1 .. 63=a8;
+// See also: LERBEF http://chessprogramming.wikispaces.com/file/view/lerbef.JPG/423298024/lerbef.JPG
 type Bitboard = uint64
 
 module Constants =
@@ -12,6 +14,8 @@ module Constants =
     let private occupancyMaskBishop = [|
             0x40201008040200UL; 0x402010080400UL; 0x4020100a00UL; 0x40221400UL; 0x2442800UL; 0x204085000UL; 0x20408102000UL; 0x2040810204000UL; 0x20100804020000UL; 0x40201008040000UL; 0x4020100a0000UL; 0x4022140000UL; 0x244280000UL; 0x20408500000UL; 0x2040810200000UL; 0x4081020400000UL; 0x10080402000200UL; 0x20100804000400UL; 0x4020100a000a00UL; 0x402214001400UL; 0x24428002800UL; 0x2040850005000UL; 0x4081020002000UL; 0x8102040004000UL; 0x8040200020400UL; 0x10080400040800UL; 0x20100a000a1000UL; 0x40221400142200UL; 0x2442800284400UL; 0x4085000500800UL; 0x8102000201000UL; 0x10204000402000UL; 0x4020002040800UL; 0x8040004081000UL; 0x100a000a102000UL; 0x22140014224000UL; 0x44280028440200UL; 0x8500050080400UL; 0x10200020100800UL; 0x20400040201000UL; 0x2000204081000UL; 0x4000408102000UL; 0xa000a10204000UL; 0x14001422400000UL; 0x28002844020000UL; 0x50005008040200UL; 0x20002010080400UL; 0x40004020100800UL; 0x20408102000UL; 0x40810204000UL; 0xa1020400000UL; 0x142240000000UL; 0x284402000000UL; 0x500804020000UL; 0x201008040200UL; 0x402010080400UL; 0x2040810204000UL; 0x4081020400000UL; 0xa102040000000UL; 0x14224000000000UL; 0x28440200000000UL; 0x50080402000000UL; 0x20100804020000UL; 0x40201008040200UL     
         |]
+
+    let zeroBoard:Bitboard = 0UL
 
 let generateOccupancyVariations (occupancyMasks:uint64[]) =
     [|
@@ -123,9 +127,6 @@ let bitRefToAlgebraicNotation bitRef =
     let rankIndex   = bitRef / 8  //= squareIndex >> 3 
     sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
-// let fenCharListsToBitboard (pieces:Board8x8Array)=
-//     pieces |> 
-
 let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]) =
     [|
         for bitRef = 0 to 63 do
@@ -170,40 +171,13 @@ let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]
                  |]
          
     |]
+    
 
-
-let initRandomUInt64Generator (seed:uint64) =
-    let mutable m:uint64 = seed
-    //let m = new System.Threading.ThreadLocal<uint64>(fun () -> seed)
-    let mutable counter = 0
-    let mylock = obj()
-    fun() -> 
-        let s1 = m
-        let s2 = s1 ^^^ (s1 >>> 12)
-        let s3 = s2 ^^^ (s2 <<< 25)
-        let s4 = s3 ^^^ (s3 >>> 27)
-        //counter <- counter + 1
-        //if(counter % 100000 = 0) then
-            //printfn "Total attempts: %d" counter
-        let s5 = s4 * 2685821657736338717UL
-        lock mylock (fun () -> m <- s5)
-        //m.Value <- s5
-        s5
-
-let generateMagicNumbersAndShiftsRook (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) =
-
-    let generateRandomUInt64 = initRandomUInt64Generator 8977UL //TODO
-    let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
-    //let randomLock = obj()
-    //let rnd = System.Random()
-    //let generateSparseUInt64 () = lock randomLock (fun () -> rnd.NextUInt64() &&& rnd.NextUInt64() &&& rnd.NextUInt64()) // generate a random number with not many bits set
-
+let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) =
     let infiniteMagicSequence = 
         Seq.initInfinite (fun i -> 
             //if i > (1 <<< 32) then invalidOp("Magic number generation: Sanity check failed")
-            generateSparseUInt64())
-    
-
+            Randomness.generateSparseUInt64())
 
     let occupancyMasks = Constants.occupancyMaskRook
     Array.Parallel.init 64 (fun bitRef -> 
@@ -213,7 +187,7 @@ let generateMagicNumbersAndShiftsRook (occupancyMasks:uint64[]) (occupancyVariat
             let bitCount = BitUtils.countSetBits occupancyMasks.[bitRef]
             let variationCount = 1 <<< bitCount;
             let magicShift = 64-bitCount
-            let magicShift32 = 32-bitCount
+            //let magicShift32 = 32-bitCount
             //let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
             let currentBitRefOccupancyVariations = occupancyVariations.[bitRef]
             let currentBitRefOccupancyMask = occupancyMasks.[bitRef]
@@ -290,7 +264,7 @@ let bootstrapMagicNumberGenerationForRook () =
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
     //if(occupancyVariations[0] |> Array.forall (fun x -> x > 0)))
     let attackSets = generateAttackSets occupancyVariations occupancyMask |> Array.ofSeq
-    let magick = generateMagicNumbersAndShiftsRook occupancyMask occupancyVariations attackSets
+    let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets
     magick |> Array.ofSeq
 
 //public void generateMagicNumbers(boolean isRook)
