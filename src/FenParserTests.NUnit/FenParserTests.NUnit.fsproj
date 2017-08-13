@@ -61,7 +61,7 @@
     <Compile Include="FastMultiplicationTests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\FenParser\FenParser.fsproj">
+    <ProjectReference Include="..\FenParser\FenParser.fsproj">
       <Project>{96245B6B-D4F0-4E44-B8FC-F4B6D9AD785F}</Project>
       <Name>FenParser</Name>
     </ProjectReference>
