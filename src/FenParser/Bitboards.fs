@@ -1,6 +1,7 @@
 ﻿module Bitboards
 open FenParser
 open RandomExtensions
+open Pieces
 
 // Bit ordering: 0=h1 .. 63=a8;
 // See also: LERBEF http://chessprogramming.wikispaces.com/file/view/lerbef.JPG/423298024/lerbef.JPG
@@ -11,11 +12,15 @@ module Constants =
             0x101010101017eUL; 0x202020202027cUL; 0x404040404047aUL; 0x8080808080876UL; 0x1010101010106eUL; 0x2020202020205eUL; 0x4040404040403eUL; 0x8080808080807eUL; 0x1010101017e00UL; 0x2020202027c00UL; 0x4040404047a00UL; 0x8080808087600UL; 0x10101010106e00UL; 0x20202020205e00UL; 0x40404040403e00UL; 0x80808080807e00UL; 0x10101017e0100UL; 0x20202027c0200UL; 0x40404047a0400UL; 0x8080808760800UL; 0x101010106e1000UL; 0x202020205e2000UL; 0x404040403e4000UL; 0x808080807e8000UL; 0x101017e010100UL; 0x202027c020200UL; 0x404047a040400UL; 0x8080876080800UL; 0x1010106e101000UL; 0x2020205e202000UL; 0x4040403e404000UL; 0x8080807e808000UL; 0x1017e01010100UL; 0x2027c02020200UL; 0x4047a04040400UL; 0x8087608080800UL; 0x10106e10101000UL; 0x20205e20202000UL; 0x40403e40404000UL; 0x80807e80808000UL; 0x17e0101010100UL; 0x27c0202020200UL; 0x47a0404040400UL; 0x8760808080800UL; 0x106e1010101000UL; 0x205e2020202000UL; 0x403e4040404000UL; 0x807e8080808000UL; 0x7e010101010100UL; 0x7c020202020200UL; 0x7a040404040400UL; 0x76080808080800UL; 0x6e101010101000UL; 0x5e202020202000UL; 0x3e404040404000UL; 0x7e808080808000UL; 0x7e01010101010100UL; 0x7c02020202020200UL; 0x7a04040404040400UL; 0x7608080808080800UL; 0x6e10101010101000UL; 0x5e20202020202000UL; 0x3e40404040404000UL; 0x7e80808080808000UL 
         |]
 
-    let private occupancyMaskBishop = [|
+    let occupancyMaskBishop = [|
             0x40201008040200UL; 0x402010080400UL; 0x4020100a00UL; 0x40221400UL; 0x2442800UL; 0x204085000UL; 0x20408102000UL; 0x2040810204000UL; 0x20100804020000UL; 0x40201008040000UL; 0x4020100a0000UL; 0x4022140000UL; 0x244280000UL; 0x20408500000UL; 0x2040810200000UL; 0x4081020400000UL; 0x10080402000200UL; 0x20100804000400UL; 0x4020100a000a00UL; 0x402214001400UL; 0x24428002800UL; 0x2040850005000UL; 0x4081020002000UL; 0x8102040004000UL; 0x8040200020400UL; 0x10080400040800UL; 0x20100a000a1000UL; 0x40221400142200UL; 0x2442800284400UL; 0x4085000500800UL; 0x8102000201000UL; 0x10204000402000UL; 0x4020002040800UL; 0x8040004081000UL; 0x100a000a102000UL; 0x22140014224000UL; 0x44280028440200UL; 0x8500050080400UL; 0x10200020100800UL; 0x20400040201000UL; 0x2000204081000UL; 0x4000408102000UL; 0xa000a10204000UL; 0x14001422400000UL; 0x28002844020000UL; 0x50005008040200UL; 0x20002010080400UL; 0x40004020100800UL; 0x20408102000UL; 0x40810204000UL; 0xa1020400000UL; 0x142240000000UL; 0x284402000000UL; 0x500804020000UL; 0x201008040200UL; 0x402010080400UL; 0x2040810204000UL; 0x4081020400000UL; 0xa102040000000UL; 0x14224000000000UL; 0x28440200000000UL; 0x50080402000000UL; 0x20100804020000UL; 0x40201008040200UL     
         |]
 
     let zeroBoard:Bitboard = 0UL
+
+let private getOccupancyMask  = function
+        | SlidingPiece.Rook -> Constants.occupancyMaskRook
+        | SlidingPiece.Bishop -> Constants.occupancyMaskBishop
 
 let generateOccupancyVariations (occupancyMasks:uint64[]) =
     [|
@@ -57,14 +62,42 @@ let inline multiplyAndShift (occupancyVariation:uint64) (magicNumber:uint64) shi
     let unsignedResultRaw = (uint32(occupancyVariation)*uint32(magicNumber)) ^^^ (uint32(occupancyVariation>>>32)*uint32(magicNumber>>>32))
     int(unsignedResultRaw >>> shift32)
     #endif
+   
 
 //let inline multiplyAndShiftAlt (occupancyVariation:uint64) (magicNumber:uint64) sh =
     //let unsignedResultRaw = (uint32(occupancyVariation)*uint32(magicNumber)) ^^^ (uint32(occupancyVariation>>>32)*uint32(magicNumber>>>32))
     //int(unsignedResultRaw >>> sh)
 
-let generateRookMagicMoves (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uint64*int)[]) (occupancyVariations:uint64[][])  =
+
+let generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
+    match pc with
+    | SlidingPiece.Rook -> 
+        let squaresN = seq { for j in bitRef+8 .. 8 .. 63 -> j}
+        let squaresW = seq { for j in bitRef+1 .. 1 .. ((bitRef/8)+1)*8-1 -> j}
+        let squaresS = seq { for j in bitRef-8 .. -8 .. 0 -> j}
+        let squaresE = seq { for j in bitRef-1 .. -1 .. (bitRef/8)*8 -> j}
+        [squaresN; squaresW; squaresS; squaresE]
+    | SlidingPiece.Bishop ->
+        let rec squaresNWgen j = seq { yield j; if (j+1)%8 <> 0 && j < 55 then yield! squaresNWgen (j+9) }
+        let rec squaresNEgen j = seq { yield j; if j%8 <> 0 && j <= 55 then yield! squaresNEgen (j+7) }
+        let rec squaresSEgen j = seq { yield j; if j%8 <> 0 && j <= 9 then yield! squaresSEgen (j-9) }
+        let rec squaresSWgen j = seq { yield j; if (j+1)%8 <> 0 && j <=8 then yield! squaresSWgen (j-7) }
+        let applyAndSkipOne (f:int->int seq) = (f bitRef) |> Seq.skip 1
+        [squaresNWgen; squaresNEgen; squaresSEgen; squaresSWgen] |> List.map ((fun f -> f bitRef) >> Seq.tail)
+
+
+let generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
+    let squares = generateSquaresInAllDirsForSlidingPieces pc bitRef
+    let squaresAndFuns = 
+        match squares with
+        | [a;b;c;d] -> [(a,Seq.max); (b,Seq.max); (c,Seq.min); (d,Seq.min)]
+        | _ -> invalidArg "pc" "unsupported value"
+    squaresAndFuns
+
+let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uint64*int)[]) (occupancyVariations:uint64[][]) =
     //Magic moves indexes may not be consecutitve
-    let maxUpperBound = 12 //max 12 bits sets - rook in a corner
+    //let maxUpperBound = 12 //max 12 bits sets - rook in a corner
+    let maxUpperBound = magicNumbersAndShifts |> Array.map (snd >> (-)64 ) |> Array.max
     let mutable magicMoves:uint64[][] = [| for i in 0 .. 63 -> Array.zeroCreate (1 <<< maxUpperBound) |] 
     //if magicMoves.[0].Length < 100 then invalidOp "Expected something else"
     for bitRef = 0 to 63 do
@@ -80,12 +113,7 @@ let generateRookMagicMoves (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uin
             let matchesOccupancyVariation j =
                 occupancyVariations.[bitRef].[i] &&& (1UL <<< j) <> 0UL
 
-            let squaresN = seq { for j in bitRef+8 .. 8 .. 63 -> j}
-            let squaresS = seq { for j in bitRef-8 .. -8 .. 0 -> j}
-            let squaresE = seq { for j in bitRef-1 .. -1 .. (bitRef/8)*8 -> j}
-            let squaresW = seq { for j in bitRef+1 .. 1 .. ((bitRef/8)+1)*8-1 -> j}
-
-            let squaresAllDirs = [squaresN; squaresS; squaresE; squaresW;]
+            let squaresAllDirs = generateSquaresInAllDirsForSlidingPieces pc bitRef
             let nonOccupiedSquaresAllDirs = squaresAllDirs |> Seq.map (Seq.takeUntilInclusive matchesOccupancyVariation)
 
             let combined = nonOccupiedSquaresAllDirs |> Seq.collect id
@@ -94,9 +122,9 @@ let generateRookMagicMoves (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uin
             //    invalidOp "Weird, wasn't supposed to happen"
 
             magicMoves.[bitRef].[magicIndex] <- magicMoves.[bitRef].[magicIndex] ||| moves   //TODO - not sure if OR is acceptable here
-
     magicMoves
 
+let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
 
 let bootstrapRookMagicMoves () =
     //TEST
@@ -127,7 +155,7 @@ let bitRefToAlgebraicNotation bitRef =
     let rankIndex   = bitRef / 8  //= squareIndex >> 3 
     sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
-let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]) =
+let generateAttackSets (pc:SlidingPiece) (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]) =
     [|
         for bitRef = 0 to 63 do
             let occupancyMask = occupancyMasks.[bitRef]
@@ -138,16 +166,7 @@ let generateAttackSets (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]
                         let matchesOccupancyVariation j =
                             occupancyVariations.[bitRef].[i] &&& (1UL <<< j) <> 0UL
 
-                        let maxMatchingOccupancyVariationInclusive = Seq.takeUntilInclusive matchesOccupancyVariation >> Seq.max
-                        let minMatchingOccupancyVariationInclusive = Seq.takeUntilInclusive matchesOccupancyVariation >> Seq.min
-
-                        let squaresN = seq { for j in bitRef+8 .. 8 .. 63 -> j}
-                        let squaresS = seq { for j in bitRef-8 .. -8 .. 0 -> j}
-                        let squaresE = seq { for j in bitRef-1 .. -1 .. (bitRef/8)*8 -> j}
-                        let squaresW = seq { for j in bitRef+1 .. 1 .. ((bitRef/8)+1)*8-1 -> j}
-
-                      
-                        let squaresAllDirs = [|(squaresN, Seq.max); (squaresS, Seq.min); (squaresE, Seq.min); (squaresW, Seq.max)|]
+                        let squaresAllDirs = generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces pc bitRef
                         let maxAttackedOrEdgeInAllDirs = 
                             squaresAllDirs 
                             |> Seq.where (fst >> Seq.isEmpty >> not)
@@ -259,13 +278,15 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
             
 
 
-let bootstrapMagicNumberGenerationForRook () =
-    let occupancyMask = Constants.occupancyMaskRook
+let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
+    let occupancyMask = getOccupancyMask pc
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
     //if(occupancyVariations[0] |> Array.forall (fun x -> x > 0)))
-    let attackSets = generateAttackSets occupancyVariations occupancyMask |> Array.ofSeq
+    let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
     let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets
     magick |> Array.ofSeq
+
+let bootstrapMagicNumberGenerationForRook() = bootstrapMagicNumberGeneration SlidingPiece.Rook
 
 //public void generateMagicNumbers(boolean isRook)
     //{

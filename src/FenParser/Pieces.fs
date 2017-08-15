@@ -2,6 +2,10 @@
 
 type SquareFenValue = |Fen of char|Blank|Invalid
 
+type Chessmen = |Rook|Knight|Bishop|Queen|King|Pawn
+
+type SlidingPiece = |Rook|Bishop
+
 let numberAsFenCharacter (num:byte) =
     match num with
     | 0uy -> Blank

@@ -2,6 +2,7 @@
 // See the 'F# Tutorial' project for more help.
 namespace FenParser
 open System
+open Pieces
 
 module Program =
     [<EntryPoint>]
@@ -13,7 +14,8 @@ module Program =
         //printfn "%A" sampleRookBitboardDatabase.Length
         printfn "64-bit process: %A " Environment.Is64BitProcess
         let startTime = DateTime.Now
-        let magick = Bitboards.bootstrapMagicNumberGenerationForRook()
+        //let magick = Bitboards.bootstrapMagicNumberGenerationForRook()
+        let magick = Bitboards.bootstrapMagicNumberGeneration SlidingPiece.Rook
         let endTime = DateTime.Now
         printfn "%A" magick
         printfn "Elapsed: %A" (endTime - startTime)

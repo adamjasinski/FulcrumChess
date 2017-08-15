@@ -56,6 +56,7 @@ module MoveGenRookTests =
 
     [<TestCase>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board`` () =
+        //TODO - the problem here is that the pre-generated magic has been generated with a different Shift&Multiply function
         let startBitRef = 39    //a5
         let opponentOccupancy = 1UL <<< 36  //d5
         let friendlyOccupancy = (1UL <<< startBitRef) ||| (1UL <<< 55) ||| (1UL <<< 15)    //a5, a7, a2

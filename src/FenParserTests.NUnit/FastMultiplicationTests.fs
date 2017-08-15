@@ -16,6 +16,7 @@ module FastMultiplicationTests =
             int((occupancyVariation * magicNumber) >>> (64-bitCount))
         
         let inline multiplyAndShiftWith32Bit (occupancyVariation:uint64) (magicNumber:uint64) bitCount =
+            //TODO - in fact, this is not equivalent to 64-bit multiplication
             let bitsToShiftFrom32 = 32-bitCount
             let unsignedResultRaw = (uint32(occupancyVariation)*uint32(magicNumber)) ^^^ (uint32(occupancyVariation>>>32)*uint32(magicNumber>>>32))
             int(unsignedResultRaw >>> bitsToShiftFrom32)
