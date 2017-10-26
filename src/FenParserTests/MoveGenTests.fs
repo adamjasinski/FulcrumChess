@@ -14,7 +14,7 @@ module MoveGenTests =
 
     let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
-        Bitboards.generateRookMovesForPosition rookMagicMovesDb allPieces friendlyPieces startBitref Magic.PregeneratedMagic.magicNumbersAndShiftsRook
+        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref Magic.PregeneratedMagic.magicNumbersAndShiftsRook
 
 //    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
 //    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =

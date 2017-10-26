@@ -53,11 +53,14 @@
   <ItemGroup>
     <Compile Include="Tutorial.fs" />
     <None Include="packages.config" />
+    <Compile Include="Attributes.fs" />
     <Compile Include="SeqExtensionTests.fs" />
     <Compile Include="PseudoRandomTests.fs" />
     <Compile Include="BitUtilsTests.fs" />
     <Compile Include="MoveGenerationTestSetup.fs" />
+    <Compile Include="MoveGenTestHelper.fs" />
     <Compile Include="MoveGenRookTests.fs" />
+    <Compile Include="MoveGenBishopTests.fs" />
     <Compile Include="FastMultiplicationTests.fs" />
   </ItemGroup>
   <ItemGroup>

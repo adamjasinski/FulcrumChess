@@ -18,7 +18,7 @@ module Constants =
 
     let zeroBoard:Bitboard = 0UL
 
-let private getOccupancyMask  = function
+let getOccupancyMask  = function
         | SlidingPiece.Rook -> Constants.occupancyMaskRook
         | SlidingPiece.Bishop -> Constants.occupancyMaskBishop
 
@@ -78,10 +78,10 @@ let generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
         let squaresE = seq { for j in bitRef-1 .. -1 .. (bitRef/8)*8 -> j}
         [squaresN; squaresW; squaresS; squaresE]
     | SlidingPiece.Bishop ->
-        let rec squaresNWgen j = seq { yield j; if (j+1)%8 <> 0 && j < 55 then yield! squaresNWgen (j+9) }
+        let rec squaresNWgen j = seq { yield j; if (j+1)%8 <> 0 && j <= 54 then yield! squaresNWgen (j+9) }
         let rec squaresNEgen j = seq { yield j; if j%8 <> 0 && j <= 55 then yield! squaresNEgen (j+7) }
-        let rec squaresSEgen j = seq { yield j; if j%8 <> 0 && j <= 9 then yield! squaresSEgen (j-9) }
-        let rec squaresSWgen j = seq { yield j; if (j+1)%8 <> 0 && j <=8 then yield! squaresSWgen (j-7) }
+        let rec squaresSEgen j = seq { yield j; if j%8 <> 0 && j >= 9 then yield! squaresSEgen (j-9) }
+        let rec squaresSWgen j = seq { yield j; if (j+1)%8 <> 0 && j >=8 then yield! squaresSWgen (j-7) }
         let applyAndSkipOne (f:int->int seq) = (f bitRef) |> Seq.skip 1
         [squaresNWgen; squaresNEgen; squaresSEgen; squaresSWgen] |> List.map ((fun f -> f bitRef) >> Seq.tail)
 
@@ -114,7 +114,9 @@ let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbers
                 occupancyVariations.[bitRef].[i] &&& (1UL <<< j) <> 0UL
 
             let squaresAllDirs = generateSquaresInAllDirsForSlidingPieces pc bitRef
-            let nonOccupiedSquaresAllDirs = squaresAllDirs |> Seq.map (Seq.takeUntilInclusive matchesOccupancyVariation)
+            let nonOccupiedSquaresAllDirs = 
+                squaresAllDirs 
+                |> Seq.map (Seq.takeUntilInclusive matchesOccupancyVariation)
 
             let combined = nonOccupiedSquaresAllDirs |> Seq.collect id
             let moves = combined |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
@@ -125,6 +127,7 @@ let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbers
     magicMoves
 
 let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
+let generateBishopMagicMoves  = generateMagicMoves SlidingPiece.Bishop
 
 let bootstrapRookMagicMoves () =
     //TEST
@@ -137,15 +140,16 @@ let bootstrapRookMagicMoves () =
     occupancyMasks  |>  
     (generateOccupancyVariations >> generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
 
-let generateRookMovesForPosition (magicMovesRook:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) (magicNumbersAndShifts:(uint64*int)[])=
-    let bbBlockers = bbAllPieces &&& Constants.occupancyMaskRook.[srcIndex]
+let generateMovesForPosition (pc:SlidingPiece) (magicMoves:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) (magicNumbersAndShifts:(uint64*int)[])=
+    let occupancyMasks = getOccupancyMask pc
+    let bbBlockers = bbAllPieces &&& occupancyMasks.[srcIndex]
     //let databaseIndex = int ((uint64(bbBlockers) * magicNumberRook.[srcIndex]) >>> magicNumberShiftsRook.[srcIndex])
     let magicNumber = magicNumbersAndShifts.[srcIndex] |> fst
     let magicShift = magicNumbersAndShifts.[srcIndex] |> snd
     //let databaseIndexUint64 = (uint64(bbBlockers) * magicNumber) >>> magicShift
     let databaseIndexUint64 = multiplyAndShift (uint64(bbBlockers)) magicNumber magicShift
     let databaseIndex = (int)databaseIndexUint64
-    let bbMoveSquares = magicMovesRook.[srcIndex].[databaseIndex] &&& ~~~bbFriendlyPieces
+    let bbMoveSquares = magicMoves.[srcIndex].[databaseIndex] &&& ~~~bbFriendlyPieces
     bbMoveSquares
 
 let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
@@ -198,7 +202,6 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
             //if i > (1 <<< 32) then invalidOp("Magic number generation: Sanity check failed")
             Randomness.generateSparseUInt64())
 
-    let occupancyMasks = Constants.occupancyMaskRook
     Array.Parallel.init 64 (fun bitRef -> 
     //[|
     //    for bitRef = 0 to 63 do

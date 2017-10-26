@@ -10,7 +10,10 @@ type MagicGenerationSetupFixture() =
 
     [<OneTimeSetUp>]
     member this.SetupMagic() = 
-        let magicNumbersAndShiftsRook = Bitboards.bootstrapMagicNumberGenerationForRook()
-        currentMagic <- Some {Magic.MagicValues.MagicNumbersAndShiftsRook=magicNumbersAndShiftsRook; Magic.MagicValues.MagicNumbersAndShiftsBishop=Array.empty} 
+        let magicNumbersAndShiftsRook = Bitboards.bootstrapMagicNumberGeneration Pieces.SlidingPiece.Rook
+        let magicNumbersAndShiftsBishop = Bitboards.bootstrapMagicNumberGeneration Pieces.SlidingPiece.Bishop
+        currentMagic <- Some {
+            Magic.MagicValues.MagicNumbersAndShiftsRook=magicNumbersAndShiftsRook; 
+            Magic.MagicValues.MagicNumbersAndShiftsBishop=magicNumbersAndShiftsBishop} 
 
 

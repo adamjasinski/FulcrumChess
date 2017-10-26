@@ -24,6 +24,13 @@
         let result = input |> BitUtils.getSetBits
         test <@ expectedResult = result  @>
 
+    [<TestCase>]
+    let ``getSetBits for large number returns expected result`` () =
+        let input = 1266637395197952UL
+        let expectedResult:int[] = [|47; 50|]
+        let result = input |> BitUtils.getSetBits
+        test <@ expectedResult = result  @>
+
     [<TestCase(1UL, 1)>]
     [<TestCase(3UL, 2)>]
     [<TestCase(141UL, 4)>]
