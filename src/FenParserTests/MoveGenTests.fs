@@ -13,8 +13,9 @@ module MoveGenTests =
         Moves.BitboardGenerator.generateRayBitboardsForSlidingPiece
 
     let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
-        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
-        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref Magic.PregeneratedMagic.magicNumbersAndShiftsRook
+        let mag = Magic.PregeneratedMagic.MagicFor64BitHashing
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves mag.MagicNumbersAndShiftsRook
+        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref mag.MagicNumbersAndShiftsRook
 
 //    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
 //    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
@@ -28,7 +29,8 @@ module MoveGenTests =
 
     [<Fact>]
     let ``verify moves of first variant of rook on h1 with no other occupancy`` () =
-        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
+        let mag = Magic.PregeneratedMagic.MagicFor64BitHashing
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves mag.MagicNumbersAndShiftsRook
         let moves = rookMagicMovesDb.[0].[0]
         let algNotations = moves |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)

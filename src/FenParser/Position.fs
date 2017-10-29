@@ -28,6 +28,9 @@ let whiteBitboard (pos:Position) =
 let blackBitboard (pos:Position) =
     pos.BlackKing ||| pos.BlackQueen ||| pos.BlackRooks ||| pos.BlackBishops ||| pos.BlackKnights ||| pos.BlackPawns
 
+let bothSidesBitboard (pos:Position) =
+    Arrow.onSingleCombine (|||) whiteBitboard blackBitboard pos
+
 let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
     if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
     let candidate = Bitboards.Constants.zeroBoard |> BitUtils.setBit bitRef

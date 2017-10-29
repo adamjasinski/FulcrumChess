@@ -14,8 +14,8 @@ module RandomExtensions = //no pun intended
             x.NextBytes(buffer)
             BitConverter.ToUInt64(buffer, 0)
 
-
 module Randomness =
+    open RandomExtensions
     let initRandomUInt64Generator (seed:uint64) =
         let mutable m:uint64 = seed
         //let m = new System.Threading.ThreadLocal<uint64>(fun () -> seed)
@@ -40,9 +40,19 @@ module Randomness =
 
     let generateRandomUInt64 = initRandomUInt64Generator 8977UL //TODO
 
-    let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
+    //let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
 
     //let randomLock = obj()
+
+    let rnd = new System.Threading.ThreadLocal<System.Random>(fun () -> new System.Random())
+
+    //let initThreadLocalRandom() = System.Threading.ThreadLocal<RandomExtensions>
+
     //let rnd = System.Random()
     //let generateSparseUInt64 () = lock randomLock (fun () -> rnd.NextUInt64() &&& rnd.NextUInt64() &&& rnd.NextUInt64()) // generate a random number with not many bits set
+    let generateSparseUInt64 () = 
+        let currentRnd = rnd.Value
+        currentRnd.NextUInt64() &&& currentRnd.NextUInt64() &&& currentRnd.NextUInt64()  // generate a random number with not many bits set
 
+
+    //let generateSparseUInt64 () = lock randomLock (fun () -> uint64(rnd.Next() &&& rnd.Next()) <<< 32)  // generate a random number with not many bits set

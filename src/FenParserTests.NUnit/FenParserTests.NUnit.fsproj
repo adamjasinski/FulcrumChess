@@ -3,7 +3,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{050D8900-D3C8-46FF-925A-7C78B358B3C1}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>FenParserTests.NUnit</RootNamespace>
     <AssemblyName>FenParserTests.NUnit</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
@@ -57,10 +57,12 @@
     <Compile Include="SeqExtensionTests.fs" />
     <Compile Include="PseudoRandomTests.fs" />
     <Compile Include="BitUtilsTests.fs" />
+    <Compile Include="PositionTests.fs" />
     <Compile Include="MoveGenerationTestSetup.fs" />
     <Compile Include="MoveGenTestHelper.fs" />
     <Compile Include="MoveGenRookTests.fs" />
     <Compile Include="MoveGenBishopTests.fs" />
+    <Compile Include="MoveGenQueenTests.fs" />
     <Compile Include="FastMultiplicationTests.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,4 +72,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="..\FenParser\bin\$(Configuration)\FenParser.exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+  </Target>
 </Project>

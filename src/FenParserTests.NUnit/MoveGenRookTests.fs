@@ -6,10 +6,18 @@ open FenParserTests.NUnit
 
 module MoveGenRookTests =
     open MoveGenTestHelper
+
+    let magicNumbersAndShifts = 
+        let allMagic = FenParserTests.NUnit.MoveGeneration.MagicGenerationSetupFixture.getCurrentMagic()
+        allMagic.MagicNumbersAndShiftsRook
+
+    let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
+        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref magicNumbersAndShifts
     
     [<TestCase>]
     let ``verify moves of first variant of rook on h1 with no other occupancy`` () =
-        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves()
+        let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
         let moves = rookMagicMovesDb.[0].[0]
         let algNotations = moves |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -62,23 +70,20 @@ module MoveGenRookTests =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
         ()
 
-    [<TestCase>]
-    [<Slow>]
-    let ``dry run of magic number and moves generation for rook `` () =
-        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
-        printfn "%A" magicNumbersAndShifts
-        let occupancyMasks = Bitboards.Constants.occupancyMaskRook
-        let rookMovesDb = 
-            occupancyMasks  |>  
-            (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
-        ()
+    //[<TestCase>]
+    //[<Slow>]
+    //let ``dry run of magic number and moves generation for rook `` () =
+        //printfn "%A" magicNumbersAndShifts
+        //let occupancyMasks = Bitboards.Constants.occupancyMaskRook
+        //let rookMovesDb = 
+        //    occupancyMasks  |>  
+        //    (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
+        //()
 
     [<TestCase>]
     [<Slow>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 w - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
-        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
-        //let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
         let rookMovesDb = 
             occupancyMasks  |>  
@@ -101,9 +106,6 @@ module MoveGenRookTests =
     [<Slow>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 w - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic and FEN`` () =
-        let magicNumbersAndShifts = Bitboards.bootstrapMagicNumberGenerationForRook()
-        //let magicNumbersAndShifts = MagicGenerationSetupFixture.currentMagic
-        //let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
         let rookMovesDb = 
             occupancyMasks  |>  

@@ -32,18 +32,18 @@ module FastMultiplicationTests =
             let unsignedResultRaw = x_l*y_l + (x_h*y_l + x_l*y_h)*(1u <<< 32)
             int(unsignedResultRaw >>> bitsToShiftFrom32)
 
-    [<TestCase>]
-    let ``64-bit multiplication and 32-bit multiplication should yield identical results`` () =
-        let occupancyVariations = Bitboards.generateOccupancyVariations Bitboards.Constants.occupancyMaskRook
-        let magic = Magic.PregeneratedMagic.magicNumberRook
-        let shiftsFrom64 = Magic.PregeneratedMagic.magicNumberShiftsRook |> Array.map  (fun x -> 64 - x)
-        let shiftsFrom32 = Magic.PregeneratedMagic.magicNumberShiftsRook |> Array.map  (fun x -> 64 - x)
-        //let inputs = Array.zip3 occupancyVariations magic shifts
+    //[<TestCase>]
+    //let ``64-bit multiplication and 32-bit multiplication should yield identical results`` () =
+        //let occupancyVariations = Bitboards.generateOccupancyVariations Bitboards.Constants.occupancyMaskRook
+        //let magic = Magic.PregeneratedMagic.magicNumberRook
+        //let shiftsFrom64 = Magic.PregeneratedMagic.magicNumberShiftsRook |> Array.map  (fun x -> 64 - x)
+        //let shiftsFrom32 = Magic.PregeneratedMagic.magicNumberShiftsRook |> Array.map  (fun x -> 64 - x)
+        ////let inputs = Array.zip3 occupancyVariations magic shifts
 
-        let lastVariationInEachBitref = occupancyVariations |> Array.map Array.last
-        let results64 = (lastVariationInEachBitref, magic, shiftsFrom64) |||> Array.map3 Multiplier.multiplyAndShiftWith64Bit
-        let results32 = (lastVariationInEachBitref, magic, shiftsFrom32) |||> Array.map3 Multiplier.multiplyAndShiftWith32BitAlt
-        test <@ results64.Length > 0 @>
-        test <@ results32.Length > 0 @>
-        test <@ results64 = results32 @>
+        //let lastVariationInEachBitref = occupancyVariations |> Array.map Array.last
+        //let results64 = (lastVariationInEachBitref, magic, shiftsFrom64) |||> Array.map3 Multiplier.multiplyAndShiftWith64Bit
+        //let results32 = (lastVariationInEachBitref, magic, shiftsFrom32) |||> Array.map3 Multiplier.multiplyAndShiftWith32BitAlt
+        //test <@ results64.Length > 0 @>
+        //test <@ results32.Length > 0 @>
+        //test <@ results64 = results32 @>
         ()

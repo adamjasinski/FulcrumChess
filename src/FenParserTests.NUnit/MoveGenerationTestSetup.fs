@@ -4,9 +4,13 @@ open NUnit.Framework
 
 [<SetUpFixture>]
 type MagicGenerationSetupFixture() = 
-    let mutable currentMagic:Magic.MagicValues option = None
+    static let mutable currentMagic:Magic.MagicValues option = None
 
-    //static member getCurrentMagic() = currentMagic
+    static member getCurrentMagic() = 
+        match currentMagic with
+        | Some m -> m
+        | None -> invalidOp "Drat! Magic was supposed to have been initialized already by NUnit!" 
+
 
     [<OneTimeSetUp>]
     member this.SetupMagic() = 

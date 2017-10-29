@@ -21,6 +21,7 @@ module Constants =
 let getOccupancyMask  = function
         | SlidingPiece.Rook -> Constants.occupancyMaskRook
         | SlidingPiece.Bishop -> Constants.occupancyMaskBishop
+        //| SlidingPiece.Queen -> Array.map2 (|||) Constants.occupancyMaskRook Constants.occupancyMaskBishop
 
 let generateOccupancyVariations (occupancyMasks:uint64[]) =
     [|
@@ -48,27 +49,23 @@ let generateOccupancyVariations (occupancyMasks:uint64[]) =
             yield variationsForBitRef
     |]
 
-let inline multiplyAndShift (occupancyVariation:uint64) (magicNumber:uint64) shift =
-    #if SLOW_64BIT_MULT
-    //let prod =  Checked.(*) occupancyVariation magicNumber
-    //int(prod >>> (64-bitCount))
-    //let oc = (bigint(occupancyVariation) * bigint(magicNumber)) >>> (64-bitCount)
-    //int(oc)
-    int((occupancyVariation * magicNumber) >>> shift)
-    #else
-    let shift32 = shift-32
+/// <summary>The Magic Hashing function.</summary>
+/// <remarks>See 'Magic Move-Bitboard Generation in Computer Chess' by Pradyumna Kannan; 'A Faster Magic Move Bitboard Generator?' by Grant Osborne</remarks>
+let inline multiplyAndShift (occupancyVariation:uint64) (magicNumber:uint64) shift64 =
+#if FAST_32BIT_MULT
+    let shift32 = shift64-32
     //let magic32Shifted = uint32(magicNumber>>>32)
     //let magicTruncated = uint32(magicNumber)
     let unsignedResultRaw = (uint32(occupancyVariation)*uint32(magicNumber)) ^^^ (uint32(occupancyVariation>>>32)*uint32(magicNumber>>>32))
     int(unsignedResultRaw >>> shift32)
-    #endif
+#else
+    //let prod =  Checked.(*) occupancyVariation magicNumber
+    //int(prod >>> (64-bitCount))
+    //let oc = (bigint(occupancyVariation) * bigint(magicNumber)) >>> shift64
+    //int(oc)
+    int((occupancyVariation * magicNumber) >>> shift64)
+#endif
    
-
-//let inline multiplyAndShiftAlt (occupancyVariation:uint64) (magicNumber:uint64) sh =
-    //let unsignedResultRaw = (uint32(occupancyVariation)*uint32(magicNumber)) ^^^ (uint32(occupancyVariation>>>32)*uint32(magicNumber>>>32))
-    //int(unsignedResultRaw >>> sh)
-
-
 let generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
     match pc with
     | SlidingPiece.Rook -> 
@@ -123,20 +120,16 @@ let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbers
             //if(magicMoves.[bitRef].[magicIndex] <> 0UL) then 
             //    invalidOp "Weird, wasn't supposed to happen"
 
-            magicMoves.[bitRef].[magicIndex] <- magicMoves.[bitRef].[magicIndex] ||| moves   //TODO - not sure if OR is acceptable here
+            if magicMoves.[bitRef].[magicIndex] <> 0UL && magicMoves.[bitRef].[magicIndex] <> moves then 
+                invalidOp("attempt to change a previously set magic moves sequence; this indicates a problem with the magic generation")
+            magicMoves.[bitRef].[magicIndex] <- moves
     magicMoves
 
 let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
 let generateBishopMagicMoves  = generateMagicMoves SlidingPiece.Bishop
 
-let bootstrapRookMagicMoves () =
-    //TEST
-    //let res = occupancyMaskRook |> generateOccupancyVariations
-    //System.Diagnostics.Trace.Write("Hello")
-    //System.Diagnostics.Trace.Write(res.Length)
-    //System.Diagnostics.Debug.Assert(res.Length = 64, "occupancy not of size 64 
+let bootstrapRookMagicMoves (magicNumbersAndShifts:(uint64*int)[]) =
     let occupancyMasks = Constants.occupancyMaskRook
-    let magicNumbersAndShifts = Magic.PregeneratedMagic.magicNumbersAndShiftsRook
     occupancyMasks  |>  
     (generateOccupancyVariations >> generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
 
@@ -181,16 +174,6 @@ let generateAttackSets (pc:SlidingPiece) (occupancyVariations:uint64[][]) (occup
                             maxAttackedOrEdgeInAllDirs 
                             |> Seq.fold (fun (attackSetInDir:uint64) j ->  (attackSetInDir |> BitUtils.setBit j)) 0UL 
                         yield attackSetCombined
-
-                        //for (j=bitRef+8; j<=55 && (occupancyVariation[bitRef][i] & (1L << j)) == 0; j+=8);
-                        //if (j>=0 && j<=63) occupancyAttackSet[bitRef][i] |= (1L << j);
-                        //for (j=bitRef-8; j>=8 && (occupancyVariation[bitRef][i] & (1L << j)) == 0; j-=8);
-                        //if (j>=0 && j<=63) occupancyAttackSet[bitRef][i] |= (1L << j);
-                        //for (j=bitRef+1; j%8!=7 && j%8!=0 && (occupancyVariation[bitRef][i] & (1L << j)) == 0; j++);
-                        //if (j>=0 && j<=63) occupancyAttackSet[bitRef][i] |= (1L << j);
-                        //for (j=bitRef-1; j%8!=7 && j%8!=0 && j>=0 && (occupancyVariation[bitRef][i] & (1L << j)) == 0; j--);
-                        //if (j>=0 && j<=63) occupancyAttackSet[bitRef][i] |= (1L << j);
-
                  |]
          
     |]
@@ -225,22 +208,12 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                 //magicAttemptsPerBitCount.[bitRef] <- candidateCount
                 #endif
 
-                //let magic32Shifted = uint32(magicNumber>>>32)
-                //let magicTruncated = uint32(magicNumber)
-                //let bitsToShiftFrom32 = 32-bitCount
                 let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
                 let variations = [|0..variationCount-1|]
 
                 let noClashes = 
                     variations |> Array.forall (fun i -> 
                         let attackSet = currentBitRefAttackSet.[i]
-                        ////32-bit mult
-                        //// (unsigned)((int)b*(int)magic ^ (int)(b>>32)*(int)(magic>>32)) >> (32-bits);
-                        //let b= currentBitRefOccupancyVariations.[i]
-                        ////let index:int = int(uint32(uint32(b)*uint32(magicNumber) ^^^ uint32(b>>>32)*(uint32(magicNumber>>>32))  >>> (32-bitCount)))
-                        //let index:int = int(uint32(uint32(b)*magicTruncated ^^^ uint32(b>>>32)*magic32Shifted)  >>> bitsToShiftFrom32)
-                        ////let index = int((currentBitRefOccupancyVariations.[i] * magicNumber) >>> magicShift)
-                        // fail if this index is used by an attack set that is incorrect for this occupancy variation
                         let index:int = multiplyAndShift currentBitRefOccupancyVariations.[i] magicNumber magicShift
                         let collision = usedBy.[index] <> 0UL && usedBy.[index] <> attackSet
                         usedBy.[index] <- attackSet
@@ -252,7 +225,7 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                 //if BitUtils.countBits_slow ((m * currentBitRefOccupancyMask) >>> 56 )  >= 6 then
                 //if BitUtils.Hamming.popcount_3 (uint64(uint32(m)*uint32(currentBitRefOccupancyMask) ^^^ uint32(m>>>32)*uint32(currentBitRefOccupancyMask>>>32) >>> 24)) >= 6 then
                 let bitCountInMostSignificant8 = BitUtils.Hamming.popcount_32_signed ((multiplyAndShift currentBitRefOccupancyMask m 56))
-                if bitCountInMostSignificant8 >= 6 && bitCountInMostSignificant8 <= 8 then
+                if bitCountInMostSignificant8 >= 6 then
                     true
                 else
                     //System.Threading.Interlocked.Increment()
@@ -290,52 +263,3 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     magick |> Array.ofSeq
 
 let bootstrapMagicNumberGenerationForRook() = bootstrapMagicNumberGeneration SlidingPiece.Rook
-
-//public void generateMagicNumbers(boolean isRook)
-    //{
-    //    int i, j, bitRef, variationCount;
-        
-    //    Random r = new Random();
-    //    long magicNumber = 0;
-    //    int index;
-    //    long attackSet;
-        
-    //    for (bitRef=0; bitRef<=63; bitRef++)
-    //    {
-    //        int bitCount = Bitboards.countSetBits(isRook ? occupancyMaskRook[bitRef] : occupancyMaskBishop[bitRef]);
-    //        variationCount = (int)(1L << bitCount);
-    //        boolean fail;
-    //        long usedBy[] = new long[(int)(1L << bitCount)];
-
-    //        int attempts = 0;
-            
-    //        do
-    //        {
-    //            magicNumber = r.nextLong() & r.nextLong() & r.nextLong(); // generate a random number with not many bits set
-    //            for (j=0; j<variationCount; j++) usedBy[j] = 0;
-    //            attempts ++;
-                
-    //            for (i=0, fail=false; i<variationCount && !fail; i++)
-    //            {
-    //                index = (int)((occupancyVariation[bitRef][i] * magicNumber) >>> (64-bitCount));
-                    
-    //                // fail if this index is used by an attack set that is incorrect for this occupancy variation
-    //                fail = usedBy[index] != 0 && usedBy[index] != occupancyAttackSet[bitRef][i];
-                    
-    //                usedBy[index] = attackSet;
-    //            }
-    //        } 
-    //        while (fail);
-            
-    //        if (isRook)
-    //        {
-    //            magicNumberRook[bitRef] = magicNumber;
-    //            magicNumberShiftsRook[bitRef] = (64-bitCount);
-    //        }
-    //        else
-    //        {
-    //            magicNumberBishop[bitRef] = magicNumber;
-    //            magicNumberShiftsBishop[bitRef] = (64-bitCount);
-    //        }
-    //    }
-    //}

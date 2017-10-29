@@ -4,7 +4,7 @@ type SquareFenValue = |Fen of char|Blank|Invalid
 
 type Chessmen = |Rook|Knight|Bishop|Queen|King|Pawn
 
-type SlidingPiece = |Rook|Bishop
+type SlidingPiece = |Rook|Bishop //an 'elementary' sliding piece (Queen not included)
 
 let numberAsFenCharacter (num:byte) =
     match num with
