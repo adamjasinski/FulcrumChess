@@ -1,6 +1,7 @@
 ﻿namespace FenParserTests.NUnit.MoveGeneration
 
 open NUnit.Framework
+open FenParser
 
 [<SetUpFixture>]
 type MagicGenerationSetupFixture() = 
@@ -14,8 +15,8 @@ type MagicGenerationSetupFixture() =
 
     [<OneTimeSetUp>]
     member this.SetupMagic() = 
-        let magicNumbersAndShiftsRook = Bitboards.bootstrapMagicNumberGeneration Pieces.SlidingPiece.Rook
-        let magicNumbersAndShiftsBishop = Bitboards.bootstrapMagicNumberGeneration Pieces.SlidingPiece.Bishop
+        let magicNumbersAndShiftsRook = Bitboards.bootstrapMagicNumberGeneration SlidingPiece.Rook
+        let magicNumbersAndShiftsBishop = Bitboards.bootstrapMagicNumberGeneration SlidingPiece.Bishop
         currentMagic <- Some {
             Magic.MagicValues.MagicNumbersAndShiftsRook=magicNumbersAndShiftsRook; 
             Magic.MagicValues.MagicNumbersAndShiftsBishop=magicNumbersAndShiftsBishop} 

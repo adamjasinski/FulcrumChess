@@ -10,7 +10,7 @@
     <ProjectGuid>cf780288-df3f-4b06-b0a3-d6abe201ac98</ProjectGuid>
     <ProjectType />
     <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <AutoGenerateBindingRedirects />
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
@@ -171,4 +171,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="..\FenParser\bin\$(Configuration)\FenParser.exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
+  </Target>
 </Project>

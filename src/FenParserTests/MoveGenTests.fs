@@ -12,10 +12,10 @@ module MoveGenTests =
         //TODO
         Moves.BitboardGenerator.generateRayBitboardsForSlidingPiece
 
-    let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
+    let generateRookMovesViaBitboards (allPieces:Bitboard) (friendlyPieces:Bitboard) startBitref =
         let mag = Magic.PregeneratedMagic.MagicFor64BitHashing
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves mag.MagicNumbersAndShiftsRook
-        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref mag.MagicNumbersAndShiftsRook
+        Bitboards.generateMovesForPosition SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref mag.MagicNumbersAndShiftsRook
 
 //    [<Theory;MoveGenTestDataFile("MoveGenTestData.txt")>]
 //    let DumpAllSamplesFromTheFile(record:MoveGenTestRecord) =
@@ -23,7 +23,7 @@ module MoveGenTests =
 //        //TODO
 //        ()
 
-    let setBitsToAlgebraicNotations (bitboard:Bitboards.Bitboard) =
+    let setBitsToAlgebraicNotations (bitboard:Bitboard) =
         let targetBitRefs = bitboard |> BitUtils.getSetBits
         targetBitRefs |> Array.map Bitboards.bitRefToAlgebraicNotation
 

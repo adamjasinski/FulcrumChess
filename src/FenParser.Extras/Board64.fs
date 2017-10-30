@@ -93,8 +93,8 @@ let dumpAsText board =
             let squareIndex = fileRankIndexesToSquareIndex (i, j)
             let squareFenValue = Pieces.numberAsFenCharacter boardValues.[squareIndex]
             match squareFenValue with
-            | Pieces.Blank -> sb.Append "|   " |> ignore
-            | Pieces.Fen pc -> sb.Append (sprintf "| %c " pc) |> ignore
+            | SquareFenValue.Blank -> sb.Append "|   " |> ignore
+            | SquareFenValue.Fen pc -> sb.Append (sprintf "| %c " pc) |> ignore
             | _ -> invalidOp ("invalid value on board: " + boardValues.[squareIndex].ToString())
         sb.AppendLine "|" |> ignore
     sb.AppendLine horizontalDelimiter |> ignore
@@ -114,13 +114,13 @@ let dumpAsFenRecursive board =
             let currentSquareValue = boardValues.[LTRseq.[index]]
             let squareFenValue = Pieces.numberAsFenCharacter currentSquareValue
             match squareFenValue with
-                | Pieces.Blank when not isLastFileInRank ->
+                | SquareFenValue.Blank when not isLastFileInRank ->
                     loop (index+1) (blanksPrecedingCount+1) acc'
-                | Pieces.Blank when isLastFileInRank ->
+                | SquareFenValue.Blank when isLastFileInRank ->
                     loop (index+1) 0 (acc' + (sprintf "%d" (blanksPrecedingCount+1)))
-                | Pieces.Fen pc when blanksPrecedingCount > 0 ->
+                | SquareFenValue.Fen pc when blanksPrecedingCount > 0 ->
                     loop (index+1) 0 (acc' + (sprintf "%d%c" blanksPrecedingCount pc))
-                | Pieces.Fen pc -> 
+                | SquareFenValue.Fen pc -> 
                     loop (index+1) 0 (acc' + (sprintf "%c" pc))
                 | _ -> invalidOp "invalid value on board"
             else

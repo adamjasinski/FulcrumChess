@@ -102,3 +102,7 @@ module BitUtils =
 
     let countSetBits = Hamming.popcount_64
     //let countSetBits = countBits_slow
+
+    let inline hasBitSet (i:int) (b:^a) =
+        let one:^a = LanguagePrimitives.GenericOne
+        (b >>> i) = one

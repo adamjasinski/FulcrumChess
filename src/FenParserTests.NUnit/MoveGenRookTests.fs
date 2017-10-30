@@ -11,9 +11,9 @@ module MoveGenRookTests =
         let allMagic = FenParserTests.NUnit.MoveGeneration.MagicGenerationSetupFixture.getCurrentMagic()
         allMagic.MagicNumbersAndShiftsRook
 
-    let generateRookMovesViaBitboards (allPieces:Bitboards.Bitboard) (friendlyPieces:Bitboards.Bitboard) startBitref =
+    let generateRookMovesViaBitboards (allPieces:Bitboard) (friendlyPieces:Bitboard) startBitref =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
-        Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref magicNumbersAndShifts
+        Bitboards.generateMovesForPosition SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref magicNumbersAndShifts
     
     [<TestCase>]
     let ``verify moves of first variant of rook on h1 with no other occupancy`` () =
@@ -94,7 +94,7 @@ module MoveGenRookTests =
         let friendlyOccupancy = (1UL <<< startBitRef) ||| (1UL <<< 55) ||| (1UL <<< 15)    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
-        let result =  Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
         test <@ result <> 0UL @>
         let algNotations = result |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -117,7 +117,7 @@ module MoveGenRookTests =
         let friendlyOccupancy = pos |> Positions.blackBitboard    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
-        let result =  Bitboards.generateMovesForPosition Pieces.SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
         test <@ result <> 0UL @>
         let algNotations = result |> setBitsToAlgebraicNotations
         printfn "%A" (algNotations)
