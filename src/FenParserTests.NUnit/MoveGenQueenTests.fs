@@ -38,7 +38,7 @@ module MoveGenQueenTests =
 
         let moves = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        let attacks = pos |> Positions.getAttacksFromPseudoMoves moves startBitRef
+        let attacks = pos |> Positions.getCapturesFromPseudoMoves moves startBitRef
 
         test <@ attacks <> 0UL @>
         let algNotations = attacks |> setBitsToAlgebraicNotations

@@ -82,27 +82,41 @@ module Positions =
             
     
    
-    let getChessmenAndSide (bitRef:int) (pos:Position) : Chessmen*Side =
+    let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
         //match pos with
         //| HasBitSet bitRef -> true
         //TODO
         let hasIt (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        if pos.BlackPawns |> hasIt then (Chessmen.Pawn, Black)
-        else if pos.BlackRooks |> hasIt then (Chessmen.Rook, Black)
-        else if pos.BlackKnights |> hasIt then (Chessmen.Knight, Black) 
-        else if pos.BlackBishops |> hasIt then (Chessmen.Bishop, Black)
-        else if pos.BlackQueen |> hasIt then (Chessmen.Queen, Black)
-        else if pos.BlackKing |> hasIt then (Chessmen.King, Black)
-        else if pos.WhiteRooks |> hasIt then (Chessmen.Rook, White)
-        else if pos.WhiteKnights |> hasIt then (Chessmen.Knight, White)
-        else if pos.WhiteBishops |> hasIt then (Chessmen.Bishop, White)
-        else if pos.WhiteQueen |> hasIt then (Chessmen.Queen, White)
-        else if pos.WhiteKing |> hasIt then (Chessmen.King, White)
-        else (Chessmen.Pawn, White)
+        if pos.BlackPawns |> hasIt then Some(Chessmen.Pawn, Black)
+        else if pos.BlackRooks |> hasIt then Some(Chessmen.Rook, Black)
+        else if pos.BlackKnights |> hasIt then Some(Chessmen.Knight, Black) 
+        else if pos.BlackBishops |> hasIt then Some(Chessmen.Bishop, Black)
+        else if pos.BlackQueen |> hasIt then Some(Chessmen.Queen, Black)
+        else if pos.BlackKing |> hasIt then Some(Chessmen.King, Black)
+        else if pos.WhiteRooks |> hasIt then Some(Chessmen.Rook, White)
+        else if pos.WhiteKnights |> hasIt then Some(Chessmen.Knight, White)
+        else if pos.WhiteBishops |> hasIt then Some(Chessmen.Bishop, White)
+        else if pos.WhiteQueen |> hasIt then Some(Chessmen.Queen, White)
+        else if pos.WhiteKing |> hasIt then Some(Chessmen.King, White)
+        else if pos.WhitePawns |> hasIt then Some(Chessmen.Pawn, White)
+        else None
 
-    let getAttacksFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
-        let chessman, side = pos |> getChessmenAndSide bitRef
+
+    //let getOptionThrowing (inp:'a option) =
+        //match inp with
+        //| Some x -> x
+        //| None -> invalidOp (sprintf "%A option returned None, defined to result in an exception" typeof<'a>)
+
+    let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
+        let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let opponentPieces = pos |> getBitboardForSide (opposite side) 
         movesBitboard &&& opponentPieces
+
+        //let resultOpt = pos |> getChessmanAndSide bitRef
+        //match resultOpt with
+        //| Some (chessman, side) ->
+        //    let opponentPieces = pos |> getBitboardForSide (opposite side) 
+        //    movesBitboard &&& opponentPieces
+        //| None -> invalidOp (sprintf "Did not find any chessman on square %d" bitRef)
             
        

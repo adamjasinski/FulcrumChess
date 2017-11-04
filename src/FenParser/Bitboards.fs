@@ -14,6 +14,8 @@ type MoveGenerationLookups = {
     MagicNumbersAndShifts:Magic.MagicValues;
     RookMovesDb:uint64[][];
     BishopMovesDb:uint64[][];
+    KingMovesDb:uint64[];
+    KnightMovesDb:uint64[];
 }
 
 let getOccupancyMask  = function
@@ -53,7 +55,7 @@ let inline multiplyAndShift (occupancyVariation:uint64) (magicNumber:uint64) shi
     int((occupancyVariation * magicNumber) >>> shift64)
 #endif
    
-let generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
+let private generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
     match pc with
     | SlidingPiece.Rook -> 
         let squaresN = seq { for j in bitRef+8 .. 8 .. 63 -> j}
@@ -70,13 +72,26 @@ let generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
         [squaresNWgen; squaresNEgen; squaresSEgen; squaresSWgen] |> List.map ((fun f -> f bitRef) >> Seq.tail)
 
 
-let generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
+let private generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
     let squares = generateSquaresInAllDirsForSlidingPieces pc bitRef
     let squaresAndFuns = 
         match squares with
         | [a;b;c;d] -> [(a,Seq.max); (b,Seq.max); (c,Seq.min); (d,Seq.min)]
         | _ -> invalidArg "pc" "unsupported value"
     squaresAndFuns
+
+let createBitboardFromSetBitsSeq (setBits:int seq) =
+    setBits |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
+
+let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
+
+let inline getFileIndex bitRef = 7 - (bitRef % 8) //  = squareIndex & 7
+let inline getRankIndex bitRef = bitRef / 8  //= squareIndex >> 3 
+
+let bitRefToAlgebraicNotation bitRef =
+    let fileIndex = getFileIndex bitRef
+    let rankIndex = getRankIndex bitRef
+    sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
 let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uint64*int)[]) (occupancyVariations:uint64[][]) =
     let maxUpperBound = magicNumbersAndShifts |> Array.map (snd >> (-)64 ) |> Array.max //max 12 bits set - rook in a corner
@@ -97,12 +112,49 @@ let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbers
                 |> Seq.map (Seq.takeUntilInclusive matchesOccupancyVariation)
 
             let combined = nonOccupiedSquaresAllDirs |> Seq.collect id
-            let moves = combined |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
+            let moves = combined |> createBitboardFromSetBitsSeq
 
             if magicMoves.[bitRef].[magicIndex] <> 0UL && magicMoves.[bitRef].[magicIndex] <> moves then 
                 invalidOp("attempt to change a previously set magic moves sequence; this indicates a problem with the magic generation")
             magicMoves.[bitRef].[magicIndex] <- moves
     magicMoves
+
+let generateSquaresKingMoves () =
+    //Elementary King moves (no castling)
+    [|
+        for i = 0 to 63 do
+            let setBits = seq {
+                if i <= 55 then yield i+8       //N
+                if (i+1)%8 <> 0  then yield i+1 //W
+                if i >= 8 then yield i-8        //S
+                if i%8 <> 0 then yield i-1      //E
+                if (i+1)%8 <> 0 && i <= 54 then yield i+9   //NW
+                if i%8 <> 0 && i <= 55 then yield i+7       //NE
+                if i%8 <> 0 && i >= 9 then yield i-9        //SE
+                if (i+1)%8 <> 0 && i >=8 then yield i-7     //SW
+            } 
+            yield setBits |> createBitboardFromSetBitsSeq
+    |]
+
+let generateSquaresKnightMoves () =
+    [|
+        for i = 0 to 63 do
+            let fileIndex = getFileIndex i
+            let rankIndex = getRankIndex i
+
+            let setBits = seq {
+                if fileIndex >= 2 && rankIndex <= 7 then yield i+10
+                if fileIndex >= 1 && rankIndex <= 6 then yield i+17
+                if fileIndex <=7 && rankIndex <= 6 then yield i+15
+                if fileIndex <=6 && rankIndex <= 7 then yield i+6
+                if fileIndex <=6 && rankIndex <= 2 then yield i-10
+                if fileIndex <=7 && rankIndex >= 3 then yield i-17
+                if fileIndex >=2 && rankIndex >= 3 then yield i-15
+                if fileIndex >=3 && rankIndex >= 2 then yield i-6
+
+            }
+            yield setBits |> createBitboardFromSetBitsSeq
+    |]
 
 let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
 let generateBishopMagicMoves  = generateMagicMoves SlidingPiece.Bishop
@@ -119,20 +171,13 @@ let bootstrapBishopMagicMoves (magicNumbersAndShifts:(uint64*int)[]) =
 
 let generateMovesForPosition (pc:SlidingPiece) (magicMoves:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) (magicNumbersAndShifts:(uint64*int)[])=
     let occupancyMasks = getOccupancyMask pc
-    let bbBlockers = bbAllPieces &&& occupancyMasks.[srcIndex]
+    let presentBlockers = bbAllPieces &&& occupancyMasks.[srcIndex]
     let magicNumber = magicNumbersAndShifts.[srcIndex] |> fst
     let magicShift = magicNumbersAndShifts.[srcIndex] |> snd
-    let databaseIndexUint64 = multiplyAndShift (uint64(bbBlockers)) magicNumber magicShift
+    let databaseIndexUint64 = multiplyAndShift presentBlockers magicNumber magicShift
     let databaseIndex = (int)databaseIndexUint64
     let bbMoveSquares = magicMoves.[srcIndex].[databaseIndex] &&& ~~~bbFriendlyPieces
     bbMoveSquares
-
-let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
-
-let bitRefToAlgebraicNotation bitRef =
-    let fileIndex = 7 - (bitRef % 8) //  = squareIndex & 7
-    let rankIndex   = bitRef / 8  //= squareIndex >> 3 
-    sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
 let generateAttackSets (pc:SlidingPiece) (occupancyVariations:uint64[][]) (occupancyMasks:uint64[]) =
     [|
@@ -231,16 +276,20 @@ module MoveGenerationLookupFunctions =
         let magicNumbersAndShiftsBishop = bootstrapMagicNumberGeneration SlidingPiece.Bishop
         let allMagic = {Magic.MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; Magic.MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop}
 
-        { MoveGenerationLookups.RookMovesDb = bootstrapRookMagicMoves  magicNumbersAndShiftsRook;
-        MoveGenerationLookups.BishopMovesDb = bootstrapBishopMagicMoves  magicNumbersAndShiftsBishop;
-        MagicNumbersAndShifts = allMagic; }
+        { 
+            MoveGenerationLookups.MagicNumbersAndShifts = allMagic;
+            RookMovesDb = bootstrapRookMagicMoves  magicNumbersAndShiftsRook;
+            BishopMovesDb = bootstrapBishopMagicMoves  magicNumbersAndShiftsBishop;
+            KingMovesDb = generateSquaresKingMoves();
+            KnightMovesDb = generateSquaresKnightMoves();
+        }
 
         //let generateMovesDbForSlidingPiece pc =
             //occupancyMasks  |>  
             //(Bitboards.generateOccupancyVariations >> (Bitboards.generateMagicMoves pc) occupancyMasks magicNumbersAndShifts) 
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
-        let chessman, side = pos |> getChessmenAndSide bitRef
+        let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
@@ -251,5 +300,7 @@ module MoveGenerationLookupFunctions =
             | Chessmen.Rook -> generateMovesForPosition Rook lookups.RookMovesDb allPieces friendlyPieces bitRef lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsRook
             | Queen -> generateMovesForPosition Bishop lookups.BishopMovesDb allPieces friendlyPieces bitRef lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsBishop
                        ||| generateMovesForPosition Rook lookups.RookMovesDb allPieces friendlyPieces bitRef lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsRook
-            | _ -> invalidOp "Not supported yet"
+            | King -> lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces
+            | Knight -> lookups.KnightMovesDb.[bitRef] &&& ~~~friendlyPieces
+            | pc -> invalidOp (sprintf "Not supported yet: %A" pc)
         res

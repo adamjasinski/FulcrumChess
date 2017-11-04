@@ -82,7 +82,7 @@ module MoveGenRookTests =
 
     [<TestCase>]
     [<Slow>]
-    [<BoardRef("8/p7/8/r2N4/8/8/p7/8 w - -")>]
+    [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
         let rookMovesDb = 
@@ -104,7 +104,7 @@ module MoveGenRookTests =
 
     [<TestCase>]
     [<Slow>]
-    [<BoardRef("8/p7/8/r2N4/8/8/p7/8 w - -")>]
+    [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic and FEN`` () =
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
         let rookMovesDb = 
