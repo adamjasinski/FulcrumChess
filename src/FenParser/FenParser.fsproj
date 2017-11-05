@@ -55,9 +55,9 @@
     <Compile Include="Randomness.fs" />
     <Compile Include="Pieces.fs" />
     <Compile Include="Common.fs" />
-    <Compile Include="FenParsing.fs" />
     <Compile Include="Magic.fs" />
     <Compile Include="Position.fs" />
+    <Compile Include="FenParsing.fs" />
     <Compile Include="Bitboards.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

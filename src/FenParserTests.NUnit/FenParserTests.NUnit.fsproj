@@ -57,6 +57,8 @@
     <Compile Include="SeqExtensionTests.fs" />
     <Compile Include="PseudoRandomTests.fs" />
     <Compile Include="BitUtilsTests.fs" />
+    <Compile Include="FenParsingTests.fs" />
+    <Compile Include="BitboardTests.fs" />
     <Compile Include="PositionTests.fs" />
     <Compile Include="MoveGenerationTestSetup.fs" />
     <Compile Include="MoveGenTestHelper.fs" />
@@ -65,7 +67,7 @@
     <Compile Include="MoveGenQueenTests.fs" />
     <Compile Include="MoveGenKingTests.fs" />
     <Compile Include="MoveGenKnightTests.fs" />
-    <Compile Include="FastMultiplicationTests.fs" />
+    <Compile Include="MoveGenPawnTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FenParser\FenParser.fsproj">

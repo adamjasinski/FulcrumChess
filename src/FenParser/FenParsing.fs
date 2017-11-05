@@ -23,7 +23,31 @@ let parseSingleRow (input:string) : char list =
     result |> List.rev
 
 //rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-let parse (input:string) : Board8x8Array =
+let parseToBoard8x8 (input:string) : Board8x8Array =
     let boardPart = input.Substring(0, input.IndexOf(" "))
     let rows = boardPart.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
     rows |> List.map parseSingleRow
+
+let private parseSide (input:string) : Side =
+    let parts = input.Split(' ')
+    match parts.[1] with
+    | "w" -> Side.White
+    | "b" -> Side.Black
+    | x -> invalidOp ("Unknown side to play in FEN: " + x)
+
+
+let parseToPosition (fen:string) : Position =
+    let board8x8 = parseToBoard8x8 fen
+    let allPiecesOnBoard = board8x8 |> List.collect id |> Array.ofList |> Array.rev
+    let sideToPlay = fen |> parseSide
+    let startingPosition = { Positions.emptyBitboard with SideToPlay=sideToPlay }
+    let mapped = 
+        ((0,startingPosition), allPiecesOnBoard) 
+        ||> Array.fold (fun (counter,pos) (piece:char) -> 
+            match piece with
+            | ' ' -> (counter+1,pos)
+            | pc -> 
+                let pos' = pos |> Positions.setFenPiece piece counter
+                (counter+1, pos') 
+        )
+    mapped |> snd

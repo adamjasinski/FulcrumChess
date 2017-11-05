@@ -14,12 +14,15 @@ type Position = {
     BlackBishops:Bitboard;
     BlackKnights:Bitboard;
     BlackPawns:Bitboard;
+
+    SideToPlay:Side;
 }
 
 module Positions =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
-        Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL; }
+        Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;
+        SideToPlay=White }
 
     let whiteBitboard (pos:Position) =
         pos.WhiteKing ||| pos.WhiteQueen ||| pos.WhiteRooks ||| pos.WhiteBishops ||| pos.WhiteKnights ||| pos.WhitePawns
@@ -55,37 +58,7 @@ module Positions =
             | _ -> invalidArg "piece" ("parameter has invalid value: " + piece.ToString())
         pos'
 
-    let fromFenString (fen:string) : Position =
-        let board8x8 = FenParsing.parse fen
-        let allPiecesOnBoard = board8x8 |> List.collect id |> Array.ofList |> Array.rev
-        let mapped = 
-            ((0,emptyBitboard), allPiecesOnBoard) 
-            ||> Array.fold (fun (counter,pos) (piece:char) -> 
-                match piece with
-                | ' ' -> (counter+1,pos)
-                | pc -> 
-                    let pos' = pos |> setFenPiece piece counter
-                    (counter+1, pos') 
-            )
-        mapped |> snd
-
-    let (|HasBitSet|) (bitRef:int) (bitboard:Bitboard) =
-       if bitboard |> BitUtils.hasBitSet bitRef then true
-       else false
-
-            
-    //let (|isp|isn|isb|) (bitRef:int) (pos:Position) =
-        //let hasIt (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        //match pos with
-        //| hasIt bitRef ->
-            
-            
-    
-   
     let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
-        //match pos with
-        //| HasBitSet bitRef -> true
-        //TODO
         let hasIt (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
         if pos.BlackPawns |> hasIt then Some(Chessmen.Pawn, Black)
         else if pos.BlackRooks |> hasIt then Some(Chessmen.Rook, Black)
@@ -101,22 +74,7 @@ module Positions =
         else if pos.WhitePawns |> hasIt then Some(Chessmen.Pawn, White)
         else None
 
-
-    //let getOptionThrowing (inp:'a option) =
-        //match inp with
-        //| Some x -> x
-        //| None -> invalidOp (sprintf "%A option returned None, defined to result in an exception" typeof<'a>)
-
     let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let opponentPieces = pos |> getBitboardForSide (opposite side) 
         movesBitboard &&& opponentPieces
-
-        //let resultOpt = pos |> getChessmanAndSide bitRef
-        //match resultOpt with
-        //| Some (chessman, side) ->
-        //    let opponentPieces = pos |> getBitboardForSide (opposite side) 
-        //    movesBitboard &&& opponentPieces
-        //| None -> invalidOp (sprintf "Did not find any chessman on square %d" bitRef)
-            
-       

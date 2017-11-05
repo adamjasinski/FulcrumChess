@@ -16,6 +16,8 @@ type MoveGenerationLookups = {
     BishopMovesDb:uint64[][];
     KingMovesDb:uint64[];
     KnightMovesDb:uint64[];
+    WhitePawnMovesDb:(uint64*uint64)[];
+    BlackPawnMovesDb:(uint64*uint64)[];
 }
 
 let getOccupancyMask  = function
@@ -143,17 +145,57 @@ let generateSquaresKnightMoves () =
             let rankIndex = getRankIndex i
 
             let setBits = seq {
-                if fileIndex >= 2 && rankIndex <= 7 then yield i+10
-                if fileIndex >= 1 && rankIndex <= 6 then yield i+17
-                if fileIndex <=7 && rankIndex <= 6 then yield i+15
-                if fileIndex <=6 && rankIndex <= 7 then yield i+6
-                if fileIndex <=6 && rankIndex <= 2 then yield i-10
-                if fileIndex <=7 && rankIndex >= 3 then yield i-17
-                if fileIndex >=2 && rankIndex >= 3 then yield i-15
-                if fileIndex >=3 && rankIndex >= 2 then yield i-6
+                if fileIndex >= 2 && rankIndex <= 6 then yield i+10
+                if fileIndex >= 1 && rankIndex <= 5 then yield i+17
+                if fileIndex <=6 && rankIndex <= 5 then yield i+15
+                if fileIndex <=5 && rankIndex <= 6 then yield i+6
+                if fileIndex <=5 && rankIndex >= 1 then yield i-10
+                if fileIndex <=6 && rankIndex >= 2 then yield i-17
+                if fileIndex >=1 && rankIndex >= 2 then yield i-15
+                if fileIndex >=2 && rankIndex >= 1 then yield i-6
 
             }
             yield setBits |> createBitboardFromSetBitsSeq
+    |]
+
+let generateSquaresAndCapturesForWhitePawn () =
+    [|
+        for i = 0 to 63 do
+            let fileIndex = getFileIndex i
+            let rankIndex = getRankIndex i
+
+            let moves = seq {
+                if rankIndex = 0 then yield -1 //white pawn cannot occupy the first rank
+                if rankIndex >= 1 && rankIndex <= 6 then yield i+8
+                if rankIndex = 1 then yield i+16
+            }
+            let captures = seq {
+                if rankIndex = 0 then yield -1 //white pawn cannot occupy the first rank
+                if rankIndex >= 1 && rankIndex <= 7 then
+                    if fileIndex >=2 then yield i+9
+                    if fileIndex <=7 then yield i+7
+            }
+            yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
+    |]
+
+let generateSquaresAndCapturesForBlackPawn () =
+    [|
+        for i = 0 to 63 do
+            let fileIndex = getFileIndex i
+            let rankIndex = getRankIndex i
+
+            let moves = seq {
+                if rankIndex = 7 then yield -1 //black pawn cannot occupy the last rank
+                if rankIndex >= 1 && rankIndex <= 6 then yield i-8
+                if rankIndex = 6 then yield i-16
+            }
+            let captures = seq {
+                if rankIndex = 7 then yield -1 //black pawn cannot occupy the last rank
+                if rankIndex >= 1 && rankIndex <= 7 then
+                    if fileIndex >=2 then yield i-7
+                    if fileIndex <=7 then yield i-9
+            }
+            yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
     |]
 
 let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
@@ -282,14 +324,30 @@ module MoveGenerationLookupFunctions =
             BishopMovesDb = bootstrapBishopMagicMoves  magicNumbersAndShiftsBishop;
             KingMovesDb = generateSquaresKingMoves();
             KnightMovesDb = generateSquaresKnightMoves();
+            WhitePawnMovesDb = generateSquaresAndCapturesForWhitePawn();
+            BlackPawnMovesDb = generateSquaresAndCapturesForBlackPawn();
         }
 
         //let generateMovesDbForSlidingPiece pc =
             //occupancyMasks  |>  
             //(Bitboards.generateOccupancyVariations >> (Bitboards.generateMagicMoves pc) occupancyMasks magicNumbersAndShifts) 
 
+    let private generatePawnPseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) (side:Side) =
+        //let friendlyPieces = pos |> getBitboardForSide side
+        let opposingPieces = pos |> getBitboardForSide (Common.opposite side)
+        let allPieces = pos |> bothSidesBitboard
+        let (moves,captures) = 
+            match side with
+            | White -> lookups.WhitePawnMovesDb.[bitRef]
+            | Black -> lookups.BlackPawnMovesDb.[bitRef]
+
+        let movesMinusBlockers = moves &&& ~~~allPieces
+        let capturesMinusFriendly = captures &&& opposingPieces
+        movesMinusBlockers ||| capturesMinusFriendly
+
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
+        if(side <> pos.SideToPlay) then invalidOp "Attempted to generate a pseudo move for the incorrect side"
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
@@ -302,5 +360,5 @@ module MoveGenerationLookupFunctions =
                        ||| generateMovesForPosition Rook lookups.RookMovesDb allPieces friendlyPieces bitRef lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsRook
             | King -> lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces
             | Knight -> lookups.KnightMovesDb.[bitRef] &&& ~~~friendlyPieces
-            | pc -> invalidOp (sprintf "Not supported yet: %A" pc)
+            | Pawn -> generatePawnPseudoMoves lookups pos bitRef side
         res

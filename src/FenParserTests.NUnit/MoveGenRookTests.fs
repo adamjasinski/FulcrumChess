@@ -112,7 +112,7 @@ module MoveGenRookTests =
             (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
         
         let startBitRef = 39    //a5
-        let pos = Positions.fromFenString "8/p7/8/r2N4/8/8/p7/8 w - -"
+        let pos = FenParsing.parseToPosition"8/p7/8/r2N4/8/8/p7/8 w - -"
         let opponentOccupancy = pos |> Positions.whiteBitboard  //d5
         let friendlyOccupancy = pos |> Positions.blackBitboard    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy

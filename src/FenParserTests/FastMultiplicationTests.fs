@@ -1,8 +1,8 @@
-﻿namespace FenParserTests.NUnit
+﻿namespace FenParserTests
 
 module FastMultiplicationTests =
 
-    open NUnit.Framework
+    open Xunit
     //open TestHelpers
     open FenParser
     open Swensen.Unquote
@@ -47,3 +47,4 @@ module FastMultiplicationTests =
         //test <@ results32.Length > 0 @>
         //test <@ results64 = results32 @>
         ()
+

@@ -12,7 +12,7 @@ module PositionTests =
     [<TestCase>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
     let ``verify position of White Bishop at c4; a few other black and white pieces on the board`` () =
-        let pos = Positions.fromFenString "8/5p2/p7/8/2B5/8/4P3/8 w - -"
+        let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
 
         let opponentOccupancy = pos |> Positions.blackBitboard  //a6, f7
         let friendlyOccupancy = pos |> Positions.whiteBitboard    //e2, c4
@@ -26,7 +26,7 @@ module PositionTests =
     [<TestCase>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
     let ``set position of Black Bishop;`` () =
-        let pos = Positions.fromFenString "8/5p2/p7/8/2B5/8/4P3/8 w - -"
+        let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
 
         let pos' = pos |> Positions.setFenPiece 'b' 56
         

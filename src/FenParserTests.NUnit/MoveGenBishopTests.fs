@@ -21,7 +21,7 @@ module MoveGenBishopTests =
             (Bitboards.generateOccupancyVariations >> (Bitboards.generateMagicMoves pc) occupancyMasks magicNumbersAndShifts) 
         
         let startBitRef = 29    //c4
-        let pos = Positions.fromFenString "8/5p2/p7/8/2B5/8/4P3/8 w - -"
+        let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
         let opponentOccupancy = pos |> Positions.blackBitboard  //a6, f7
         let friendlyOccupancy = pos |> Positions.whiteBitboard    //e2, c4
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
@@ -43,7 +43,7 @@ module MoveGenBishopTests =
          (Bitboards.generateOccupancyVariations >> (Bitboards.generateMagicMoves pc) occupancyMasks magicNumbersAndShifts) 
 
         let startBitRef = 56    //h8
-        let pos = Positions.fromFenString "7b/6n1/8/8/8/8/8/8 w - -"
+        let pos = FenParsing.parseToPosition "7b/6n1/8/8/8/8/8/8 w - -"
         let opponentOccupancy = pos |> Positions.whiteBitboard 
         let friendlyOccupancy = pos |> Positions.blackBitboard
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy

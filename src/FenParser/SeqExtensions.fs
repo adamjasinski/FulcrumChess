@@ -17,3 +17,7 @@ module Seq =
         // (making sure that the enumerator gets disposed)
         seq { use en = s.GetEnumerator()
             yield! loop en  }
+
+module Tuple2 = 
+  //Applies function f to each element of a tuple
+  let map f (a, b) = (f a, f b)

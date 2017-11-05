@@ -11,11 +11,11 @@ module MoveGenQueenTests =
     [<TestCase>]
     [<BoardRef("2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify moves of White Queen at c4; a few other black and white pieces on the board`` () =
-        let lookups =  MoveGenerationLookupFunctions.bootstrapAll()
+        let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
         let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
 
         let startBitRef = 29    //c4
-        let pos = Positions.fromFenString "2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -"
+        let pos = FenParsing.parseToPosition "2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -"
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
@@ -30,11 +30,11 @@ module MoveGenQueenTests =
     [<TestCase>]
     [<BoardRef("2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify captures of White Queen at c4; a few other black and white pieces on the board`` () =
-        let lookups =  MoveGenerationLookupFunctions.bootstrapAll()
+        let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
         let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
  
         let startBitRef = 29    //c4
-        let pos = Positions.fromFenString "2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -"
+        let pos = FenParsing.parseToPosition "2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -"
 
         let moves = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 

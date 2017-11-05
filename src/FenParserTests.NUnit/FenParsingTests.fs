@@ -1,27 +1,12 @@
-﻿namespace FenParserTests
+﻿namespace FenParserTests.NUnit
 
-open Xunit
+open System
+open NUnit.Framework
 open Swensen.Unquote
 
 module FenParsingTests = 
-    //member this.X = "F#"
 
-
-//    [<Fact>]
-//    let T3() =
-//        let arr1 = [|1; 5; 100|]
-//        let arr2 = [|1; 5; 100|]
-//
-//        test <@ arr1 = arr2 @>
-//
-//    [<Fact>]
-//    let T4() =
-//        let arr1 = [|[|1; 5; 100|]|]
-//        let arr2 = [|[|1; 5; 100|]|]
-//
-//        test <@ arr1 = arr2 @>
-
-    [<Fact>]
+    [<TestCase>]
     let ``Initial position`` () =
         let blankRow = List.replicate 8 ' '
         let expected  =   [
@@ -36,10 +21,10 @@ module FenParsingTests =
             ]
        
         let input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        let result = input |> FenParsing.parse
+        let result = input |> FenParsing.parseToBoard8x8
         test <@ expected = result @>
 
-    [<Fact>]
+    [<TestCase>]
     let ``Single row - all explicit`` () =
         let input = "rnbqkbnr"
         let expected = ['r';'n';'b';'q';'k';'b';'n';'r']
@@ -47,7 +32,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<Fact>]
+    [<TestCase>]
     let ``Single row - some fields empty`` () =
         let input = "rnb3nr"
         let expected = ['r';'n';'b';' ';' ';' ';'n';'r']
@@ -55,7 +40,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<Fact>]
+    [<TestCase>]
     let ``Single row - some fields empty (2)`` () =
         let input = "2b3nr"
         let expected = [' ';' ';'b';' ';' ';' ';'n';'r']
@@ -63,7 +48,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<Fact>]
+    [<TestCase>]
     let ``Single row - entire row empty`` () =
         let input = "8"
         let expected = [' ';' ';' ';' ';' ';' ';' ';' ']
@@ -71,17 +56,14 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<Fact>]
+    [<TestCase>]
     let ``Single row - row too long`` () =
         let input = "rnbqkbnrr"
-        
-        let ex = Record.Exception( fun () -> input |> FenParsing.parseSingleRow |> ignore)
-        let typedEx = Assert.IsType<System.ArgumentException>(ex)
-        test <@ "input" = typedEx.ParamName @>
 
-    [<Fact>]
+        raises<ArgumentException> <@ input |> FenParsing.parseSingleRow @>
+
+    [<TestCase>]
     let ``Single row - too many empty squares`` () =
         let input = "rnb6q"
-        
-        let ex = Record.Exception( fun () -> input |> FenParsing.parseSingleRow |> ignore)
-        Assert.IsType<System.InvalidOperationException>(ex) |> ignore
+
+        raises<InvalidOperationException> <@ input |> FenParsing.parseSingleRow  @>
