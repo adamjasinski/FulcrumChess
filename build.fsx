@@ -1,4 +1,4 @@
-#r "packages/FAKE/tools/FakeLib.dll" // include Fake lib
+#r "src/packages/FAKE/tools/FakeLib.dll" // include Fake lib
 open Fake 
 open Fake.Testing
 
@@ -12,7 +12,7 @@ let appReferences  =
     !! "src/FenParser/FenParser.fsproj"
 
 let testReferences =
-    !! "src/FenParserTests/*.fsproj"
+    !! "src/FenParserTests.NUnit/*.fsproj"
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -34,12 +34,20 @@ Target "xUnitTest" (fun _ ->
         |> xUnit2 (fun p -> 
             {p with 
                 ShadowCopy = false;
-                ToolPath = "./packages/xunit.runner.console.2.2.0/tools/xunit.console.exe" })
+                ToolPath = "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe" })
 )
 
 // Target "xUnitTestDebug" (fun _ ->  
-//     Shell.Exec("mono", "./packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FenParserTests.dll", "testDir") |> ignore
+//     Shell.Exec("mono", "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FenParserTests.dll", "testDir") |> ignore
 // )
+
+Target "NUnitTest" (fun _ ->  
+    !! (testDir + "/*Tests.NUnit.dll")
+        |> NUnit3 (fun p -> 
+            {p with 
+                ShadowCopy = false;
+                ToolPath = "./src/packages/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe" })
+)
 
 Target "Deploy" (fun _ ->
     trace "Heavy deploy action"
@@ -48,7 +56,7 @@ Target "Deploy" (fun _ ->
 "Clean"
    ==> "BuildApp"
    ==> "BuildTest"
-   =?> ("xUnitTest",hasBuildParam "xUnitTest")  // only if FAKE was called with parameter xUnitTest
+   =?> ("NUnitTest",hasBuildParam "NUnitTest")  // only if FAKE was called with parameter NUnitTest
    ==> "Deploy"
 
 //Run "Deploy"
