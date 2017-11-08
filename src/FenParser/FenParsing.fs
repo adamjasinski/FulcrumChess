@@ -22,11 +22,6 @@ let parseSingleRow (input:string) : char list =
     if result |> List.length <> 8 then invalidOp (sprintf "Input was supposed to yield 8 fields, but yielded %d" (List.length result))
     result |> List.rev
 
-//rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-let parseToBoard8x8 (input:string) : Board8x8Array =
-    let boardPart = input.Substring(0, input.IndexOf(" "))
-    let rows = boardPart.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
-    rows |> List.map parseSingleRow
 
 let private parseSide (input:string) : Side =
     let parts = input.Split(' ')
@@ -34,6 +29,12 @@ let private parseSide (input:string) : Side =
     | "w" -> Side.White
     | "b" -> Side.Black
     | x -> invalidOp ("Unknown side to play in FEN: " + x)
+
+//rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+let parseToBoard8x8 (fen:string) : Board8x8Array =
+    let boardPart = fen.Substring(0, fen.IndexOf(" "))
+    let rows = boardPart.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
+    rows |> List.map parseSingleRow
 
 
 let parseToPosition (fen:string) : Position =

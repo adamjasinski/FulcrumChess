@@ -53,12 +53,14 @@
     <Compile Include="BitUtils.fs" />
     <Compile Include="SeqExtensions.fs" />
     <Compile Include="Randomness.fs" />
-    <Compile Include="Pieces.fs" />
     <Compile Include="Common.fs" />
+    <Compile Include="Pieces.fs" />
     <Compile Include="Magic.fs" />
     <Compile Include="Position.fs" />
+    <Compile Include="Board8x8Funcs.fs" />
     <Compile Include="FenParsing.fs" />
     <Compile Include="Bitboards.fs" />
+    <Compile Include="Perft.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <PropertyGroup>

@@ -6,9 +6,11 @@ open Swensen.Unquote
 
 module FenParsingTests = 
 
+    let private blankRow = List.replicate 8 ' '
+
     [<TestCase>]
     let ``Initial position`` () =
-        let blankRow = List.replicate 8 ' '
+
         let expected  =   [
                 ['r';'n';'b';'q';'k';'b';'n';'r'];
                 ['p';'p';'p';'p';'p';'p';'p';'p'];
@@ -67,3 +69,44 @@ module FenParsingTests =
         let input = "rnb6q"
 
         raises<InvalidOperationException> <@ input |> FenParsing.parseSingleRow  @>
+
+
+    [<TestCase>]
+    let ``Parse initial position to Position instance`` () =
+        let input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        let result = input |> FenParsing.parseToPosition
+
+        let expectedAsBoard8x8 = [
+                ['r';'n';'b';'q';'k';'b';'n';'r'];
+                ['p';'p';'p';'p';'p';'p';'p';'p'];
+                blankRow;
+                blankRow;
+                blankRow;
+                blankRow;
+                ['P';'P';'P';'P';'P';'P';'P';'P'];
+                ['R';'N';'B';'Q';'K';'B';'N';'R'];
+            ]
+        let actualResultAsBoard8x8 = result |> Board8x8Funcs.fromPosition
+        printfn "%A" actualResultAsBoard8x8
+        test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
+
+    [<TestCase>]
+    let ``Parse last position to of the Immortal game`` () =
+        let input = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b - - 0 22"
+        let result = input |> FenParsing.parseToPosition
+
+        let expectedAsBoard8x8 = [
+                ['r';' ';'b';'k';' ';' ';' ';'r'];
+                ['p';' ';' ';'p';'B';'p';'N';'p'];
+                ['n';' ';' ';' ';' ';'n';' ';' '];
+                [' ';'p';' ';'N';'P';' ';' ';'P'];
+                [' ';' ';' ';' ';' ';' ';'P';' '];
+                [' ';' ';' ';'P';' ';' ';' ';' ']
+                ['P';' ';'P';' ';'K';' ';' ';' '];
+                ['q';' ';' ';' ';' ';' ';'b';' '];
+            ]
+        let actualResultAsBoard8x8 = result |> Board8x8Funcs.fromPosition
+        printfn "%A" actualResultAsBoard8x8
+        test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
+
+
