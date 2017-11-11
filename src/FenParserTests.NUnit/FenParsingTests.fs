@@ -8,7 +8,7 @@ module FenParsingTests =
 
     let private blankRow = List.replicate 8 ' '
 
-    [<TestCase>]
+    [<Test>]
     let ``Initial position`` () =
 
         let expected  =   [
@@ -26,7 +26,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseToBoard8x8
         test <@ expected = result @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - all explicit`` () =
         let input = "rnbqkbnr"
         let expected = ['r';'n';'b';'q';'k';'b';'n';'r']
@@ -34,7 +34,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - some fields empty`` () =
         let input = "rnb3nr"
         let expected = ['r';'n';'b';' ';' ';' ';'n';'r']
@@ -42,7 +42,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - some fields empty (2)`` () =
         let input = "2b3nr"
         let expected = [' ';' ';'b';' ';' ';' ';'n';'r']
@@ -50,7 +50,7 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - entire row empty`` () =
         let input = "8"
         let expected = [' ';' ';' ';' ';' ';' ';' ';' ']
@@ -58,20 +58,20 @@ module FenParsingTests =
         let result = input |> FenParsing.parseSingleRow
         test <@ expected = result @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - row too long`` () =
         let input = "rnbqkbnrr"
 
         raises<ArgumentException> <@ input |> FenParsing.parseSingleRow @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Single row - too many empty squares`` () =
         let input = "rnb6q"
 
         raises<InvalidOperationException> <@ input |> FenParsing.parseSingleRow  @>
 
 
-    [<TestCase>]
+    [<Test>]
     let ``Parse initial position to Position instance`` () =
         let input = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         let result = input |> FenParsing.parseToPosition
@@ -90,7 +90,7 @@ module FenParsingTests =
         printfn "%A" actualResultAsBoard8x8
         test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
 
-    [<TestCase>]
+    [<Test>]
     let ``Parse last position to of the Immortal game`` () =
         let input = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b - - 0 22"
         let result = input |> FenParsing.parseToPosition

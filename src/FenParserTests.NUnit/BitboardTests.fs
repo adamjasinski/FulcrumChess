@@ -16,7 +16,7 @@ module BitboardTests =
         test <@ expectedNotation = result @>
 
     
-    [<TestCase>]
+    [<Test>]
     let ``quick test of getSetBits (1)`` () =
         let input = 2017
         let expectedResult = [|0;5;6;7;8;9;10|]

@@ -39,11 +39,11 @@ module MoveGenPawnTests =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
 
-    [<TestCase; TestCaseSource("TestCasesWhite")>]
+    [<Test; TestCaseSource("TestCasesWhite")>]
     let ``verify moves of White Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
-    [<TestCase; TestCaseSource("TestCasesBlack")>]
+    [<Test; TestCaseSource("TestCasesBlack")>]
     let ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 

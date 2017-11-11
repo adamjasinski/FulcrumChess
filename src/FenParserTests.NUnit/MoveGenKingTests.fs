@@ -16,7 +16,7 @@ module MoveGenKingTests =
         }
            
 
-    [<TestCase>]
+    [<Test>]
     [<BoardRef("8/6p1/8/8/8/n1Q5/1K6/1N6 w - -", "https://lichess.org/editor/8/6p1/8/8/8/n1Q5/1K6/1N6_w_-_-")>]
     let ``verify moves of White King at c3; a few other black and white pieces on the board`` () =
         let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
@@ -33,7 +33,7 @@ module MoveGenKingTests =
         let expectedSquares = ["a1"; "a2"; "a3"; "b3"; "c1"; "c2"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<TestCase; TestCaseSource("TestCases")>]
+    [<Test; TestCaseSource("TestCases")>]
     let ``verify moves of King (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
         let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 

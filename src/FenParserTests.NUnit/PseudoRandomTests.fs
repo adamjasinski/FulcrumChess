@@ -9,7 +9,7 @@ module PseudoRandomTests =  //just 'RandomTests' would sound silly ;)
 
     //let countRandomElementsFulfillingPredicate predicate totalCount =
 
-    [<TestCase>]
+    [<Test>]
     let ``NextUInt64 returns pseudo random unsigned 64-bit integers`` () =
         let rnd = Random()
         let seqLength = 1000
@@ -23,7 +23,7 @@ module PseudoRandomTests =  //just 'RandomTests' would sound silly ;)
         test <@ lessThanMidPoint <= expectedHi @>
         test <@ lessThanMidPoint >= expectedLo @> 
 
-    [<TestCase>]
+    [<Test>]
     let ``NextUInt64 return values have on average half of bits set`` () =
         let rnd = Random()
         let seqLength = 1000

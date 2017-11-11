@@ -9,7 +9,7 @@ module PositionTests =
         let actualBitboardAsBitArray = (uint64(actualOccupancy) |> BitUtils.getSetBits)
         test <@ actualBitboardAsBitArray = expectedOccupancy @>
 
-    [<TestCase>]
+    [<Test>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
     let ``verify position of White Bishop at c4; a few other black and white pieces on the board`` () =
         let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
@@ -23,7 +23,7 @@ module PositionTests =
         verifyOccupancy [|11; 29; 47; 50|] allOccupancy
 
 
-    [<TestCase>]
+    [<Test>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
     let ``set position of Black Bishop;`` () =
         let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"

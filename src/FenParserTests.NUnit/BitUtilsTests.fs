@@ -17,14 +17,14 @@
         test <@ (result |> Array.length) > 0 @>
         test <@ expectedResult = result  @>
 
-    [<TestCase>]
+    [<Test>]
     let ``getSetBits for zero returns empty array`` () =
         let input = 0
         let expectedResult:int[] = [||]
         let result = input |> BitUtils.getSetBits
         test <@ expectedResult = result  @>
 
-    [<TestCase>]
+    [<Test>]
     let ``getSetBits for large number returns expected result`` () =
         let input = 1266637395197952UL
         let expectedResult:int[] = [|47; 50|]

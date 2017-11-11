@@ -15,7 +15,7 @@ module MoveGenRookTests =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
         Bitboards.generateMovesForPosition SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref magicNumbersAndShifts
     
-    [<TestCase>]
+    [<Test>]
     let ``verify moves of first variant of rook on h1 with no other occupancy`` () =
         let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
         let moves = rookMagicMovesDb.[0].[0]
@@ -24,7 +24,7 @@ module MoveGenRookTests =
         let expectedSquares = ["a1";"b1";"c1";"d1";"e1";"f1";"g1";"h2";"h3";"h4";"h5";"h6";"h7";"h8"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<TestCase>]
+    [<Test>]
     let ``verify moves of Black Rook at c6; own pawn at c2`` () =
         let startBitRef = 45
         let opponentOccupancy = 0UL
@@ -39,7 +39,7 @@ module MoveGenRookTests =
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<TestCase>]
+    [<Test>]
     let ``verify moves of Black Rook at c6; white pawn at c2`` () =
         let startBitRef = 45
         let opponentOccupancy = 1UL <<< 13
@@ -54,7 +54,7 @@ module MoveGenRookTests =
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<TestCase>]
+    [<Test>]
     [<Ignore("pre-generated magic has been generated with a different Shift&Multiply function")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board`` () =
         let startBitRef = 39    //a5
@@ -70,7 +70,7 @@ module MoveGenRookTests =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
         ()
 
-    //[<TestCase>]
+    //[<Test>]
     //[<Slow>]
     //let ``dry run of magic number and moves generation for rook `` () =
         //printfn "%A" magicNumbersAndShifts
@@ -80,7 +80,7 @@ module MoveGenRookTests =
         //    (Bitboards.generateOccupancyVariations >> Bitboards.generateRookMagicMoves occupancyMasks magicNumbersAndShifts) 
         //()
 
-    [<TestCase>]
+    [<Test>]
     [<Slow>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
@@ -102,7 +102,7 @@ module MoveGenRookTests =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
 
-    [<TestCase>]
+    [<Test>]
     [<Slow>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic and FEN`` () =
