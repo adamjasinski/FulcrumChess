@@ -1,15 +1,23 @@
-﻿module Magic
+﻿namespace FenParser
 //Magic number generation.
 //Magic numbers are used to hash equivalent occupancy values/attack set
 //See also https://chessprogramming.wikispaces.com/Magic+Bitboards; https://chessprogramming.wikispaces.com/Looking+for+Magics
 
-open FenParser
 
 type MagicValues ={
     MagicNumbersAndShiftsRook:(uint64*int)[];
     MagicNumbersAndShiftsBishop:(uint64*int)[];
 }
 
+type MoveGenerationLookups = {
+    MagicNumbersAndShifts:MagicValues;
+    RookMovesDb:uint64[][];
+    BishopMovesDb:uint64[][];
+    KingMovesDb:uint64[];
+    KnightMovesDb:uint64[];
+    WhitePawnMovesDb:(uint64*uint64)[];
+    BlackPawnMovesDb:(uint64*uint64)[];
+}
 
 module PregeneratedMagic =
     let getMagicValuesAndShiftsFor (pc:SlidingPiece) (magicValues:MagicValues) =

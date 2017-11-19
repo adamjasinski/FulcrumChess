@@ -57,25 +57,14 @@ module BitUtils =
             let res = (((i + (i >>> 4)) &&& 0xF0F0F0F0F0F0F0FUL * 0x101010101010101UL) >>> 56)
             int(res)
 
-//       static int NumberOfSetBits(ulong i)
-//{
-//    i = i - ((i >> 1) & 0x5555555555555555UL);
-//    i = (i & 0x3333333333333333UL) + ((i >> 2) & 0x3333333333333333UL);
-//    return (int)(unchecked(((i + (i >> 4)) & 0xF0F0F0F0F0F0F0FUL) * 0x101010101010101UL) >> 56);
-//}
 
-            //type Class4<'T when 'T : (static member staticMethod1 : unit -> 'T) > =
-    //let countBits_slow< ^a when ^a : (static member (&&&) : ^a * ^a -> ^a)> (b:^a)  = 
     let inline countBits_slow (b:^a)  = 
         let zero:^a = LanguagePrimitives.GenericZero<_>
         let one:^a = LanguagePrimitives.GenericOne
-        //let ia = b|> (&&&)
 
         let rec loop (x:^a) count =
             if(x = zero) then count
             else
-                //LanguagePrimitives.IntrinsicOperators.
-       
                 if x &&& one = one then 
                     loop (x >>> 1) (count+1)
                 else 
@@ -85,6 +74,10 @@ module BitUtils =
     let inline setBit (i:int) (b:^a) =
         let one:^a = LanguagePrimitives.GenericOne
         b ||| (one <<< i)
+
+    let inline clearBit (i:int) (b:^a) =
+        let setBitMask:^a = LanguagePrimitives.GenericOne <<< i
+        b &&& (~~~setBitMask)
 
     let inline getSetBits (b:^a) =
         let zero:^a = LanguagePrimitives.GenericZero
@@ -105,4 +98,4 @@ module BitUtils =
 
     let inline hasBitSet (i:int) (b:^a) =
         let one:^a = LanguagePrimitives.GenericOne
-        (b >>> i) = one
+        b &&& (one <<<  i) > LanguagePrimitives.GenericZero

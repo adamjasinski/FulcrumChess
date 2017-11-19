@@ -51,6 +51,9 @@ module Positions =
         match side with 
         | White -> pos |> whiteBitboard
         | Black -> pos |> blackBitboard
+
+    let getBitboardForSideToPlay (pos:Position) =
+        pos |> getBitboardForSide pos.SideToPlay
         
     let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
@@ -91,7 +94,11 @@ module Positions =
 
     let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
         let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        let res =   pos |> (asBitboardSequence >> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef))
+        //let res =   pos |> (asBitboardSequence >> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef))
+        let res =
+            pos
+            |> asBitboardSequence
+            |> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef)
 
         res |> Option.map snd
 
@@ -122,9 +129,56 @@ module Positions =
         |> BitUtils.getSetBits
         |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
         arr
-    //let asBoard8x8 (pos:Position) =
-        //TODO
 
-    let makeMoveWithValidation (piece:char) (bitRef:int) (pos:Position) =
-        //TODO
-        None
+    let private setPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
+        let fenLetter = (piece, side) |> PieceFenLetters.getLetter
+        pos |> setFenPiece fenLetter bitRef
+
+    let private clearPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
+        if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
+        let clearBitRef = BitUtils.clearBit bitRef
+        let pos' = 
+            match piece,side with
+            | (Chessmen.Pawn, Side.Black) -> {pos with BlackPawns= pos.BlackPawns |> clearBitRef}
+            | (Chessmen.Knight, Side.Black) -> {pos with BlackKnights=pos.BlackKnights |> clearBitRef }
+            | (Chessmen.Bishop, Side.Black) -> {pos with BlackBishops=pos.BlackBishops |> clearBitRef }
+            | (Chessmen.Rook, Side.Black) -> {pos with BlackRooks=pos.BlackRooks |> clearBitRef }
+            | (Chessmen.Queen, Side.Black) -> {pos with BlackQueen=pos.BlackQueen |> clearBitRef }
+            | (Chessmen.King, Side.Black) -> {pos with BlackKing=pos.BlackKing |> clearBitRef }
+            | (Chessmen.Pawn, Side.White) -> {pos with WhitePawns=pos.WhitePawns |> clearBitRef }
+            | (Chessmen.Knight, Side.White) -> {pos with WhiteKnights=pos.WhiteKnights |> clearBitRef }
+            | (Chessmen.Bishop, Side.White) -> {pos with WhiteBishops=pos.WhiteBishops |> clearBitRef }
+            | (Chessmen.Rook, Side.White) -> {pos with WhiteRooks=pos.WhiteRooks |> clearBitRef }
+            | (Chessmen.Queen, Side.White) -> {pos with WhiteQueen=pos.WhiteQueen |> clearBitRef }
+            | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
+        pos'
+
+    //let isCheck (lookups:MoveGenerationLookups) (kingSide:Side) (pos:Position) =
+         
+    let makeMoveWithValidation (move:Move) (pos:Position) =
+        let (srcBitRef, dstBitRef) = move |> Moves.getSrcAndDestBitRefs
+        let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
+
+        //TODO - perform move validation (check)
+
+        let clearOpponentPieceIfCapture (p:Position) =
+            let dstSquare = pos |> getChessmanAndSide dstBitRef
+            if dstSquare |> Option.isNone then
+                p
+            else
+                let (opponentPiece,opponentSide) = dstSquare |> Option.get
+                if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
+                p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
+
+        let swapSide (p:Position) =
+            { p with SideToPlay=opposite side}
+
+        let fenLetter = (chessman, side) |> PieceFenLetters.getLetter
+        let pos' = 
+            pos 
+            |> setPieceInternal (chessman, side) dstBitRef
+            |> clearPieceInternal (chessman, side) srcBitRef
+            |> clearOpponentPieceIfCapture
+            |> swapSide
+        //TODO - validation
+        Some pos'

@@ -59,6 +59,7 @@
     <Compile Include="BitUtilsTests.fs" />
     <Compile Include="FenParsingTests.fs" />
     <Compile Include="BitboardTests.fs" />
+    <Compile Include="MovesTests.fs" />
     <Compile Include="PositionTests.fs" />
     <Compile Include="MoveGenerationTestSetup.fs" />
     <Compile Include="MoveGenTestHelper.fs" />

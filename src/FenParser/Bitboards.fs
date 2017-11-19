@@ -10,15 +10,7 @@ module Constants =
             0x40201008040200UL; 0x402010080400UL; 0x4020100a00UL; 0x40221400UL; 0x2442800UL; 0x204085000UL; 0x20408102000UL; 0x2040810204000UL; 0x20100804020000UL; 0x40201008040000UL; 0x4020100a0000UL; 0x4022140000UL; 0x244280000UL; 0x20408500000UL; 0x2040810200000UL; 0x4081020400000UL; 0x10080402000200UL; 0x20100804000400UL; 0x4020100a000a00UL; 0x402214001400UL; 0x24428002800UL; 0x2040850005000UL; 0x4081020002000UL; 0x8102040004000UL; 0x8040200020400UL; 0x10080400040800UL; 0x20100a000a1000UL; 0x40221400142200UL; 0x2442800284400UL; 0x4085000500800UL; 0x8102000201000UL; 0x10204000402000UL; 0x4020002040800UL; 0x8040004081000UL; 0x100a000a102000UL; 0x22140014224000UL; 0x44280028440200UL; 0x8500050080400UL; 0x10200020100800UL; 0x20400040201000UL; 0x2000204081000UL; 0x4000408102000UL; 0xa000a10204000UL; 0x14001422400000UL; 0x28002844020000UL; 0x50005008040200UL; 0x20002010080400UL; 0x40004020100800UL; 0x20408102000UL; 0x40810204000UL; 0xa1020400000UL; 0x142240000000UL; 0x284402000000UL; 0x500804020000UL; 0x201008040200UL; 0x402010080400UL; 0x2040810204000UL; 0x4081020400000UL; 0xa102040000000UL; 0x14224000000000UL; 0x28440200000000UL; 0x50080402000000UL; 0x20100804020000UL; 0x40201008040200UL     
         |]
 
-type MoveGenerationLookups = {
-    MagicNumbersAndShifts:Magic.MagicValues;
-    RookMovesDb:uint64[][];
-    BishopMovesDb:uint64[][];
-    KingMovesDb:uint64[];
-    KnightMovesDb:uint64[];
-    WhitePawnMovesDb:(uint64*uint64)[];
-    BlackPawnMovesDb:(uint64*uint64)[];
-}
+
 
 let getOccupancyMask  = function
         | SlidingPiece.Rook -> Constants.occupancyMaskRook
@@ -74,16 +66,16 @@ let private generateSquaresInAllDirsForSlidingPieces (pc:SlidingPiece) (bitRef:i
         [squaresNWgen; squaresNEgen; squaresSEgen; squaresSWgen] |> List.map ((fun f -> f bitRef) >> Seq.tail)
 
 
-let private generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (pc:SlidingPiece) (bitRef:int)=
-    let squares = generateSquaresInAllDirsForSlidingPieces pc bitRef
+let private generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (piece:SlidingPiece) (bitRef:int)=
+    let squares = generateSquaresInAllDirsForSlidingPieces piece bitRef
     let squaresAndFuns = 
         match squares with
         | [a;b;c;d] -> [(a,Seq.max); (b,Seq.max); (c,Seq.min); (d,Seq.min)]
-        | _ -> invalidArg "pc" "unsupported value"
+        | _ -> invalidArg "piece" "unsupported value"
     squaresAndFuns
 
 let createBitboardFromSetBitsSeq (setBits:int seq) =
-    setBits |> Seq.fold (fun (updatedMoves:uint64) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
+    setBits |> Seq.fold (fun (updatedMoves:Bitboard) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
 
 let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
 
@@ -303,7 +295,7 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let occupancyMask = getOccupancyMask pc
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
     let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
-    let pregeneratedMagic = Magic.PregeneratedMagic.PartialMagicFor32BitHashing |> Magic.PregeneratedMagic.getMagicValuesAndShiftsFor pc
+    let pregeneratedMagic = PregeneratedMagic.PartialMagicFor32BitHashing |> PregeneratedMagic.getMagicValuesAndShiftsFor pc
     let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets pregeneratedMagic
     magick |> Array.ofSeq
 
@@ -316,7 +308,7 @@ module MoveGenerationLookupFunctions =
     let bootstrapAll () = 
         let magicNumbersAndShiftsRook = bootstrapMagicNumberGeneration SlidingPiece.Rook
         let magicNumbersAndShiftsBishop = bootstrapMagicNumberGeneration SlidingPiece.Bishop
-        let allMagic = {Magic.MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; Magic.MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop}
+        let allMagic = {MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop}
 
         { 
             MoveGenerationLookups.MagicNumbersAndShifts = allMagic;
@@ -327,10 +319,6 @@ module MoveGenerationLookupFunctions =
             WhitePawnMovesDb = generateSquaresAndCapturesForWhitePawn();
             BlackPawnMovesDb = generateSquaresAndCapturesForBlackPawn();
         }
-
-        //let generateMovesDbForSlidingPiece pc =
-            //occupancyMasks  |>  
-            //(Bitboards.generateOccupancyVariations >> (Bitboards.generateMagicMoves pc) occupancyMasks magicNumbersAndShifts) 
 
     let private generatePawnPseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) (side:Side) =
         //let friendlyPieces = pos |> getBitboardForSide side
@@ -347,7 +335,7 @@ module MoveGenerationLookupFunctions =
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
-        if(side <> pos.SideToPlay) then invalidOp "Attempted to generate a pseudo move for the incorrect side"
+        if(side <> pos.SideToPlay) then illegalMove "Attempted to generate a pseudo move for the incorrect side"
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
@@ -362,3 +350,14 @@ module MoveGenerationLookupFunctions =
             | Knight -> lookups.KnightMovesDb.[bitRef] &&& ~~~friendlyPieces
             | Pawn -> generatePawnPseudoMoves lookups pos bitRef side
         res
+
+    let generatePseudoMovesFullInfo (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
+        let side = pos.SideToPlay
+        let opponentPieces = pos |> getBitboardForSide (opposite side)
+        let bitboardResult = generatePseudoMoves lookups pos bitRef
+        bitboardResult 
+        |> BitUtils.getSetBits
+        |> Array.map (fun dstBitRef ->
+            let isCapture = bitboardResult |> BitUtils.hasBitSet dstBitRef
+            Moves.create (bitRef, dstBitRef) isCapture)
+

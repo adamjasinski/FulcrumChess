@@ -54,8 +54,10 @@
     <Compile Include="SeqExtensions.fs" />
     <Compile Include="Randomness.fs" />
     <Compile Include="Common.fs" />
+    <Compile Include="Exceptions.fs" />
     <Compile Include="Pieces.fs" />
     <Compile Include="Magic.fs" />
+    <Compile Include="Moves.fs" />
     <Compile Include="Position.fs" />
     <Compile Include="Board8x8Funcs.fs" />
     <Compile Include="FenParsing.fs" />

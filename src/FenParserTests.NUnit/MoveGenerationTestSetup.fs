@@ -1,10 +1,11 @@
 ﻿namespace FenParserTests.NUnit.MoveGeneration
 
 open NUnit.Framework
+open FenParser
 
 [<SetUpFixture>]
 type MagicGenerationSetupFixture() = 
-    static let mutable currentLookups:Bitboards.MoveGenerationLookups option = None
+    static let mutable currentLookups:MoveGenerationLookups option = None
 
     static member getCurrentMagic() = 
         match currentLookups with
