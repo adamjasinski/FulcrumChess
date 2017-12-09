@@ -91,31 +91,19 @@ module Positions =
             yield (pos.WhitePawns, (Chessmen.Pawn, White))
         }
 
+    let getKingBitboard (side:Side) (pos:Position) =
+        match side with
+        | Side.White -> pos.WhiteKing
+        | Side.Black -> pos.BlackKing
 
     let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
         let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        //let res =   pos |> (asBitboardSequence >> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef))
         let res =
             pos
             |> asBitboardSequence
             |> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef)
 
         res |> Option.map snd
-
-        //res |> Option.bind (fun x -> match x with | Some (a,b,c) -> Some(b,c) | None -> None)
-        //if pos.BlackPawns |> hasIt then Some(Chessmen.Pawn, Black)
-        //else if pos.BlackRooks |> hasIt then Some(Chessmen.Rook, Black)
-        //else if pos.BlackKnights |> hasIt then Some(Chessmen.Knight, Black) 
-        //else if pos.BlackBishops |> hasIt then Some(Chessmen.Bishop, Black)
-        //else if pos.BlackQueen |> hasIt then Some(Chessmen.Queen, Black)
-        //else if pos.BlackKing |> hasIt then Some(Chessmen.King, Black)
-        //else if pos.WhiteRooks |> hasIt then Some(Chessmen.Rook, White)
-        //else if pos.WhiteKnights |> hasIt then Some(Chessmen.Knight, White)
-        //else if pos.WhiteBishops |> hasIt then Some(Chessmen.Bishop, White)
-        //else if pos.WhiteQueen |> hasIt then Some(Chessmen.Queen, White)
-        //else if pos.WhiteKing |> hasIt then Some(Chessmen.King, White)
-        //else if pos.WhitePawns |> hasIt then Some(Chessmen.Pawn, White)
-        //else None
 
     let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
@@ -153,13 +141,14 @@ module Positions =
             | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
         pos'
 
-    //let isCheck (lookups:MoveGenerationLookups) (kingSide:Side) (pos:Position) =
-         
-    let makeMoveWithValidation (move:Move) (pos:Position) =
+    let isCheck (getAttacks:Side->Position->Bitboard) (kingSide:Side) (pos:Position) =
+        let opponentAttacks = pos |> getAttacks (opposite kingSide)
+        let kingBitboard = pos |> getKingBitboard kingSide
+        kingBitboard &&& opponentAttacks > 0UL      
+
+    let makeMoveWithValidation (getAttacks:Side->Position->Bitboard) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Moves.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
-
-        //TODO - perform move validation (check)
 
         let clearOpponentPieceIfCapture (p:Position) =
             let dstSquare = pos |> getChessmanAndSide dstBitRef
@@ -180,5 +169,9 @@ module Positions =
             |> clearPieceInternal (chessman, side) srcBitRef
             |> clearOpponentPieceIfCapture
             |> swapSide
-        //TODO - validation
-        Some pos'
+
+        if isCheck getAttacks side pos' then
+            //printfn "Check!"
+            None
+        else
+            Some pos'

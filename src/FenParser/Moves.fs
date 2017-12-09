@@ -36,5 +36,7 @@ let private bitRefToAlgebraicNotation bitRef =
 
 let toCoordinateNotation (move:Move) =
     let (srcBitRef, dstBitRef) = move |> getSrcAndDestBitRefs
-    let str = sprintf "%s-%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)
-    str
+    if srcBitRef <> dstBitRef then
+        sprintf "%s-%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)
+    else
+        "NULL"

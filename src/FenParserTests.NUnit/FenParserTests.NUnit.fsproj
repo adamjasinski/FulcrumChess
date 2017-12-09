@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FenParserTests.NUnit</RootNamespace>
     <AssemblyName>FenParserTests.NUnit</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,17 +37,17 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.1.0.2\lib\net45\FSharp.Core.dll</HintPath>
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="Unquote">
-      <HintPath>..\packages\Unquote.3.2.0\lib\net45\Unquote.dll</HintPath>
+      <HintPath>..\packages\Unquote.4.0.0\lib\net45\Unquote.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -60,8 +60,8 @@
     <Compile Include="FenParsingTests.fs" />
     <Compile Include="BitboardTests.fs" />
     <Compile Include="MovesTests.fs" />
-    <Compile Include="PositionTests.fs" />
     <Compile Include="MoveGenerationTestSetup.fs" />
+    <Compile Include="PositionTests.fs" />
     <Compile Include="MoveGenTestHelper.fs" />
     <Compile Include="MoveGenRookTests.fs" />
     <Compile Include="MoveGenBishopTests.fs" />

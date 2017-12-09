@@ -30,9 +30,9 @@ module Program =
         printfn "Please enter perft depth"
         //let perftDepthAsString = Console.ReadLine()
         //let perftDepth = System.Int32.Parse(perftDepthAsString)
-        let perftDepth = 3
+        let perftDepth = 4
         printfn "Running perft for depth %d" perftDepth
         runTimedFun <| fun () ->
-            let totalNodesCount = Perft.perft lookups Positions.initialPosition perftDepth
-            printfn "Total nodes count: %d" totalNodesCount
+            let totalNodesCount = Perft.perft lookups (0us, Positions.initialPosition) (1,perftDepth)
+            printfn "========= Total nodes count: %d =============" totalNodesCount
         0 // return an integer exit code

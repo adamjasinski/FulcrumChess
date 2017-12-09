@@ -3,6 +3,7 @@ open NUnit.Framework
 open Swensen.Unquote
 open FenParser
 open Bitboards
+open FenParserTests.NUnit
 
 module MoveGenPawnTests =
     open MoveGenTestHelper
@@ -47,5 +48,15 @@ module MoveGenPawnTests =
     let ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
-
+    
+    [<Test>]
+    let ``perft 3 level issue repro`` () =
+        let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
+        let fen = "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq -"
+        let pos = FenParsing.parseToPosition fen
+        let srcBitRefs = pos |> Positions.getBitboardForSideToPlay |> BitUtils.getSetBits
+        let pseudoMovesForSide = srcBitRefs |> Array.map (MoveGenerationLookupFunctions.generatePseudoMovesFullInfo lookups pos)
+        let pseudoMovesCount = pseudoMovesForSide |> Array.collect id |> Array.length
+        test <@ 20 = pseudoMovesCount @>
+   
     //TODO - en passant

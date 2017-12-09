@@ -49,7 +49,6 @@ module MoveGenKingTests =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
         ()
 
-    
    //TODO - castling!
 
 
