@@ -9,10 +9,10 @@ let deployDir = "./deploy/"
 
 // Filesets
 let appReferences  = 
-    !! "src/FenParser/FenParser.fsproj"
+    !! "src/FulcrumChess.Engine/FulcrumChess.Engine.fsproj"
 
 let testReferences =
-    !! "src/FenParserTests.NUnit/*.fsproj"
+    !! "src/FulcrumChess.Engine.Tests/*.fsproj"
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -38,11 +38,11 @@ Target "xUnitTest" (fun _ ->
 )
 
 // Target "xUnitTestDebug" (fun _ ->  
-//     Shell.Exec("mono", "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FenParserTests.dll", "testDir") |> ignore
+//     Shell.Exec("mono", "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FulcrumChess.Engine.Tests.dll", "testDir") |> ignore
 // )
 
 Target "NUnitTest" (fun _ ->  
-    !! (testDir + "/*Tests.NUnit.dll")
+    !! (testDir + "/*Tests.dll")
         |> NUnit3 (fun p -> 
             {p with 
                 ShadowCopy = false;
