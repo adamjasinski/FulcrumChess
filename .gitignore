@@ -193,3 +193,5 @@ docs/content/paket.exe
 TestResult.xml
 tests/Paket.Tests/NuGetConfig/PasswordConfig.xml
 
+#Visual Studio Code
+.vscode
