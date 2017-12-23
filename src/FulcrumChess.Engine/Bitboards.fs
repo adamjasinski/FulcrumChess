@@ -325,6 +325,12 @@ module MoveGenerationLookupFunctions =
             BlackPawnMovesDb = generateSquaresAndCapturesForBlackPawn();
         }
 
+    module private Rows  =
+        let [<Literal>] ThirdRow =  0xFF0000UL
+        let [<Literal>] FourthRow = 0xFF000000UL
+        let [<Literal>] FifthRow =  0xFF00000000UL
+        let [<Literal>] SixthRow =  0xFF0000000000UL
+
     let private generatePawnPseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) (side:Side) =
         //let friendlyPieces = pos |> getBitboardForSide side
         let opposingPieces = pos |> getBitboardForSide (Common.opposite side)
@@ -334,7 +340,14 @@ module MoveGenerationLookupFunctions =
             | White -> lookups.WhitePawnMovesDb.[bitRef]
             | Black -> lookups.BlackPawnMovesDb.[bitRef]
 
-        let movesMinusBlockers = moves &&& ~~~allPieces
+       
+        let blockers =
+            match side with
+            | White -> if moves &&& Rows.FourthRow > 0UL && moves &&& allPieces &&& Rows.ThirdRow > 0UL then allPieces ||| Rows.FourthRow else allPieces
+            | Black -> if moves &&& Rows.FifthRow > 0UL && moves &&& allPieces &&& Rows.SixthRow > 0UL then allPieces ||| Rows.FifthRow else allPieces
+
+        let movesMinusBlockers = moves &&& ~~~blockers
+
         let capturesMinusFriendly = captures &&& opposingPieces
         movesMinusBlockers ||| capturesMinusFriendly
 
