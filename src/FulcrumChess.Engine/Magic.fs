@@ -56,24 +56,24 @@ module PregeneratedMagic =
 
     let PartialMagicFor32BitHashing = 
         // Contains some more computationally expensive magic values for corner/edge squares
-        let magicNumberRook  = 
+        let magicNumberRook:uint64[]  = 
             let a = Array.zeroCreate<uint64> 64
-            a.[0] <- 0x4204804000082010UL
-            a.[1] <- 0x20084000400010UL
-            a.[2] <- 0x48608900401020UL
-            a.[3] <- 0x8a8001204100004UL
-            a.[4] <- 0x400808260080800cUL
-            a.[5] <- 0x4202811010104UL
-            a.[6] <- 0x60002c000800201UL
-            a.[7] <- 0x408000800435UL
-            a.[56] <- 0x20c0b202010082UL
-            a.[57] <- 0x69008182011040UL
-            a.[58] <- 0x411080942404020UL
-            a.[59] <- 0x110882140858410UL
-            a.[60] <- 0x5f4181240002002UL
-            a.[61] <- 0x40209000c0081UL
-            a.[62] <- 0x501009640000802UL
-            a.[63] <- 0x8024c02120400473UL
+            a.[0] <- 0x8080028020514000UL
+            a.[1] <- 0x840002000100041UL
+            a.[2] <- 0x2000a1020420180UL
+            a.[3] <- 0x480041000880080UL
+            a.[4] <- 0x4a00020010080420UL
+            a.[5] <- 0x3180020080040011UL
+            a.[6] <- 0x6100008200040100UL
+            a.[7] <- 0x8100004082112900UL
+            a.[56] <- 0x10800890a1418101UL
+            a.[57] <- 0x21001208802042UL
+            a.[58] <- 0x81002000091441UL
+            a.[59] <- 0x40a004010092006UL
+            a.[60] <- 0x2000890200502UL
+            a.[61] <- 0x1100020844000bUL
+            a.[62] <- 0x220108248100104UL
+            a.[63] <- 0x2088020440102UL
             a
 
         let magicNumberBishop = Array.zeroCreate<uint64> 64

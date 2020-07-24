@@ -41,23 +41,25 @@ module Randomness =
             //m.Value <- s5
             s5
 
-    let generateRandomUInt64 = initRandomUInt64Generator 8977UL //TODO
+    // NB - constant seed makes the 'random' sequence deterministic, but it also makes magic pre-generation and re-use possible
+    let generateRandomUInt64 = initRandomUInt64Generator 8977UL
 
-    //let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
+    /// Generate a random number with not many bits set
+    let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
 
     //let randomLock = obj()
 
-    let rnd = 
-        new ThreadLocal<Random>(
-            fun () -> new Random())
+    // let rnd = 
+    //     new ThreadLocal<Random>(
+    //         fun () -> new Random())
 
     //let initThreadLocalRandom() = System.Threading.ThreadLocal<RandomExtensions>
 
     //let rnd = System.Random()
     //let generateSparseUInt64 () = lock randomLock (fun () -> rnd.NextUInt64() &&& rnd.NextUInt64() &&& rnd.NextUInt64()) // generate a random number with not many bits set
-    let generateSparseUInt64 () = 
-        let currentRnd = rnd.Value
-        currentRnd.NextUInt64() &&& currentRnd.NextUInt64() &&& currentRnd.NextUInt64()  // generate a random number with not many bits set
+    // let generateSparseUInt64 () = 
+    //     let currentRnd = rnd.Value
+    //     currentRnd.NextUInt64() &&& currentRnd.NextUInt64() &&& currentRnd.NextUInt64()  // generate a random number with not many bits set
 
     let infiniteSparseUInt64Sequence = 
         Seq.initInfinite (fun i -> 

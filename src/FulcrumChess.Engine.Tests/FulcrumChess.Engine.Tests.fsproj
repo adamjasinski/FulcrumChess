@@ -4,7 +4,6 @@
     <RootNamespace>FulcrumChess.Engine.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Tutorial.fs"/>
     <Compile Include="Attributes.fs"/>
     <Compile Include="SeqExtensionTests.fs"/>
     <Compile Include="PseudoRandomTests.fs"/>
@@ -21,6 +20,7 @@
     <Compile Include="MoveGenKingTests.fs"/>
     <Compile Include="MoveGenKnightTests.fs"/>
     <Compile Include="MoveGenPawnTests.fs"/>
+    <Compile Include="Program.fs"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0"/>
