@@ -1,83 +1,34 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{050D8900-D3C8-46FF-925A-7C78B358B3C1}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>FulcrumChess.Engine.Tests</RootNamespace>
-    <AssemblyName>FulcrumChess.Engine.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <ExternalConsole>true</ExternalConsole>
-    <PlatformTarget></PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <DefineConstants></DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <ExternalConsole>true</ExternalConsole>
-    <GenerateTailCalls>true</GenerateTailCalls>
-    <PlatformTarget></PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup>
-    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
-    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="Unquote">
-      <HintPath>..\packages\Unquote.4.0.0\lib\net45\Unquote.dll</HintPath>
-    </Reference>
+    <Compile Include="Tutorial.fs"/>
+    <Compile Include="Attributes.fs"/>
+    <Compile Include="SeqExtensionTests.fs"/>
+    <Compile Include="PseudoRandomTests.fs"/>
+    <Compile Include="BitUtilsTests.fs"/>
+    <Compile Include="FenParsingTests.fs"/>
+    <Compile Include="BitboardTests.fs"/>
+    <Compile Include="MovesTests.fs"/>
+    <Compile Include="MoveGenerationTestSetup.fs"/>
+    <Compile Include="PositionTests.fs"/>
+    <Compile Include="MoveGenTestHelper.fs"/>
+    <Compile Include="MoveGenRookTests.fs"/>
+    <Compile Include="MoveGenBishopTests.fs"/>
+    <Compile Include="MoveGenQueenTests.fs"/>
+    <Compile Include="MoveGenKingTests.fs"/>
+    <Compile Include="MoveGenKnightTests.fs"/>
+    <Compile Include="MoveGenPawnTests.fs"/>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Tutorial.fs" />
-    <None Include="packages.config" />
-    <Compile Include="Attributes.fs" />
-    <Compile Include="SeqExtensionTests.fs" />
-    <Compile Include="PseudoRandomTests.fs" />
-    <Compile Include="BitUtilsTests.fs" />
-    <Compile Include="FenParsingTests.fs" />
-    <Compile Include="BitboardTests.fs" />
-    <Compile Include="MovesTests.fs" />
-    <Compile Include="MoveGenerationTestSetup.fs" />
-    <Compile Include="PositionTests.fs" />
-    <Compile Include="MoveGenTestHelper.fs" />
-    <Compile Include="MoveGenRookTests.fs" />
-    <Compile Include="MoveGenBishopTests.fs" />
-    <Compile Include="MoveGenQueenTests.fs" />
-    <Compile Include="MoveGenKingTests.fs" />
-    <Compile Include="MoveGenKnightTests.fs" />
-    <Compile Include="MoveGenPawnTests.fs" />
+    <PackageReference Include="NUnit" Version="3.12.0"/>
+    <PackageReference Include="Unquote" Version="5.0.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FulcrumChess.Engine\FulcrumChess.Engine.fsproj">
-      <Project>{96245B6B-D4F0-4E44-B8FC-F4B6D9AD785F}</Project>
-      <Name>FulcrumChess.Engine</Name>
-    </ProjectReference>
+   <ItemGroup>
+      <ProjectReference Include="..\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
   </ItemGroup>
-  <Import Project="$(FSharpTargetsPath)" />
-  <Target Name="AfterBuild">
-    <Copy SourceFiles="..\FulcrumChess.Engine\bin\$(Configuration)\FulcrumChess.Engine.exe.mdb" DestinationFolder="$(OutputPath)" ContinueOnError="true" />
-  </Target>
 </Project>
