@@ -1,22 +1,23 @@
 ﻿namespace FulcrumChess.Engine.Tests
 open FulcrumChess.Engine
-open NUnit.Framework
 open Swensen.Unquote
+open Xunit
 open System
 
 module BitboardTests =
 
-    [<TestCase(0, "h1")>]
-    [<TestCase(7, "a1")>]
-    [<TestCase(8, "h2")>]
-    [<TestCase(56, "h8")>]
-    [<TestCase(63, "a8")>]
+    [<Theory>]
+    [<InlineDataEx(0, "h1")>]
+    [<InlineDataEx(7, "a1")>]
+    [<InlineDataEx(8, "h2")>]
+    [<InlineDataEx(56, "h8")>]
+    [<InlineDataEx(63, "a8")>]
     let ``bitRefToAlgebraicNotation should map to expected notation`` bitRef expectedNotation =
         let result = Bitboards.bitRefToAlgebraicNotation bitRef
         test <@ expectedNotation = result @>
 
     
-    [<Test>]
+    [<Fact>]
     let ``quick test of getSetBits (1)`` () =
         let input = 2017
         let expectedResult = [|0;5;6;7;8;9;10|]

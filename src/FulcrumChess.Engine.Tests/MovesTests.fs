@@ -1,11 +1,11 @@
 ﻿namespace FulcrumChess.Engine.Tests
 open FulcrumChess.Engine
-open NUnit.Framework
+open Xunit
 open Swensen.Unquote
 
 module MovesTests =
 
-    [<Test>]
+    [<Fact>]
     let ``creates sets expected bit mask`` () =
         // e2-e4
         let move = Moves.create (11,27) false
@@ -13,7 +13,7 @@ module MovesTests =
         test <@ 731us = uint16(move) @>       
 
 
-    [<Test>]
+    [<Fact>]
     let ``getDestBitRef returns expected bit`` () =
         // b8-a6 == 62--47
         let move = (62us <<< 6 ||| 47us)
@@ -22,7 +22,7 @@ module MovesTests =
         test <@ 47 = actualDestBitRef @>       
 
 
-    [<Test>]
+    [<Fact>]
     let ``can roundtrip`` () =
         // e2-e4
         let move = Moves.create (11,27) false
@@ -33,7 +33,7 @@ module MovesTests =
         test <@ 27 = actualDestBitRef @>
 
 
-    [<Test>]
+    [<Fact>]
     let ``getCoordinationNotation returns expected value`` () =
        // e2-e4
        let move = Moves.create (11,27) false

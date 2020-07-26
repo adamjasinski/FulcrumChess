@@ -1,18 +1,18 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
-open NUnit.Framework
+open Xunit
 open Swensen.Unquote
 open FulcrumChess.Engine
 open Bitboards
 open FulcrumChess.Engine.Tests
 
-module MoveGenQueenTests =
-    open MoveGenTestHelper
+type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
-    [<Test>]
+    let lookups = magicGenerationSetupFixture.Lookups
+
+    [<Fact>]
     [<BoardRef("2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify moves of White Queen at c4; a few other black and white pieces on the board`` () =
-        let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
-        let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
+        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
 
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -"
@@ -27,11 +27,10 @@ module MoveGenQueenTests =
 
 
 
-    [<Test>]
+    [<Fact>]
     [<BoardRef("2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify captures of White Queen at c4; a few other black and white pieces on the board`` () =
-        let lookups =  MagicGenerationSetupFixture.getCurrentLookups()
-        let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
+        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
  
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -"
@@ -45,3 +44,5 @@ module MoveGenQueenTests =
         printfn "%A" (algNotations)
         let expectedSquares = ["a6"; "c8";  "f7"; "g4"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
+
+    interface IClassFixture<MagicGenerationSetupFixture>
