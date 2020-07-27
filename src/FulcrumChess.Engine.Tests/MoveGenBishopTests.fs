@@ -1,5 +1,6 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
 open Xunit
+open Xunit.Extensions.AssemblyFixture
 open Swensen.Unquote
 open FulcrumChess.Engine
 open FulcrumChess.Engine.Tests
@@ -47,4 +48,4 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
         test <@ result = 0UL @>
 
-    interface IClassFixture<MagicGenerationSetupFixture>
+    interface IAssemblyFixture<MagicGenerationSetupFixture>

@@ -1,5 +1,6 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
 open Xunit
+open Xunit.Extensions.AssemblyFixture
 open Swensen.Unquote
 open FulcrumChess.Engine
 open Bitboards
@@ -10,8 +11,6 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     let lookups = magicGenerationSetupFixture.Lookups
 
     let verifyMoves (fen:string, startBitRef:int, expectedSquaresList:string list) =
-        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
-
         let pos = FenParsing.parseToPosition fen
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
@@ -21,7 +20,7 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquares = expectedSquaresList |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    interface IClassFixture<MagicGenerationSetupFixture>
+    interface IAssemblyFixture<MagicGenerationSetupFixture>
 
     static member TestCasesWhite() =
         seq {

@@ -1,5 +1,6 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
 open Xunit
+open Xunit.Extensions.AssemblyFixture
 open Swensen.Unquote
 open FulcrumChess.Engine
 open FulcrumChess.Engine.Tests
@@ -9,7 +10,7 @@ type MoveGenKnightTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
     let lookups = magicGenerationSetupFixture.Lookups
 
-    interface IClassFixture<MagicGenerationSetupFixture>
+    interface IAssemblyFixture<MagicGenerationSetupFixture>
 
     static member TestCases =
         seq {
@@ -26,8 +27,6 @@ type MoveGenKnightTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
     [<Theory; MemberData("TestCases")>]
     member _. ``verify moves of Black Knight (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
-        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
-
         let pos = FenParsing.parseToPosition fen
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef

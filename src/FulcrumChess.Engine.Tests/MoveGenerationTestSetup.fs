@@ -1,5 +1,4 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
-
 open FulcrumChess.Engine
 
 type MagicGenerationSetupFixture() = 

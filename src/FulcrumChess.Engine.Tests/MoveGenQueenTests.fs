@@ -1,5 +1,6 @@
 ﻿namespace FulcrumChess.Engine.Tests.MoveGeneration
 open Xunit
+open Xunit.Extensions.AssemblyFixture
 open Swensen.Unquote
 open FulcrumChess.Engine
 open Bitboards
@@ -12,8 +13,6 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) 
     [<Fact>]
     [<BoardRef("2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify moves of White Queen at c4; a few other black and white pieces on the board`` () =
-        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
-
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "2r5/5p2/p7/8/2Q3b1/8/4P3/2R5 w - -"
 
@@ -30,8 +29,6 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) 
     [<Fact>]
     [<BoardRef("2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -", "https://lichess.org/editor/2r5/5p2/p7/8/2Q3b1/8/4P3/2R5_w_-_-")>]
     let ``verify captures of White Queen at c4; a few other black and white pieces on the board`` () =
-        //let res = MoveGenerationLookupFunctions.generatePseudoMoves lookups 
- 
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -"
 
@@ -45,4 +42,4 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) 
         let expectedSquares = ["a6"; "c8";  "f7"; "g4"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    interface IClassFixture<MagicGenerationSetupFixture>
+    interface IAssemblyFixture<MagicGenerationSetupFixture>

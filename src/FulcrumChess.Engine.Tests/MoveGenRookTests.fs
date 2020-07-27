@@ -11,7 +11,6 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     let magicNumbersAndShifts = magicGenerationSetupFixture.Lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsRook
 
     let generateRookMovesViaBitboards (allPieces:Bitboard) (friendlyPieces:Bitboard) startBitref =
-        //let rookMagicMovesDb = Bitboards.bootstrapRookMagicMoves magicNumbersAndShifts
         let rookMagicMovesDb = magicGenerationSetupFixture.Lookups.RookMovesDb
         Bitboards.generateMovesForPosition SlidingPiece.Rook rookMagicMovesDb allPieces friendlyPieces startBitref magicNumbersAndShifts
     
@@ -123,7 +122,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    interface IClassFixture<MagicGenerationSetupFixture>
+    interface IAssemblyFixture<MagicGenerationSetupFixture>
     
 
   
