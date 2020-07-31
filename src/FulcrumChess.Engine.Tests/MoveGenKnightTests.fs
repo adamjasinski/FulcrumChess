@@ -22,10 +22,9 @@ type MoveGenKnightTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
             ("7Q/4b3/6n1/8/5p1P/8/8/8 b - -", 41, ["f8"; "h8";  "h4"; "e5"]);
             ("7Q/4b3/6n1/8/5p1P/8/8/8 b - -", 41, ["f8"; "h8";  "h4"; "e5"]);
         }
-        |> Seq.map( fun (a,b,c) -> [|box a; box b; box c|])
 
 
-    [<Theory; MemberData("TestCases")>]
+    [<Theory; MemberDataEx("TestCases")>]
     member __. ``verify moves of Black Knight (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         let pos = FenParsing.parseToPosition fen
 

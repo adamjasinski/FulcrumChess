@@ -31,7 +31,6 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
             yield ("8/8/8/2ppb3/3P4/8/8/8 w - -", 28, ["c5"; "e5"]);  //f8 - captures
             yield ("8/8/8/8/8/7N/7P/8 w - -", 8, List.empty<string>);  //h2, Nh3 blocking
         } 
-        |> Seq.map( fun (a,b,c) -> [|box a; box b; box c|])
 
     static member TestCasesBlack() =
         seq {
@@ -42,13 +41,12 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
             //yield ("8/8/8/3p4/2PPN3/8/8/8 b - -", 36, ["c4"; "e4"]); //d5 - captures
             //yield ("8/7p/7n/8/8/8/8/8 b - -", 48, List.empty<string>);  //h7, Nh6 blocking
         }
-        |> Seq.map( fun (a,b,c) -> [|box a; box b; box c|])
 
-    [<Theory; MemberData("TestCasesWhite")>]
+    [<Theory; MemberDataEx("TestCasesWhite")>]
     member __. ``verify moves of White Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
-    [<Theory; MemberData("TestCasesBlack")>]
+    [<Theory; MemberDataEx("TestCasesBlack")>]
     member __. ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
