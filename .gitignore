@@ -195,3 +195,4 @@ tests/Paket.Tests/NuGetConfig/PasswordConfig.xml
 
 #Visual Studio Code
 .vscode
+.ionide

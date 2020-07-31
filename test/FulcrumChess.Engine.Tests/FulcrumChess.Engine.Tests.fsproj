@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
+    <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.fs"/>
