@@ -26,7 +26,7 @@ type MoveGenKnightTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
 
     [<Theory; MemberData("TestCases")>]
-    member _. ``verify moves of Black Knight (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+    member __. ``verify moves of Black Knight (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         let pos = FenParsing.parseToPosition fen
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef

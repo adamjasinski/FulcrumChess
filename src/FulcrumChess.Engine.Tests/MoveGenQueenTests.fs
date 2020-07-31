@@ -6,7 +6,7 @@ open FulcrumChess.Engine
 open Bitboards
 open FulcrumChess.Engine.Tests
 
-type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
+type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture, output:Xunit.Abstractions.ITestOutputHelper) =
 
     let lookups = magicGenerationSetupFixture.Lookups
 
@@ -20,7 +20,7 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) 
 
         test <@ result <> 0UL @>
         let algNotations = result |> setBitsToAlgebraicNotations
-        printfn "%A" (algNotations)
+        sprintf "%A" (algNotations) |> output.WriteLine
         let expectedSquares = ["a4"; "b4"; "d4"; "e4"; "f4"; "g4"; "c2"; "c3"; "c5"; "c6"; "c7"; "c8"; "a6"; "b5"; "d3"; "a2"; "b3"; "d5"; "e6"; "f7" ] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
@@ -38,7 +38,7 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) 
 
         test <@ attacks <> 0UL @>
         let algNotations = attacks |> setBitsToAlgebraicNotations
-        printfn "%A" (algNotations)
+        sprintf "%A" (algNotations) |> output.WriteLine
         let expectedSquares = ["a6"; "c8";  "f7"; "g4"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 

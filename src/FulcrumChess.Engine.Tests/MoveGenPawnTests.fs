@@ -45,16 +45,16 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         |> Seq.map( fun (a,b,c) -> [|box a; box b; box c|])
 
     [<Theory; MemberData("TestCasesWhite")>]
-    member _. ``verify moves of White Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+    member __. ``verify moves of White Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
     [<Theory; MemberData("TestCasesBlack")>]
-    member _. ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+    member __. ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
 
     
     [<Fact>]
-    member _. ``perft 3 level issue repro`` () =
+    member __. ``perft 3 level issue repro`` () =
         let fen = "rnbqkb1r/pppppppp/7n/8/8/7N/PPPPPPPP/RNBQKB1R w KQkq -"
         let pos = FenParsing.parseToPosition fen
         let srcBitRefs = pos |> Positions.getBitboardForSideToPlay |> BitUtils.getSetBits

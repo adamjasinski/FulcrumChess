@@ -44,7 +44,7 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
     [<Fact>]
     [<BoardRef("8/6p1/8/8/8/n1Q5/1K6/1N6 w - -", "https://lichess.org/editor/8/6p1/8/8/8/n1Q5/1K6/1N6_w_-_-")>]
-    member _.``verify moves of White King at c3; a few other black and white pieces on the board`` () =
+    member __.``verify moves of White King at c3; a few other black and white pieces on the board`` () =
         let startBitRef = 14    //b2
         let pos = FenParsing.parseToPosition "8/6p1/8/8/8/n1Q5/1K6/1N6 w - -"
 
@@ -57,7 +57,7 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
     [<Theory; MemberData("TestCases")>]
-    member _.``verify moves of King (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+    member __.``verify moves of King (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         let pos = FenParsing.parseToPosition fen
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef

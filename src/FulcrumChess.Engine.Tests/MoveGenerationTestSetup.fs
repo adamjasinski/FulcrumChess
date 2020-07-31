@@ -4,4 +4,4 @@ open FulcrumChess.Engine
 type MagicGenerationSetupFixture() = 
     let currentLookups = Bitboards.MoveGenerationLookupFunctions.bootstrapAll()
 
-    member _.Lookups = currentLookups
+    member __.Lookups = currentLookups
