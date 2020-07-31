@@ -2,6 +2,7 @@
 open System
 open System.Reflection
 
+[<AttributeUsage(AttributeTargets.Method, AllowMultiple = false)>]
 type BoardRefAttribute(fen:string, url:string) =
     inherit Attribute()
     member __.FEN = fen
@@ -42,6 +43,7 @@ module TupleHelper =
             else [tuple]
 
 //Extension for MemberDataAttribute that unrolls tuples into array of objects
+[<AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)>]
 type MemberDataExAttribute(memberName:string, parameters:obj[]) =
     inherit Xunit.MemberDataAttributeBase(memberName, parameters)
 
