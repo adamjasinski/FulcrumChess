@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>FulcrumChess.Engine</RootNamespace>
+    <DefineConstants>FAST_32BIT_MULT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Arrow.fs" />

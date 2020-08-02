@@ -53,7 +53,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<Fact(Skip="pre-generated magic has been generated with a different Shift&Multiply function")>]
+    [<Fact>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board`` () =
         let startBitRef = 39    //a5
         let opponentOccupancy = 1UL <<< 36  //d5

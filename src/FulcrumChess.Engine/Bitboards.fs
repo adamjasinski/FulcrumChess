@@ -259,8 +259,8 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                 let mutable candidateCount = 0
 
                 let magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet (magicNumber:uint64) =
-                    #if DIAG
                     candidateCount <- candidateCount + 1
+                    #if DIAG
                     if(candidateCount % 100000 = 0) then
                         printfn "Total magic attempts: %d" candidateCount
                     //magicAttemptsPerBitCount.[bitRef] <- candidateCount
@@ -302,6 +302,8 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
     let pregeneratedMagic = PregeneratedMagic.PartialMagicFor32BitHashing |> PregeneratedMagic.getMagicValuesAndShiftsFor pc
     let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets pregeneratedMagic
+    printfn "=================================================%A" pc
+    //magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%x" i (pair |> fst))
     magick |> Array.ofSeq
 
 let bootstrapMagicNumberGenerationForRook() = bootstrapMagicNumberGeneration SlidingPiece.Rook
@@ -313,7 +315,10 @@ module MoveGenerationLookupFunctions =
     let bootstrapAll () = 
         let magicNumbersAndShiftsRook = bootstrapMagicNumberGeneration SlidingPiece.Rook
         let magicNumbersAndShiftsBishop = bootstrapMagicNumberGeneration SlidingPiece.Bishop
-        let allMagic = {MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop}
+        let allMagic = {
+            MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; 
+            MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop
+        }
 
         { 
             MoveGenerationLookups.MagicNumbersAndShifts = allMagic;

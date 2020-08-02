@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>FulcrumChess.Engine.Tests</RootNamespace>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DefineConstants>FAST_32BIT_MULT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
@@ -23,6 +24,7 @@
     <Compile Include="MoveGenKingTests.fs"/>
     <Compile Include="MoveGenKnightTests.fs"/>
     <Compile Include="MoveGenPawnTests.fs"/>
+    <Compile Include="PerftTests.fs"/>
     <Compile Include="Program.fs"/>
   </ItemGroup>
   <ItemGroup>
