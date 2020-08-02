@@ -1,64 +1,40 @@
-#r "src/packages/FAKE/tools/FakeLib.dll" // include Fake lib
-open Fake 
-open Fake.Testing
+#r "paket:
+nuget Fake.DotNet.Cli
+nuget Fake.IO.FileSystem
+nuget Fake.Core.Target //"
+#load ".fake/build.fsx/intellisense.fsx"
+open Fake.Core
+open Fake.DotNet
+open Fake.IO
+open Fake.IO.FileSystemOperators
+open Fake.IO.Globbing.Operators
+open Fake.Core.TargetOperators
 
-// Directories
-let buildDir  = "./build/bin/"
-let testDir   = "./build/test/"
-let deployDir = "./deploy/"
+Target.initEnvironment ()
 
-// Filesets
-let appReferences  = 
-    !! "src/FulcrumChess.Engine/FulcrumChess.Engine.fsproj"
-
-let testReferences =
-    !! "src/FulcrumChess.Engine.Tests/*.fsproj"
-
-// Targets
-Target "Clean" (fun _ -> 
-    CleanDirs [buildDir; testDir; deployDir]
+Target.create "Clean" (fun _ ->
+    !! "src/**/bin"
+    ++ "src/**/obj"
+    ++ "test/**/bin"
+    ++ "test/**/obj"
+    |> Shell.cleanDirs 
 )
 
-Target "BuildApp" (fun _ -> 
-    MSBuildDebug buildDir "Build" appReferences
-    |> Log "AppBuild-Output: "
+Target.create "Build" (fun _ ->
+    !! "src/**/*.*proj"
+    |> Seq.iter (DotNet.build id)
 )
 
-Target "BuildTest" (fun _ -> 
-    MSBuildDebug testDir "Build" testReferences
-    |> Log "TestBuild-Output: "
+Target.create "Test" (fun _ ->
+    !! "test/**/*.*proj"
+    |> Seq.iter (DotNet.test id)
 )
 
-Target "xUnitTest" (fun _ ->  
-    !! (testDir + "/*Tests.dll")
-        |> xUnit2 (fun p -> 
-            {p with 
-                ShadowCopy = false;
-                ToolPath = "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe" })
-)
-
-// Target "xUnitTestDebug" (fun _ ->  
-//     Shell.Exec("mono", "./src/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe FulcrumChess.Engine.Tests.dll", "testDir") |> ignore
-// )
-
-Target "NUnitTest" (fun _ ->  
-    !! (testDir + "/*Tests.dll")
-        |> NUnit3 (fun p -> 
-            {p with 
-                ShadowCopy = false;
-                ToolPath = "./src/packages/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe" })
-)
-
-Target "Deploy" (fun _ ->
-    trace "Heavy deploy action"
-)
+Target.create "All" ignore
 
 "Clean"
-   ==> "BuildApp"
-   ==> "BuildTest"
-   =?> ("NUnitTest",hasBuildParam "NUnitTest")  // only if FAKE was called with parameter NUnitTest
-   ==> "Deploy"
+  ==> "Build"
+  ==> "Test"
+  ==> "All"
 
-//Run "Deploy"
-RunParameterTargetOrDefault "target" "Deploy"
-
+Target.runOrDefault "All"
