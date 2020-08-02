@@ -295,7 +295,6 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                 pregeneratedCandidate
      )
 
-
 let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let occupancyMask = getOccupancyMask pc
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
@@ -336,7 +335,7 @@ module MoveGenerationLookupFunctions =
         let [<Literal>] FifthRow =  0xFF00000000UL
         let [<Literal>] SixthRow =  0xFF0000000000UL
 
-    let private generatePawnPseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) (side:Side) =
+    let private generatePawnPseudoMoves (pos:Position) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
         //let friendlyPieces = pos |> getBitboardForSide side
         let opposingPieces = pos |> getBitboardForSide (Common.opposite side)
         let allPieces = pos |> bothSidesBitboard
@@ -356,22 +355,47 @@ module MoveGenerationLookupFunctions =
         let capturesMinusFriendly = captures &&& opposingPieces
         movesMinusBlockers ||| capturesMinusFriendly
 
+    let private generateKnightPseudoMoves (friendlyPieces:Bitboard) (bitRef:int) (lookups:MoveGenerationLookups) =
+        lookups.KnightMovesDb.[bitRef] &&& ~~~friendlyPieces
+
+    let private generateQueenPseudoMoves (allPieces:Bitboard) (friendlyPieces:Bitboard) (bitRef:int) (lookups:MoveGenerationLookups) =
+        generateMovesForPositionViaLookups Bishop allPieces friendlyPieces bitRef lookups
+        ||| generateMovesForPositionViaLookups Rook allPieces friendlyPieces bitRef lookups
+
+    let private generateKingPseudoMoves (pos:Position) (allPieces:Bitboard) (friendlyPieces:Bitboard) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
+        let castlingSpecial = 
+            let castlingLookup = Positions.castlingLookups.[side]
+            let kingBitboard = Positions.getKingBitboard side pos
+            if (kingBitboard &&&  castlingLookup.InitialPositionKing) > 0UL then
+                let rooksBitBoard = Positions.getRooksBitboard side pos
+                let kingSideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL
+                let queensideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL
+                match (kingSideCastling, queensideCastling) with 
+                | (true, true) -> castlingLookup.DestinationKingSideCastling ||| castlingLookup.DestinationQueenSideCastling
+                | (true, false) -> castlingLookup.DestinationKingSideCastling
+                | (false, true) -> castlingLookup.DestinationQueenSideCastling
+                | _ -> 0UL
+            else
+                0UL
+            //TODO - set castling flag
+
+        (lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces) ||| castlingSpecial
+
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         //if(side <> pos.SideToPlay) then illegalMove "Attempted to generate a pseudo move for the incorrect side"
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
-        let res = 
+        let generator = 
             match chessman with
-            | Chessmen.Bishop -> generateMovesForPositionViaLookups Bishop allPieces friendlyPieces bitRef lookups
-            | Chessmen.Rook -> generateMovesForPositionViaLookups Rook allPieces friendlyPieces bitRef lookups
-            | Queen -> generateMovesForPositionViaLookups Bishop allPieces friendlyPieces bitRef lookups
-                       ||| generateMovesForPositionViaLookups Rook allPieces friendlyPieces bitRef lookups
-            | King -> lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces
-            | Knight -> lookups.KnightMovesDb.[bitRef] &&& ~~~friendlyPieces
-            | Pawn -> generatePawnPseudoMoves lookups pos bitRef side
-        res
+            | Chessmen.Bishop -> generateMovesForPositionViaLookups Bishop allPieces friendlyPieces
+            | Chessmen.Rook -> generateMovesForPositionViaLookups Rook allPieces friendlyPieces
+            | Queen -> generateQueenPseudoMoves allPieces friendlyPieces
+            | King -> generateKingPseudoMoves pos allPieces friendlyPieces side 
+            | Knight -> generateKnightPseudoMoves friendlyPieces
+            | Pawn -> generatePawnPseudoMoves pos side 
+        generator bitRef lookups
 
     let generateAllPseudoMovesForSide (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos

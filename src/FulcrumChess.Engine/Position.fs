@@ -17,6 +17,16 @@ type Position = {
     SideToPlay:Side;
 }
 
+type CastlingLookup = {
+    InitialPositionKing:Bitboard;
+    InitialPositionKingsRook:Bitboard;
+    InitialPositionQueensRook:Bitboard;
+    BlockersKingsRook:Bitboard;
+    BlockersQueensRook:Bitboard;
+    DestinationKingSideCastling:Bitboard;
+    DestinationQueenSideCastling:Bitboard;
+}
+    
 module Positions =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
@@ -37,6 +47,27 @@ module Positions =
          BlackKnights = 4755801206503243776UL;
          BlackPawns = 71776119061217280UL;
          SideToPlay = White;}
+
+    let castlingLookups = dict[
+        Side.White, { 
+            CastlingLookup.InitialPositionKing = 8UL;
+            InitialPositionKingsRook = 1UL;
+            InitialPositionQueensRook = 128UL;
+            BlockersKingsRook = 6UL;
+            BlockersQueensRook = 112UL;
+            DestinationKingSideCastling = 2UL;
+            DestinationQueenSideCastling = 32UL;
+            };
+        Side.Black, { 
+            CastlingLookup.InitialPositionKing = 576460752303423488UL;
+            InitialPositionKingsRook = (1UL <<< 56);
+            InitialPositionQueensRook = (1UL <<< 63);
+            BlockersKingsRook = (1UL <<< 57 ||| 1UL <<< 58);
+            BlockersQueensRook = (1UL <<< 60 ||| 1UL <<< 61 ||| 1UL <<<62);
+            DestinationKingSideCastling = 1UL <<< 57;
+            DestinationQueenSideCastling = 1UL <<< 61;
+            };
+    ]
 
     let whiteBitboard (pos:Position) =
         pos.WhiteKing ||| pos.WhiteQueen ||| pos.WhiteRooks ||| pos.WhiteBishops ||| pos.WhiteKnights ||| pos.WhitePawns
@@ -95,6 +126,11 @@ module Positions =
         match side with
         | Side.White -> pos.WhiteKing
         | Side.Black -> pos.BlackKing
+
+    let getRooksBitboard (side:Side) (pos:Position) =
+        match side with
+        | Side.White -> pos.WhiteRooks
+        | Side.Black -> pos.BlackRooks
 
     let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
         let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef

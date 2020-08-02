@@ -30,7 +30,7 @@ let private parseSide (input:string) : Side =
     | "b" -> Side.Black
     | x -> invalidOp ("Unknown side to play in FEN: " + x)
 
-//rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+// fen example: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 let parseToBoard8x8 (fen:string) : Board8x8Array =
     let boardPart = fen.Substring(0, fen.IndexOf(" "))
     let rows = boardPart.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
