@@ -106,7 +106,7 @@ let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbers
             magicMoves.[bitRef].[magicIndex] <- moves
     magicMoves
 
-let generateSquaresKingMoves () =
+let private generateSquaresKingMoves () =
     //Elementary King moves (no castling)
     [|
         for i = 0 to 63 do
@@ -123,7 +123,7 @@ let generateSquaresKingMoves () =
             yield setBits |> createBitboardFromSetBitsSeq
     |]
 
-let generateSquaresKnightMoves () =
+let private generateSquaresKnightMoves () =
     [|
         for i = 0 to 63 do
             let fileIndex = getFileIndex i
@@ -143,7 +143,7 @@ let generateSquaresKnightMoves () =
             yield setBits |> createBitboardFromSetBitsSeq
     |]
 
-let generateSquaresAndCapturesForWhitePawn () =
+let private generateSquaresAndCapturesForWhitePawn () =
     [|
         for i = 0 to 63 do
             let fileIndex = getFileIndex i
@@ -163,7 +163,7 @@ let generateSquaresAndCapturesForWhitePawn () =
             yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
     |]
 
-let generateSquaresAndCapturesForBlackPawn () =
+let private generateSquaresAndCapturesForBlackPawn () =
     [|
         for i = 0 to 63 do
             let fileIndex = getFileIndex i
@@ -336,7 +336,6 @@ module MoveGenerationLookupFunctions =
             match side with
             | White -> lookups.WhitePawnMovesDb.[bitRef]
             | Black -> lookups.BlackPawnMovesDb.[bitRef]
-
        
         let blockers =
             match side with
