@@ -183,7 +183,7 @@ module Positions =
         kingBitboard &&& opponentAttacks > 0UL      
 
     let makeMoveWithValidation (getAttacks:Side->Position->Bitboard) (move:Move) (pos:Position) =
-        let (srcBitRef, dstBitRef) = move |> Moves.getSrcAndDestBitRefs
+        let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
         let clearOpponentPieceIfCapture (p:Position) =

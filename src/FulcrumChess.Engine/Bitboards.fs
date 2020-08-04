@@ -77,15 +77,8 @@ let private generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (piece:S
 let createBitboardFromSetBitsSeq (setBits:int seq) =
     setBits |> Seq.fold (fun (updatedMoves:Bitboard) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
 
-let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
-
 let inline getFileIndex bitRef = 7 - (bitRef % 8) //  = squareIndex & 7
 let inline getRankIndex bitRef = bitRef / 8  //= squareIndex >> 3 
-
-let bitRefToAlgebraicNotation bitRef =
-    let fileIndex = getFileIndex bitRef
-    let rankIndex = getRankIndex bitRef
-    sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
 let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uint64*int)[]) (occupancyVariations:uint64[][]) =
     let maxUpperBound = magicNumbersAndShifts |> Array.map (snd >> (-)64 ) |> Array.max //max 12 bits set - rook in a corner
@@ -412,5 +405,5 @@ module MoveGenerationLookupFunctions =
         |> BitUtils.getSetBits
         |> Array.map (fun dstBitRef ->
             let isCapture = bitboardResult |> BitUtils.hasBitSet dstBitRef
-            Moves.create (bitRef, dstBitRef) isCapture)
+            Move.create (bitRef, dstBitRef) isCapture)
 

@@ -15,11 +15,12 @@
     <Compile Include="Exceptions.fs" />
     <Compile Include="Pieces.fs" />
     <Compile Include="Magic.fs" />
-    <Compile Include="Moves.fs" />
+    <Compile Include="Move.fs" />
     <Compile Include="Position.fs" />
     <Compile Include="Board8x8Funcs.fs" />
     <Compile Include="FenParsing.fs" />
     <Compile Include="Bitboards.fs" />
+    <Compile Include="Notation.fs" />
     <Compile Include="Perft.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

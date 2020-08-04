@@ -10,8 +10,6 @@ type Side = |White|Black
 // See also: LERBEF https://www.chessprogramming.org/File:Lerbef.JPG
 type Bitboard = uint64
 
-type Move = uint16
-
 [<AutoOpen>]
 module Common =
     let opposite = function

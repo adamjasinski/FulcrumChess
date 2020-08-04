@@ -13,7 +13,7 @@ module BitboardTests =
     [<InlineDataEx(56, "h8")>]
     [<InlineDataEx(63, "a8")>]
     let ``bitRefToAlgebraicNotation should map to expected notation`` bitRef expectedNotation =
-        let result = Bitboards.bitRefToAlgebraicNotation bitRef
+        let result = Notation.bitRefToAlgebraicNotation bitRef
         test <@ expectedNotation = result @>
 
     
