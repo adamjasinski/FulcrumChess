@@ -48,4 +48,18 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
    //TODO - castling!
 
+    [<Fact>]
+    [<Trait("Castling","true")>]
+    [<BoardRef("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1")>]
+    member __.``verify White Kingside castling`` () =
+        let startBitRef = 3    //e1
+        let pos = FenParsing.parseToPosition "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1"
+
+        let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
+
+        test <@ result <> 0UL @>
+        let algNotations = result |> setBitsToAlgebraicNotations
+        printfn "%A" (algNotations)
+        let expectedSquares = ["f1"; "g1";] |> Set.ofList
+        test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
