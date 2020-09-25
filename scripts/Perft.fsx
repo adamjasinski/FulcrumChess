@@ -9,7 +9,7 @@ printfn "Running Perft mode"
 //printfn "Please enter perft depth:"
 //let perftDepthAsString = Console.ReadLine()
 //let perftDepth = System.Int32.Parse(perftDepthAsString)
-let perftDepth = 2
+let perftDepth = 3
 printfn "Running perft for depth %d" perftDepth
 //runTimedFun <| fun () ->
 let totalNodesCount = Perft.perft lookups (0us, Positions.initialPosition) (1, perftDepth)

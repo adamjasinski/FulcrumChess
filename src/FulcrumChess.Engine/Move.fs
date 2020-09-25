@@ -2,6 +2,8 @@
 
 type Move = uint16
 
+type SpecialMoveType = |None|Promotion|EnPassant|Castling
+
 module Move =
 
     // Follows Stockfish convention
@@ -11,8 +13,24 @@ module Move =
     /// bit 14-15: special move flag: promotion (1), en passant (2), castling (3)
     /// NOTE: EN-PASSANT bit is set only when a pawn can be captured
 
-    let create (srcBitRef:int, destBitRef:int) (isCapture:bool) : Move =
+    let inline create (srcBitRef:int, destBitRef:int) : Move =
         uint16 ((srcBitRef <<< 6) ||| destBitRef)
+
+    let inline createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType): Move =
+        let basicBits = create (srcBitRef, destBitRef)
+        let extraMask = 
+            match specialMoveType with
+            | Promotion -> 0x4000us
+            | EnPassant -> 0x8000us
+            | Castling -> 0xC000us
+            | _ -> 0us
+        basicBits ||| extraMask
+
+    // let createCastling (castlingType:CastlingType) (side:Side) : Move =
+    //     //uint16 ((srcBitRef <<< 6) ||| destBitRef)
+    //    let castlingLookup = Positions.castlingLookups.[side]
+    //    let dst = match castlingLookup with
+    //    | QueenSide -> castlingLookup
 
     let getDestBitRef (move:Move) =
         int(move &&& 0x3Fus)

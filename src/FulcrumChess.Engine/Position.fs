@@ -23,8 +23,8 @@ type CastlingLookup = {
     InitialPositionQueensRook:Bitboard;
     BlockersKingsRook:Bitboard;
     BlockersQueensRook:Bitboard;
-    DestinationKingSideCastling:Bitboard;
-    DestinationQueenSideCastling:Bitboard;
+    DestinationBitRefKingSideCastling:int;
+    DestinationBitRefQueenSideCastling:int;
 }
     
 module Positions =
@@ -55,8 +55,8 @@ module Positions =
             InitialPositionQueensRook = 128UL;
             BlockersKingsRook = 6UL;
             BlockersQueensRook = 112UL;
-            DestinationKingSideCastling = 2UL;
-            DestinationQueenSideCastling = 32UL;
+            DestinationBitRefKingSideCastling = 2;
+            DestinationBitRefQueenSideCastling = 5;
             };
         Side.Black, { 
             CastlingLookup.InitialPositionKing = 576460752303423488UL;
@@ -64,8 +64,8 @@ module Positions =
             InitialPositionQueensRook = (1UL <<< 63);
             BlockersKingsRook = (1UL <<< 57 ||| 1UL <<< 58);
             BlockersQueensRook = (1UL <<< 60 ||| 1UL <<< 61 ||| 1UL <<<62);
-            DestinationKingSideCastling = 1UL <<< 57;
-            DestinationQueenSideCastling = 1UL <<< 61;
+            DestinationBitRefKingSideCastling = 57;
+            DestinationBitRefQueenSideCastling = 61;
             };
     ]
 
