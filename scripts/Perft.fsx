@@ -11,6 +11,10 @@ printfn "Running Perft mode"
 //let perftDepth = System.Int32.Parse(perftDepthAsString)
 let perftDepth = 3
 printfn "Running perft for depth %d" perftDepth
-//runTimedFun <| fun () ->
-let totalNodesCount = Perft.perft lookups (0us, Positions.initialPosition) (1, perftDepth)
-printfn "========= Total nodes count: %d =============" totalNodesCount
+let perftDivideReport = 
+    Perft.generatePerftReport lookups (0us, Positions.initialPosition) (1, perftDepth)
+
+perftDivideReport.InitialMovesNodeBreakdown
+|> Array.iter( fun (move,count) -> printfn "%s: %d" move count)
+printf "\n"
+printfn "Nodes searched: %d" perftDivideReport.TotalNodes

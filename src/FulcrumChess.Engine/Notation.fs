@@ -14,6 +14,6 @@ module Notation =
     let toAlgebraicNotation (move:Move) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         if srcBitRef <> dstBitRef then
-            sprintf "%s-%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)
+            sprintf "%s%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)
         else
-            "NULL"
+            "0000" //NULL move

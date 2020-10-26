@@ -26,20 +26,12 @@ module Program =
         let perftDepth = 3
         printfn "Running perft for depth %d" perftDepth
         //runTimedFun <| fun () ->
-        let totalNodesCountWithCurrentBreakdown = Perft.perft lookups.Value (0us, Positions.initialPosition) (1, perftDepth)
-        let totalNodesCount = totalNodesCountWithCurrentBreakdown |> Array.sumBy snd
-        totalNodesCountWithCurrentBreakdown
-        |> Array.sortWith( fun (move1,_) (move2,_) ->
-            let bitRef1 = move1 |> Move.getDestBitRef
-            let bitRef2 = move2 |> Move.getDestBitRef
-            bitRef1 - bitRef2
-            // let sgnDiff = Math.Sign ( (bitRef1 % 7) - (bitRef2 % 7))
-            // match sgnDiff with
-            // | 1 -> 1
-            // | -1 -> -1
-            // | _ -> Math.Sign ( bitRef1 - bitRef2)
-        )
-        |> Array.iter( fun (move,count) -> printfn "%s %d" (move |> Notation.toAlgebraicNotation ) count)
-        printfn "========= Total nodes count: %d =============" totalNodesCount
+        let perftDivideReport = 
+            Perft.generatePerftReport lookups.Value (0us, Positions.initialPosition) (1, perftDepth)
+
+        perftDivideReport.InitialMovesNodeBreakdown
+        |> Array.iter( fun (move,count) -> printfn "%s: %d" move count)
+        printf "\n"
+        printfn "Nodes searched: %d" perftDivideReport.TotalNodes
 
         0 // return an integer exit code

@@ -21,3 +21,4 @@ module Seq =
 module Tuple2 = 
   //Applies function f to each element of a tuple
   let map f (a, b) = (f a, f b)
+  let mapFirst f (a, b) = (f a, b)

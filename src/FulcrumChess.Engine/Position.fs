@@ -186,6 +186,8 @@ module Positions =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
+        //TODO - support castling and en passant
+
         let clearOpponentPieceIfCapture (p:Position) =
             let dstSquare = pos |> getChessmanAndSide dstBitRef
             if dstSquare |> Option.isNone then
