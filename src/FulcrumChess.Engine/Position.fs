@@ -55,7 +55,7 @@ module Positions =
             InitialPositionQueensRook = 128UL;
             BlockersKingsRook = 6UL;
             BlockersQueensRook = 112UL;
-            DestinationBitRefKingSideCastling = 2;
+            DestinationBitRefKingSideCastling = 1;
             DestinationBitRefQueenSideCastling = 5;
             };
         Side.Black, { 

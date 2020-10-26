@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>FulcrumChess.Engine.Tests</RootNamespace>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DefineConstants>FAST_32BIT_MULT</DefineConstants>
+    <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
@@ -34,5 +35,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     <PackageReference Include="xunit.runner.reporters" Version="2.4.1" />
     <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
   </ItemGroup>
 </Project>
