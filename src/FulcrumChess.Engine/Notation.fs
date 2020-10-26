@@ -11,7 +11,7 @@ module Notation =
         let rankIndex = getRankIndex bitRef
         sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
-    let toCoordinateNotation (move:Move) =
+    let toAlgebraicNotation (move:Move) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         if srcBitRef <> dstBitRef then
             sprintf "%s-%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)

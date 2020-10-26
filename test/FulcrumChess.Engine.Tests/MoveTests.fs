@@ -34,10 +34,10 @@ module MovesTests =
 
 
     [<Fact>]
-    let ``getCoordinationNotation returns expected value`` () =
+    let ``toAlgebraicNotation returns expected value`` () =
        // e2-e4
        let move = Move.create (11,27)
 
-       let actualNotation = move |> Notation.toCoordinateNotation
-       test <@ "e2-e4" = actualNotation @>
+       let actualNotation = move |> Notation.toAlgebraicNotation
+       test <@ "e2e4" = actualNotation @>
 
