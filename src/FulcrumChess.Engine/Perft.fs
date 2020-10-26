@@ -8,10 +8,10 @@ let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (dept
     let srcBitRefs = pos |> getBitboardForSideToPlay |> BitUtils.getSetBits
     let pseudoMovesForSide = srcBitRefs |> Array.Parallel.map (MoveGenerationLookupFunctions.generatePseudoMovesFullInfo lookups pos)
     if(depth = 0) then
-        1UL
+        Array.empty
     else
         let allPseudoMovesForSide = pseudoMovesForSide |> Array.collect id
-        //printfn "Depth %d: %A" depth (allPseudoMovesForSide |> Array.map Moves.toCoordinateNotation)
+        //printfn "Depth %d: %A" depth (allPseudoMovesForSide |> Array.map Moves.toAlgebraicNotation)
         let generateAttacks = MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
     
         let nextValidatedPositions =
@@ -23,19 +23,15 @@ let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (dept
             |> Array.where (snd >> Option.isSome)
             |> Array.Parallel.map (fun (m, p) -> (m, Option.get p))
 
-        let currentDepthMoveCount = nextValidatedPositions |> Array.length |> uint64
-        let res =
+            
+        let stats = 
             if depth < totalDepth then
-                nextValidatedPositions
-                |> Array.fold (fun acc mp -> 
-                    let pn = perft lookups mp (depth+1, totalDepth)
-                    acc + uint64(pn)     
-                ) 0UL
+                nextValidatedPositions 
+                |> Array.map ( fun mp -> 
+                    let nextLevels = perft lookups mp (depth+1, totalDepth)
+                    ((fst mp), (nextLevels |> Array.sumBy snd |> uint64))
+                )
             else
-                currentDepthMoveCount
-        
-        // if depth = totalDepth then
-        //     printfn "Perft Depth \t\t\t%d: %A %d" (depth) (srcMove |> Moves.toCoordinateNotation) res
-        // else
-        //     printfn "Perft Depth %d subtotal: %A %d" (depth+1) (srcMove |> Moves.toCoordinateNotation) res
-        res
+                nextValidatedPositions |> Array.map ( fun mp -> (fst mp, 1UL))
+
+        stats

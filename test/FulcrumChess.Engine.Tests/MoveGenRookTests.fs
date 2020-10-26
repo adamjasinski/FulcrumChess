@@ -31,8 +31,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
         let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["c3";"c4";"c5";"c7";"c8";"a6";"b6";"d6";"e6";"f6";"g6";"h6"] |> Set.ofList
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
@@ -46,8 +46,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
         let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["c2";"c3";"c4";"c5";"c7";"c8";"a6";"b6";"d6";"e6";"f6";"g6";"h6"] |> Set.ofList
         test <@ algNotations |> Array.exists (fun x -> x = "f6") @>
@@ -61,8 +61,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
         let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
@@ -81,8 +81,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
@@ -102,8 +102,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
