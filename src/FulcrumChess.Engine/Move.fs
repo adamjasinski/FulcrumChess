@@ -2,7 +2,7 @@
 
 type Move = uint16
 
-type SpecialMoveType = |None|Promotion|EnPassant|Castling
+type SpecialMoveType = |Conventional|Promotion|EnPassant|Castling
 
 module Move =
 
@@ -16,7 +16,7 @@ module Move =
     let inline create (srcBitRef:int, destBitRef:int) : Move =
         uint16 ((srcBitRef <<< 6) ||| destBitRef)
 
-    let inline createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType): Move =
+    let createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType) : Move =
         let basicBits = create (srcBitRef, destBitRef)
         let extraMask = 
             match specialMoveType with
@@ -32,14 +32,19 @@ module Move =
     //    let dst = match castlingLookup with
     //    | QueenSide -> castlingLookup
 
-    let getDestBitRef (move:Move) =
+    let inline getDestBitRef (move:Move) =
         int(move &&& 0x3Fus)
 
-    let getSrcBitRef (move:Move) =
+    let inline getSrcBitRef (move:Move) =
         int((move &&& 0xFC0us) >>> 6)
 
     let getSrcAndDestBitRefs = 
         Arrow.onSingle getSrcBitRef getDestBitRef 
+
+    let movesToDstBitboard (moves:Move array) =
+        (0UL, moves) 
+        ||> Array.fold (fun acc mv -> 
+            acc |> BitUtils.setBit (getDestBitRef mv))
 
 
     

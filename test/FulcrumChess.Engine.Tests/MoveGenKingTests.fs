@@ -27,8 +27,8 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["a1"; "a2"; "a3"; "b3"; "c1"; "c2"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
@@ -39,8 +39,8 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = expectedSquaresList |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
@@ -57,8 +57,8 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = ["f1"; "g1";] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>

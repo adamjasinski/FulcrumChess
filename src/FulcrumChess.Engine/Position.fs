@@ -177,12 +177,12 @@ module Positions =
             | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
         pos'
 
-    let isCheck (getAttacks:Side->Position->Bitboard) (kingSide:Side) (pos:Position) =
-        let opponentAttacks = pos |> getAttacks (opposite kingSide)
+    let isCheck (getAttacks:Side->Position->Move array) (kingSide:Side) (pos:Position) =
+        let opponentAttacks = pos |> getAttacks (opposite kingSide) |> Move.movesToDstBitboard
         let kingBitboard = pos |> getKingBitboard kingSide
         kingBitboard &&& opponentAttacks > 0UL      
 
-    let makeMoveWithValidation (getAttacks:Side->Position->Bitboard) (move:Move) (pos:Position) =
+    let makeMoveWithValidation (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
@@ -206,8 +206,7 @@ module Positions =
             |> clearOpponentPieceIfCapture
             |> swapSide
 
-        if isCheck getAttacks side pos' then
-            //printfn "Check!"
-            None
+        if not (isCheck getAttacks side pos') then
+            Option.Some pos'
         else
-            Some pos'
+            Option.None

@@ -30,8 +30,8 @@ type MoveGenKnightTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = expectedSquaresList |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>

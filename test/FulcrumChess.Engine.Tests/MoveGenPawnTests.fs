@@ -15,7 +15,7 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        let algNotations = result |> setBitsToAlgebraicNotations
+        let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquares = expectedSquaresList |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>

@@ -18,8 +18,8 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture, 
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
-        test <@ result <> 0UL @>
-        let algNotations = result |> setBitsToAlgebraicNotations
+        test <@ not (Array.isEmpty result) @>
+        let algNotations = result |> movesToAlgebraicNotations
         sprintf "%A" (algNotations) |> output.WriteLine
         let expectedSquares = ["a4"; "b4"; "d4"; "e4"; "f4"; "g4"; "c2"; "c3"; "c5"; "c6"; "c7"; "c8"; "a6"; "b5"; "d3"; "a2"; "b3"; "d5"; "e6"; "f7" ] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
@@ -32,9 +32,9 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture, 
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "2r5/5p2/p6p/8/2Q3b1/8/4P3/2R5 w - -"
 
-        let moves = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
+        let movesAsBitboard = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef |> Move.movesToDstBitboard
 
-        let attacks = pos |> Positions.getCapturesFromPseudoMoves moves startBitRef
+        let attacks = pos |> Positions.getCapturesFromPseudoMoves movesAsBitboard startBitRef
 
         test <@ attacks <> 0UL @>
         let algNotations = attacks |> setBitsToAlgebraicNotations

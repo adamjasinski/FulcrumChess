@@ -50,7 +50,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = Move.create (10,18) false
+        let move = Move.create (10,18)
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
         let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
 
