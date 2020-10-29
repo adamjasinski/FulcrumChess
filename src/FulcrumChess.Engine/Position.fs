@@ -180,13 +180,54 @@ module Positions =
     let isCheck (getAttacks:Side->Position->Move array) (kingSide:Side) (pos:Position) =
         let opponentAttacks = pos |> getAttacks (opposite kingSide) |> Move.movesToDstBitboard
         let kingBitboard = pos |> getKingBitboard kingSide
-        kingBitboard &&& opponentAttacks > 0UL      
+        kingBitboard &&& opponentAttacks > 0UL
+
+    let private isCastlingPathUnderAttack (castlingType:CastlingType) (getAttacks:Side->Position->Move array) (kingSide:Side) (pos:Position) =
+        let opponentAttacks = pos |> getAttacks (opposite kingSide) |> Move.movesToDstBitboard
+        let castlingLookup = castlingLookups.[kingSide]
+        let castlingPathBitboard = 
+            match castlingType with
+            | KingSide -> castlingLookup.BlockersKingsRook
+            | QueenSide -> castlingLookup.BlockersQueensRook
+        castlingPathBitboard &&& opponentAttacks > 0UL
 
     let makeMoveWithValidation (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
         //TODO - support castling and en passant
+        let castlingTypeOpt = move |> Move.determineCastlingType (chessman, side)
+        let alsoMoveRookIfCastling (p:Position) =
+        //TODO - check if no square in between in under check
+        //TODO - check castling eligibility
+            let rookMoveIfCastling =
+                match (side, castlingTypeOpt) with
+                | (White, Some(KingSide)) -> (0, 2) |> Option.Some
+                | (White, Some(QueenSide)) -> (7, 4) |> Option.Some
+                | (Black, Some(KingSide)) -> (56, 68) |> Option.Some
+                | (Black, Some(QueenSide)) -> (63, 60) |> Option.Some
+                | (_, None) -> Option.None
+
+            // let rookMoveIfCastling =
+            //     match (chessman,side) with
+            //     | (Chessmen.King, Side.White) -> 
+            //         match dstBitRef with
+            //         | 1 -> (0, 2) |> Option.Some
+            //         | 5 -> (7, 4) |> Option.Some
+            //         | _ -> Option.None
+            //     | (Chessmen.King, Side.Black) ->
+            //         match dstBitRef with
+            //         | 57 -> (56, 68) |> Option.Some
+            //         | 61 -> (63, 60) |> Option.Some
+            //         | _ -> Option.None
+            //     | (_, _) -> Option.None
+
+            match rookMoveIfCastling with
+            | Some(srcBitRefRook, dstBitRefRook) -> 
+                pos 
+                |> clearPieceInternal (Chessmen.Rook, side) srcBitRefRook
+                |> setPieceInternal (Chessmen.Rook, side) dstBitRefRook
+            | None -> p
 
         let clearOpponentPieceIfCapture (p:Position) =
             let dstSquare = pos |> getChessmanAndSide dstBitRef
@@ -206,7 +247,11 @@ module Positions =
             |> setPieceInternal (chessman, side) dstBitRef
             |> clearPieceInternal (chessman, side) srcBitRef
             |> clearOpponentPieceIfCapture
+            |> alsoMoveRookIfCastling
             |> swapSide
+
+        let positionFilter predicate pos =
+            if pos |> predicate then Some pos else None 
 
         if not (isCheck getAttacks side pos') then
             Option.Some pos'

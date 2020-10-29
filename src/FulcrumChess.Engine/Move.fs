@@ -3,6 +3,7 @@
 type Move = uint16
 
 type SpecialMoveType = |Conventional|Promotion|EnPassant|Castling
+type CastlingType = |KingSide|QueenSide
 
 module Move =
 
@@ -45,6 +46,26 @@ module Move =
         (0UL, moves) 
         ||> Array.fold (fun acc mv -> 
             acc |> BitUtils.setBit (getDestBitRef mv))
+
+    let determineCastlingTypeIfKingsMove (side:Side) (move:Move) =
+        let (srcBitRef, dstBitRef) = move |> getSrcAndDestBitRefs
+        match side with
+        | Side.White -> 
+            match (srcBitRef, dstBitRef) with
+            | (3, 1) -> KingSide |> Option.Some
+            | (3, 5) -> QueenSide |> Option.Some
+            | _ -> Option.None
+        | Side.Black ->
+            match (srcBitRef, dstBitRef) with
+            | (59, 57) -> KingSide |> Option.Some
+            | (59, 61) -> QueenSide |> Option.Some
+            | _ -> Option.None
+
+    let determineCastlingType (chessman:Chessmen, side:Side) (move:Move) =
+        match chessman with
+        | King -> determineCastlingTypeIfKingsMove side move
+        | _ -> Option.None
+
 
 
     
