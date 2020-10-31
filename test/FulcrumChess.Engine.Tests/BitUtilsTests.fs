@@ -12,7 +12,7 @@
     [<InlineDataEx(141, [|0;2;3;7|])>]
     [<InlineDataEx(2017, [|0;5;6;7;8;9;10|])>]
     let ``getSetBits returns expected result `` (input:int, expectedResult:int[]) =
-        let result = input |> BitUtils.getSetBits
+        let result = input |> BitUtils.getSetBits_32
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
         test <@ (result |> Array.length) > 0 @>

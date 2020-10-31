@@ -280,7 +280,13 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
 
                 let goodMagicPredicate m =
                     // The resulting index, derived from the magic, must be big enough to contain all the attacks for each possible subset of the occupancy mask (minus edges of the board)
-                    let bitCountInMostSignificant8 = BitUtils.Hamming.popcount_32_signed ((multiplyAndShift currentBitRefOccupancyMask m 56))
+                    let bitCountInMostSignificant8 = BitUtils.countSetBits_32  (uint(multiplyAndShift currentBitRefOccupancyMask m 56))
+                    // let g = ((multiplyAndShift currentBitRefOccupancyMask m 56))
+                    // if bitCountInMostSignificant8 < 6 then 
+                    //     printfn "Discarding magic, density was %d (%s) (Magic was %s)" 
+                    //         bitCountInMostSignificant8
+                    //         (System.Convert.ToString(g, 2)) 
+                    //         (System.Convert.ToString(int64(m), 2))
                     bitCountInMostSignificant8 >= 6
 
                 let magicNumber = 
@@ -372,11 +378,6 @@ module MoveGenerationLookupFunctions =
                 let rooksBitBoard = Positions.getRooksBitboard side pos
                 let kingSideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL
                 let queensideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL
-                // match (kingSideCastling, queensideCastling) with 
-                // | (true, true) -> castlingLookup.DestinationKingSideCastling ||| castlingLookup.DestinationQueenSideCastling
-                // | (true, false) -> castlingLookup.DestinationKingSideCastling
-                // | (false, true) -> castlingLookup.DestinationQueenSideCastling
-                // | _ -> 0UL
                 seq {
                     if kingSideCastling then
                         yield Move.createSpecial (bitRef, castlingLookup.DestinationBitRefKingSideCastling) Castling

@@ -2,6 +2,8 @@
 
 module BitUtils =
 
+    open System.Runtime.Intrinsics.X86
+
     module Hamming = 
         //https://en.wikipedia.org/wiki/Hamming_weight
         [<Literal>] 
@@ -93,8 +95,22 @@ module BitUtils =
         |> List.rev
         |> Array.ofList
 
-    let countSetBits = Hamming.popcount_64
-    //let countSetBits = countBits_slow
+    let getSetBits_32 (b:int) =
+        let res = ResizeArray<int>()
+        let mutable x = b
+        let mutable i = 0
+        while x > 0 do
+            if x &&& 1 = 1 then res.Add(i)
+            x <- x >>> 1
+            i <- i + 1
+        res.ToArray()
+
+    //let countSetBits = Hamming.popcount_64
+    let inline countSetBits b = 
+        int(System.Runtime.Intrinsics.X86.Popcnt.X64.PopCount b)
+
+    let inline countSetBits_32 b = 
+        int(System.Runtime.Intrinsics.X86.Popcnt.PopCount b)
 
     let inline hasBitSet (i:int) (b:^a) =
         let one:^a = LanguagePrimitives.GenericOne

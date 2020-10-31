@@ -8,7 +8,7 @@ let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (dept
     let srcBitRefs = pos |> getBitboardForSideToPlay |> BitUtils.getSetBits
     let pseudoMovesForSide = srcBitRefs |> Array.Parallel.map (MoveGenerationLookupFunctions.generatePseudoMovesFullInfo lookups pos)
     if(depth = 0) then
-        Array.empty
+        [||]
     else
         let allPseudoMovesForSide = pseudoMovesForSide |> Array.collect id
         //printfn "Depth %d: %A" depth (allPseudoMovesForSide |> Array.map Moves.toAlgebraicNotation)
@@ -42,7 +42,7 @@ let createPerfDivideReport (movesNodeBreakdown:(Move*uint64) array) =
         let bitRef1 = move1 |> Move.getDestBitRef
         let bitRef2 = move2 |> Move.getDestBitRef
         bitRef2 - bitRef1
-        // let sgnDiff = Math.Sign ( (bitRef1 % 7) - (bitRef2 % 7))
+        // let sgnDiff = Math.Sign ( (bitRef1 % 8) - (bitRef2 % 8))
         // match sgnDiff with
         // | 1 -> 1
         // | -1 -> -1
