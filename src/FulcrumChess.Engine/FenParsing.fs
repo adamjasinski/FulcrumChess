@@ -1,7 +1,9 @@
 ﻿module FenParsing
 open FulcrumChess.Engine
 
+open System.Text
 open System.Text.RegularExpressions
+
 let (|FirstRegexGroup|_|) pattern input =
    let m = Regex.Match(input,pattern) 
    if (m.Success) then Some m.Groups.[1].Value else None  
@@ -52,3 +54,39 @@ let parseToPosition (fen:string) : Position =
                 (counter+1, pos') 
         )
     mapped |> snd
+
+let dumpPosition (pos:Position) =
+    [|for i in 7..-1..0 ->
+        [|for j in 7..-1..0 ->
+            let pc = pos |> Positions.getChessmanAndSide (8*i+j)
+            match pc with
+            | Some(chessmanAndSide) -> PieceFenLetters.getLetter chessmanAndSide
+            | None -> ' '
+        |]
+    |]
+
+let toFen (pos:Position) =
+    let boardArray = dumpPosition pos
+
+    let allRowsArray = boardArray |> Array.map( fun rowArray ->
+        let rec rowCombiner j (rowSb:StringBuilder) lastReadBlanks =
+            if j < 8 then
+                let c = rowArray.[j]
+
+                if c = ' ' then 
+                    rowCombiner (j + 1) rowSb (lastReadBlanks + 1)
+                else
+                    if lastReadBlanks > 0 then
+                        rowSb.Append(lastReadBlanks.ToString()) |> ignore
+                    rowSb.Append(c) |> ignore
+                    rowCombiner (j + 1) rowSb 0
+            else
+                if lastReadBlanks > 0 then
+                    rowSb.Append(lastReadBlanks.ToString())  |> ignore
+                rowSb.ToString()
+
+        let rowSb = StringBuilder()
+        rowCombiner 0 rowSb 0
+    )
+
+    System.String.Join('/', allRowsArray)

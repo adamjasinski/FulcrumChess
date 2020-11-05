@@ -147,12 +147,12 @@ module Positions =
         movesBitboard &&& opponentPieces
 
 
-    let bitboardToLerbefArray (bitboard:Bitboard) =
-        let arr = Array.zeroCreate<byte> 64
-        bitboard 
-        |> BitUtils.getSetBits
-        |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
-        arr
+    // let bitboardToLerbefArray (bitboard:Bitboard) =
+    //     let arr = Array.zeroCreate<byte> 64
+    //     bitboard 
+    //     |> BitUtils.getSetBits
+    //     |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
+    //     arr
 
     let private setPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
         let fenLetter = (piece, side) |> PieceFenLetters.getLetter
@@ -195,6 +195,7 @@ module Positions =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
+        //TODO - validate legality of the move
         //TODO - support castling and en passant
         let castlingTypeOpt = move |> Move.determineCastlingType (chessman, side)
         let alsoMoveRookIfCastling (p:Position) =
@@ -202,9 +203,9 @@ module Positions =
         //TODO - check castling eligibility
             let rookMoveIfCastling =
                 match (side, castlingTypeOpt) with
-                | (White, Some(KingSide)) -> (0, 2) |> Option.Some
-                | (White, Some(QueenSide)) -> (7, 4) |> Option.Some
-                | (Black, Some(KingSide)) -> (56, 68) |> Option.Some
+                | (White, Some(KingSide)) ->   (0, 2) |> Option.Some
+                | (White, Some(QueenSide)) ->  (7, 4) |> Option.Some
+                | (Black, Some(KingSide)) ->  (56, 68) |> Option.Some
                 | (Black, Some(QueenSide)) -> (63, 60) |> Option.Some
                 | (_, None) -> Option.None
 
@@ -224,15 +225,14 @@ module Positions =
 
             match rookMoveIfCastling with
             | Some(srcBitRefRook, dstBitRefRook) -> 
-                pos 
+                p
                 |> clearPieceInternal (Chessmen.Rook, side) srcBitRefRook
                 |> setPieceInternal (Chessmen.Rook, side) dstBitRefRook
             | None -> p
 
         let clearOpponentPieceIfCapture (p:Position) =
             let dstSquare = pos |> getChessmanAndSide dstBitRef
-            if dstSquare |> Option.isNone then
-                p
+            if dstSquare |> Option.isNone then p
             else
                 let (opponentPiece,opponentSide) = dstSquare |> Option.get
                 if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
@@ -241,7 +241,6 @@ module Positions =
         let swapSide (p:Position) =
             { p with SideToPlay=opposite side}
 
-        let fenLetter = (chessman, side) |> PieceFenLetters.getLetter
         let pos' = 
             pos 
             |> setPieceInternal (chessman, side) dstBitRef
@@ -250,10 +249,13 @@ module Positions =
             |> alsoMoveRookIfCastling
             |> swapSide
 
-        let positionFilter predicate pos =
-            if pos |> predicate then Some pos else None 
+        let predicateFilter predicate x =
+            if predicate x then Some x else None
 
-        if not (isCheck getAttacks side pos') then
-            Option.Some pos'
-        else
-            Option.None
+        let isNotCheckFilter = predicateFilter (fun p -> not (isCheck getAttacks side p))
+        let isNotCastlingPathUnderAttackFilter = predicateFilter (fun p ->
+            castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p))
+
+        pos' |> Some
+        |> Option.bind isNotCheckFilter
+        |> Option.bind isNotCastlingPathUnderAttackFilter

@@ -1,4 +1,5 @@
 namespace FulcrumChess.Engine
+open System.Text.RegularExpressions
 
 module Notation =
     let private fileLetters = [|'a';'b';'c';'d';'e';'f';'g';'h'|]
@@ -17,3 +18,18 @@ module Notation =
             sprintf "%s%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef)
         else
             "0000" //NULL move
+
+    let fromLongAlgebraicNotationToBitRefs (s:string) =
+        let pattern = "[a-h][1-8][a-h][1-8]"
+        if not <| Regex.IsMatch(s, pattern) then failwithf "Invalid long algebraic notation: %s" s
+      
+        let srcFile = byte('h') - byte(s.[0]) |> int
+        let srcRank = byte(s.[1]) - byte('1') |> int
+        let dstFile = byte('h') - byte(s.[2]) |> int
+        let dstRank = byte(s.[3]) - byte('1') |> int
+
+        (srcRank*8 + srcFile, dstRank*8 + dstFile)
+
+    let fromLongAlgebraicNotationToMove = fromLongAlgebraicNotationToBitRefs >> Move.create
+
+        

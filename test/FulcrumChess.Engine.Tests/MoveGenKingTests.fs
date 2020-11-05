@@ -63,3 +63,18 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquares = ["f1"; "g1";] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
+        let generateAttacks = MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+
+        let actualMove = Notation.fromLongAlgebraicNotationToMove "e1g1"
+        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        test <@ positionAfterMove |> Option.isSome @>
+
+        //TODO - move to Positions Castling tests
+
+        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
+        printfn "%A" posCharArray
+        printfn "-------------------------"
+        let fenAfterMove = positionAfterMove.Value |> FenParsing.toFen
+        printfn "%s" fenAfterMove
+        let expectedFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1RK1 b kq - 1 1"
+        <@ expectedFen.StartsWith(fenAfterMove) @>
