@@ -46,19 +46,19 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
         ()
 
-   //TODO - castling!
-
-    [<Fact>]
+    [<Theory>]
     [<Trait("Castling","true")>]
-    [<BoardRef("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1")>]
-    member __.``verify White Kingside castling`` () =
-        let startBitRef = 3    //e1
-        let pos = FenParsing.parseToPosition "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1"
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1", 3, [|"f1"; "g1";|])>]
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1", 3, [|"d1"; "c1";|])>]
+    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", 59, [|"f8"; "g8";|])>]
+    [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", 59, [|"d8"; "c8"|])>]
+    member __.``verify castling`` (fen:string, startBitRef:int, expectedSquares:string array) =
+        let pos = FenParsing.parseToPosition fen
 
         let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
 
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
-        let expectedSquares = ["f1"; "g1";] |> Set.ofList
-        test <@ expectedSquares = (algNotations |> Set.ofArray) @>
+        let expectedSquaresSet = expectedSquares |> Set.ofArray
+        test <@ expectedSquaresSet = (algNotations |> Set.ofArray) @>

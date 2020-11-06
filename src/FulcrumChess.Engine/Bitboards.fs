@@ -311,9 +311,6 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     //magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%x" i (pair |> fst))
     magick |> Array.ofSeq
 
-let bootstrapMagicNumberGenerationForRook() = bootstrapMagicNumberGeneration SlidingPiece.Rook
-
-
 module MoveGenerationLookupFunctions =
     open Positions
 
