@@ -56,4 +56,28 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         test <@ None = pos' @>
 
+    [<Theory>]
+    [<Trait("Castling","true")>]
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1", "e1g1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1RK1 b kq - 1 1")>]
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1", "e1c1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/2KR1BNR b kq - 1 1")>]
+    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8g8", "rnbq1rk1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
+    [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
+    member __. ``make move - castling`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
+        let pos = FenParsing.parseToPosition fen
+
+        let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
+        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+
+        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        test <@ positionAfterMove |> Option.isSome @>
+
+        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
+        printfn "%A" posCharArray
+        printfn "-------------------------"
+        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
+        printfn "%s" actualFenAfterMove
+        <@ expectedFen.StartsWith(actualFenAfterMove) @>
+
+
 

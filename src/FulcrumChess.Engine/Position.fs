@@ -205,23 +205,9 @@ module Positions =
                 match (side, castlingTypeOpt) with
                 | (White, Some(KingSide)) ->   (0, 2) |> Option.Some
                 | (White, Some(QueenSide)) ->  (7, 4) |> Option.Some
-                | (Black, Some(KingSide)) ->  (56, 68) |> Option.Some
+                | (Black, Some(KingSide)) ->  (56, 58) |> Option.Some
                 | (Black, Some(QueenSide)) -> (63, 60) |> Option.Some
                 | (_, None) -> Option.None
-
-            // let rookMoveIfCastling =
-            //     match (chessman,side) with
-            //     | (Chessmen.King, Side.White) -> 
-            //         match dstBitRef with
-            //         | 1 -> (0, 2) |> Option.Some
-            //         | 5 -> (7, 4) |> Option.Some
-            //         | _ -> Option.None
-            //     | (Chessmen.King, Side.Black) ->
-            //         match dstBitRef with
-            //         | 57 -> (56, 68) |> Option.Some
-            //         | 61 -> (63, 60) |> Option.Some
-            //         | _ -> Option.None
-            //     | (_, _) -> Option.None
 
             match rookMoveIfCastling with
             | Some(srcBitRefRook, dstBitRefRook) -> 
