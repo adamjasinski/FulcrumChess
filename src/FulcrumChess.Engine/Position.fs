@@ -1,5 +1,8 @@
 ﻿namespace FulcrumChess.Engine
 
+[<System.FlagsAttribute>]
+type CastlingRights = None = 0 | KingSide = 1 | QueenSide = 2 
+
 type Position = {
     WhiteKing:Bitboard;
     WhiteQueen:Bitboard;
@@ -14,6 +17,7 @@ type Position = {
     BlackKnights:Bitboard;
     BlackPawns:Bitboard;
 
+    CastlingRightsPerSide:CastlingRights*CastlingRights;
     SideToPlay:Side;
 }
 
@@ -31,6 +35,7 @@ module Positions =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
         Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;
+        CastlingRightsPerSide = (CastlingRights.None,CastlingRights.None);
         SideToPlay=White }
 
     let initialPosition = {
@@ -46,6 +51,7 @@ module Positions =
          BlackBishops = 2594073385365405696UL;
          BlackKnights = 4755801206503243776UL;
          BlackPawns = 71776119061217280UL;
+         CastlingRightsPerSide = (CastlingRights.None,CastlingRights.None);
          SideToPlay = White;}
 
     let castlingLookups = dict[
@@ -62,8 +68,8 @@ module Positions =
             CastlingLookup.InitialPositionKing = 576460752303423488UL;
             InitialPositionKingsRook = (1UL <<< 56);
             InitialPositionQueensRook = (1UL <<< 63);
-            BlockersKingsRook = (1UL <<< 57 ||| 1UL <<< 58);
-            BlockersQueensRook = (1UL <<< 60 ||| 1UL <<< 61 ||| 1UL <<<62);
+            BlockersKingsRook = (1UL <<< 57) ||| (1UL <<< 58);
+            BlockersQueensRook = (1UL <<< 60) ||| (1UL <<< 61) ||| (1UL <<<62);
             DestinationBitRefKingSideCastling = 57;
             DestinationBitRefQueenSideCastling = 61;
             };
@@ -198,8 +204,8 @@ module Positions =
         //TODO - validate legality of the move
         //TODO - support castling and en passant
         let castlingTypeOpt = move |> Move.determineCastlingType (chessman, side)
+
         let alsoMoveRookIfCastling (p:Position) =
-        //TODO - check if no square in between in under check
         //TODO - check castling eligibility
             let rookMoveIfCastling =
                 match (side, castlingTypeOpt) with
@@ -225,15 +231,19 @@ module Positions =
                 p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
 
         let swapSide (p:Position) =
-            { p with SideToPlay=opposite side}
+            { p with SideToPlay=opposite side }
 
-        let pos' = 
-            pos 
-            |> setPieceInternal (chessman, side) dstBitRef
-            |> clearPieceInternal (chessman, side) srcBitRef
-            |> clearOpponentPieceIfCapture
-            |> alsoMoveRookIfCastling
-            |> swapSide
+        let castlingPrevalidation p = 
+            match castlingTypeOpt with
+            | Some(_) -> if (p|> isCheck getAttacks side) then None else Some p
+            | None -> Some p
+
+        let makeMoveInternal = 
+            setPieceInternal (chessman, side) dstBitRef
+            >> clearPieceInternal (chessman, side) srcBitRef
+            >> clearOpponentPieceIfCapture
+            >> alsoMoveRookIfCastling
+            >> swapSide 
 
         let predicateFilter predicate x =
             if predicate x then Some x else None
@@ -242,6 +252,8 @@ module Positions =
         let isNotCastlingPathUnderAttackFilter = predicateFilter (fun p ->
             castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p))
 
-        pos' |> Some
+        pos
+        |> castlingPrevalidation
+        |> Option.map makeMoveInternal
         |> Option.bind isNotCheckFilter
         |> Option.bind isNotCastlingPathUnderAttackFilter

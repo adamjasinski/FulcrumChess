@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>FulcrumChess.Engine</RootNamespace>
     <DefineConstants>FAST_32BIT_MULT</DefineConstants>
+    <OtherFlags>$(OtherFlags) --optimize+ --platform:x64</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Arrow.fs" />

@@ -45,39 +45,25 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         verifyOccupancy [|11; 29; 47; 50; 56|] allOccupancy
 
     [<Theory>]
-    [<InlineDataEx("rnb1kbnr/pppp1ppp/8/4p3/3PP2q/8/PPP2PPP/RNBQKBNR w KQkq -", 10, [|"f3";"f4"|])>]
-    member __. ``verify validation of a move of a pinned White Pawn`` (fen:string, startBitRef:int, expectedSquares:string array) =
+    [<InlineDataEx("rnb1kbnr/pppp1ppp/8/4p3/3PP2q/8/PPP2PPP/RNBQKBNR w KQkq -", "f2f3")>]
+    member __. ``illegal move - pinned White Pawn`` (fen:string, moveAlgNotation:string) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = Move.create (10,18)
+        let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
         let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
 
         test <@ None = pos' @>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
-    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1", "e1g1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1RK1 b kq - 1 1")>]
-    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1", "e1c1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/2KR1BNR b kq - 1 1")>]
-    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8g8", "rnbq1rk1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
-    [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
-    member __. ``make move - castling`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
+    [<InlineDataEx("rnb1k1nr/ppppqppp/8/8/8/2b5/PPP3PP/RNBQKBNR w KQkq - 0 1", "b1c3")>]
+    member __. ``illegal move - king still under check (double attack)`` (fen:string, moveAlgNotation:string) =
+        //Try to make a move. It should be rejected as illegal, as the pawn is pinned
+
         let pos = FenParsing.parseToPosition fen
-
-        let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+        let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
 
-        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
-        test <@ positionAfterMove |> Option.isSome @>
-
-        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
-        printfn "%A" posCharArray
-        printfn "-------------------------"
-        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
-        printfn "%s" actualFenAfterMove
-        <@ expectedFen.StartsWith(actualFenAfterMove) @>
-
-
-
+        test <@ None = pos' @>
