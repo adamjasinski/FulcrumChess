@@ -17,7 +17,8 @@ type Position = {
     BlackKnights:Bitboard;
     BlackPawns:Bitboard;
 
-    CastlingRightsPerSide:CastlingRights*CastlingRights;
+    WhiteCastlingRights:CastlingRights;
+    BlackCastlingRights:CastlingRights;
     SideToPlay:Side;
 }
 
@@ -27,6 +28,8 @@ type CastlingLookup = {
     InitialPositionQueensRook:Bitboard;
     BlockersKingsRook:Bitboard;
     BlockersQueensRook:Bitboard;
+    PathNonUnderCheckKing:Bitboard;
+    PathNonUnderCheckQueen:Bitboard;
     DestinationBitRefKingSideCastling:int;
     DestinationBitRefQueenSideCastling:int;
 }
@@ -35,7 +38,8 @@ module Positions =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
         Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;
-        CastlingRightsPerSide = (CastlingRights.None,CastlingRights.None);
+        WhiteCastlingRights=CastlingRights.None;
+        BlackCastlingRights=CastlingRights.None;
         SideToPlay=White }
 
     let initialPosition = {
@@ -51,7 +55,8 @@ module Positions =
          BlackBishops = 2594073385365405696UL;
          BlackKnights = 4755801206503243776UL;
          BlackPawns = 71776119061217280UL;
-         CastlingRightsPerSide = (CastlingRights.None,CastlingRights.None);
+         WhiteCastlingRights=CastlingRights.None;
+         BlackCastlingRights=CastlingRights.None;
          SideToPlay = White;}
 
     let castlingLookups = dict[
@@ -61,6 +66,8 @@ module Positions =
             InitialPositionQueensRook = 128UL;
             BlockersKingsRook = 6UL;
             BlockersQueensRook = 112UL;
+            PathNonUnderCheckKing = (1UL <<< 1) ||| (1UL <<< 2);
+            PathNonUnderCheckQueen = (1UL <<< 4) ||| (1UL <<< 5);
             DestinationBitRefKingSideCastling = 1;
             DestinationBitRefQueenSideCastling = 5;
             };
@@ -70,6 +77,8 @@ module Positions =
             InitialPositionQueensRook = (1UL <<< 63);
             BlockersKingsRook = (1UL <<< 57) ||| (1UL <<< 58);
             BlockersQueensRook = (1UL <<< 60) ||| (1UL <<< 61) ||| (1UL <<<62);
+            PathNonUnderCheckKing = (1UL <<< 57) ||| (1UL <<< 58);
+            PathNonUnderCheckQueen = (1UL <<< 60) ||| (1UL <<< 61);
             DestinationBitRefKingSideCastling = 57;
             DestinationBitRefQueenSideCastling = 61;
             };
@@ -193,9 +202,30 @@ module Positions =
         let castlingLookup = castlingLookups.[kingSide]
         let castlingPathBitboard = 
             match castlingType with
-            | KingSide -> castlingLookup.BlockersKingsRook
-            | QueenSide -> castlingLookup.BlockersQueensRook
+            | KingSide -> castlingLookup.PathNonUnderCheckKing
+            | QueenSide -> castlingLookup.PathNonUnderCheckQueen
         castlingPathBitboard &&& opponentAttacks > 0UL
+
+    let private getCastlingRights (side:Side) (pos:Position)=
+        match side with
+            | White -> pos.WhiteCastlingRights
+            | Black -> pos.BlackCastlingRights
+
+    let private hasCastlingRights (castlingType:CastlingType) (kingSide:Side) (pos:Position) =
+        let castlingRights = pos |> getCastlingRights kingSide
+
+        match (castlingType) with
+            | KingSide ->  (int(castlingRights) &&& int(CastlingRights.KingSide)) > 0
+            | QueenSide -> (int(castlingRights) &&& int(CastlingRights.QueenSide)) > 0
+
+    // let private clearCastlingRights (castlingType:CastlingType) (kingSide:Side) (pos:Position) =
+    //     let castlingRights = pos |> getCastlingRights kingSide
+
+    //     match (kingSide, castlingType) with
+    //             | (White, KingSide) -> { pos with WhiteCastlingRights = castlingRights }
+    //             | (White, QueenSide) ->  (7, 4) |> Option.Some
+    //             | (Black, KingSide) ->  (56, 58) |> Option.Some
+    //             | (Black, QueenSide) -> (63, 60) |> Option.Some
 
     let makeMoveWithValidation (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
