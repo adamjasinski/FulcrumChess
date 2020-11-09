@@ -20,11 +20,13 @@ module Randomness =
     open RandomExtensions
 
     module SequentialRandomness = 
-        let initRandomUInt64Generator (seed:uint64) =
+        let randomLocks = [|for i in 0..7 -> obj()|]
+
+        let initRandomUInt64Generator (seed:uint64) (rank:int)=
             let mutable m:uint64 = seed
             //let m = new System.Threading.ThreadLocal<uint64>(fun () -> seed)
             let mutable counter = 0
-            let mylock = obj()
+            let mylock = randomLocks.[rank]
             fun() -> 
                 let s1 = m
                 let s2 = s1 ^^^ (s1 >>> 12)
@@ -44,30 +46,35 @@ module Randomness =
 
         // NB - constant seed makes the 'random' sequence deterministic, but it also makes magic pre-generation and re-use possible
         //let generateRandomUInt64 = initRandomUInt64Generator 8977UL  //good seed for 32-bit
-        let generateRandomUInt64 = initRandomUInt64Generator 728UL     //good seed for 64-bit
+
+        let rankSeeds = [| 728UL; 10316UL; 55013UL; 32803UL; 12281UL; 15100UL; 16645UL; 255UL |]
 
         /// Generate a random number with not many bits set
-        let generateSparseUInt64 () = generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
+        let generateSparseUInt64 rank = 
+            let generateRandomUInt64 = initRandomUInt64Generator rankSeeds.[rank] rank//728UL     //good seed for 64-bit
+
+            generateRandomUInt64() &&& generateRandomUInt64() &&& generateRandomUInt64()
 
     module SystemRandomness =
-        let randomLock = obj()
+        let randomLocks = [|for i in 0..7 -> obj()|]
 
         // let rnd = 
         //     new ThreadLocal<Random>(
         //         fun () -> new Random())
 
         // let initThreadLocalRandom() = System.Threading.ThreadLocal<RandomExtensions>
-
-        let rnd = System.Random()
+        let rankSeeds = [| 728; 10316; 55013; 32803; 12281; 15100; 16645; 255 |]
+        let rnds = rankSeeds |> Array.map Random
         
-        let generateSparseUInt64 () = 
-            lock randomLock <| fun () -> 
+        let generateSparseUInt64 rank = 
+            lock randomLocks.[rank] <| fun () -> 
+                let rnd = rnds.[rank]
                 rnd.NextUInt64() &&& rnd.NextUInt64() &&& rnd.NextUInt64() // generate a random number with not many bits set
         
         // let generateSparseUInt64 () = 
         //     let currentRnd = rnd.Value
         //     currentRnd.NextUInt64() &&& currentRnd.NextUInt64() &&& currentRnd.NextUInt64()  // generate a random number with not many bits set
 
-    let infiniteSparseUInt64Sequence = 
-        Seq.initInfinite (fun i -> 
-            SequentialRandomness.generateSparseUInt64())
+    let infiniteSparseUInt64SequenceFor (rank:int) = 
+        Seq.initInfinite (fun _ -> 
+            SystemRandomness.generateSparseUInt64 rank)

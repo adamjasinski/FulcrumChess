@@ -248,7 +248,7 @@ let generateAttackSets (pc:SlidingPiece) (occupancyVariations:uint64[][]) (occup
 
 let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) (pregeneratedMagicAndShifts:(uint64*int)[]) =
     pregeneratedMagicAndShifts 
-    |> Array.Parallel.mapi (fun bitRef pregeneratedCandidate -> 
+    |> Array.mapi (fun bitRef pregeneratedCandidate -> 
             if fst pregeneratedCandidate = 0UL then
                 let bitCount = BitUtils.countSetBits occupancyMasks.[bitRef]
                 let variationCount = 1 <<< bitCount;
@@ -290,7 +290,7 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                     bitCountInMostSignificant8 >= 6
 
                 let magicNumber = 
-                    Randomness.infiniteSparseUInt64Sequence 
+                    Randomness.infiniteSparseUInt64SequenceFor (bitRef / 8) 
                     |> Seq.where goodMagicPredicate
                     |> Seq.find magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet
 
@@ -307,8 +307,8 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
     let pregeneratedMagic = PregeneratedMagic.PartialMagicFor32BitHashing |> PregeneratedMagic.getMagicValuesAndShiftsFor pc
     let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets pregeneratedMagic
-    printfn "=================================================%A" pc
-    //magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%x" i (pair |> fst))
+    printfn "=================Magic for %A=========================" pc
+    magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%xUL" i (pair |> fst))
     magick |> Array.ofSeq
 
 module MoveGenerationLookupFunctions =

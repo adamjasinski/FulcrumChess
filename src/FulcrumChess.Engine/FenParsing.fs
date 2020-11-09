@@ -32,6 +32,20 @@ let private parseSide (input:string) : Side =
     | "b" -> Side.Black
     | x -> invalidOp ("Unknown side to play in FEN: " + x)
 
+let parseCastlingRights (input:string) =
+    let parts = input.Split(' ')
+    let castlingRightsCharArray = parts.[2].ToCharArray()
+
+    ((CastlingRights.None,CastlingRights.None), castlingRightsCharArray)
+    ||> Array.fold(fun (whiteRights,blackRights) letter ->
+        match letter with
+        | 'K' -> ((whiteRights ||| CastlingRights.KingSide), blackRights)
+        | 'Q' -> ((whiteRights ||| CastlingRights.QueenSide), blackRights)
+        | 'k' -> (whiteRights, (blackRights ||| CastlingRights.KingSide))
+        | 'q' -> (whiteRights, (blackRights ||| CastlingRights.QueenSide))
+        | '-' -> (whiteRights, blackRights)
+        | _ -> invalidOp(sprintf "Unknown castling right in FEN: %c" letter))
+
 // fen example: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 let parseToBoard8x8 (fen:string) : Board8x8Array =
     let boardPart = fen.Substring(0, fen.IndexOf(" "))
@@ -43,7 +57,12 @@ let parseToPosition (fen:string) : Position =
     let board8x8 = parseToBoard8x8 fen
     let allPiecesOnBoard = board8x8 |> List.collect id |> Array.ofList |> Array.rev
     let sideToPlay = fen |> parseSide
-    let startingPosition = { Positions.emptyBitboard with SideToPlay=sideToPlay }
+    let (whiteCastlingRights,blackCastlingRights) = fen |> parseCastlingRights
+    let startingPosition = 
+        { Positions.emptyBitboard with 
+            SideToPlay=sideToPlay; 
+            WhiteCastlingRights = whiteCastlingRights; 
+            BlackCastlingRights = blackCastlingRights }
     let mapped = 
         ((0,startingPosition), allPiecesOnBoard) 
         ||> Array.fold (fun (counter,pos) (piece:char) -> 

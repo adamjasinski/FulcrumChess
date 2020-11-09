@@ -215,17 +215,22 @@ module Positions =
         let castlingRights = pos |> getCastlingRights kingSide
 
         match (castlingType) with
-            | KingSide ->  (int(castlingRights) &&& int(CastlingRights.KingSide)) > 0
-            | QueenSide -> (int(castlingRights) &&& int(CastlingRights.QueenSide)) > 0
+            | KingSide ->  castlingRights &&& CastlingRights.KingSide > CastlingRights.None
+            | QueenSide -> castlingRights &&& CastlingRights.QueenSide > CastlingRights.None
 
-    // let private clearCastlingRights (castlingType:CastlingType) (kingSide:Side) (pos:Position) =
-    //     let castlingRights = pos |> getCastlingRights kingSide
+    let private setCastlingRights (castlingRights:CastlingRights) (kingSide:Side) (pos:Position) =
+        match kingSide with
+            | White -> { pos with WhiteCastlingRights = castlingRights }
+            | Black -> { pos with BlackCastlingRights = castlingRights }
+        // let castlingRights = pos |> getCastlingRights kingSide
+        // let amendedCastlingRights = 
+        //     match castlingType with
+        //     | KingSide ->  castlingRights &&& ~~~CastlingRights.KingSide
+        //     | QueenSide -> castlingRights &&& ~~~CastlingRights.QueenSide
 
-    //     match (kingSide, castlingType) with
-    //             | (White, KingSide) -> { pos with WhiteCastlingRights = castlingRights }
-    //             | (White, QueenSide) ->  (7, 4) |> Option.Some
-    //             | (Black, KingSide) ->  (56, 58) |> Option.Some
-    //             | (Black, QueenSide) -> (63, 60) |> Option.Some
+        // match kingSide with
+        //     | White-> { pos with WhiteCastlingRights = amendedCastlingRights }
+        //     | Black -> { pos with BlackCastlingRights = amendedCastlingRights }
 
     let makeMoveWithValidation (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
@@ -263,9 +268,10 @@ module Positions =
         let swapSide (p:Position) =
             { p with SideToPlay=opposite side }
 
-        let castlingPrevalidation p = 
+        let castlingPrevalidationFilter p = 
             match castlingTypeOpt with
-            | Some(_) -> if (p|> isCheck getAttacks side) then None else Some p
+            | Some castlingType -> 
+                if (p |> hasCastlingRights castlingType side) && (p|> isCheck getAttacks side) then None else Some p
             | None -> Some p
 
         let makeMoveInternal = 
@@ -282,8 +288,29 @@ module Positions =
         let isNotCastlingPathUnderAttackFilter = predicateFilter (fun p ->
             castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p))
 
+        let updateCastlingRightsIfApplicableFilter p =
+            let currentCastlingRights = p |> getCastlingRights side
+            let castlingLookup = castlingLookups.[side]
+
+            let revisedCastlingRightsOpt = 
+                match chessman with
+                | Chessmen.King -> Some CastlingRights.None
+                | Chessmen.Rook -> 
+                    let dstBitRefKingSide = castlingLookup.DestinationBitRefKingSideCastling 
+                    let dstBitRefQueenSide = castlingLookup.DestinationBitRefQueenSideCastling 
+                    match dstBitRef with
+                    | dst when dst = dstBitRefKingSide -> Some (currentCastlingRights &&& ~~~CastlingRights.KingSide)
+                    | dst when dst = dstBitRefQueenSide -> Some (currentCastlingRights &&& ~~~CastlingRights.QueenSide)
+                    | _ -> None
+                | _ -> None
+            
+            match revisedCastlingRightsOpt with
+            | Some revisedCastlingRights -> p |> setCastlingRights revisedCastlingRights side
+            | None -> p 
+
         pos
-        |> castlingPrevalidation
+        |> castlingPrevalidationFilter
         |> Option.map makeMoveInternal
         |> Option.bind isNotCheckFilter
         |> Option.bind isNotCastlingPathUnderAttackFilter
+        |> Option.map updateCastlingRightsIfApplicableFilter
