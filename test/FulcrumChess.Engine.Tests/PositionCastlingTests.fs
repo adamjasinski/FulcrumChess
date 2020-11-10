@@ -38,7 +38,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "%s" actualFenAfterMove
         <@ expectedFen.StartsWith(actualFenAfterMove) @>
 
-    [<Theory(Skip="Pending castling rights validation")>]
+    [<Theory>]
     [<Trait("Castling","true")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w Qkq - 0 1", "e1g1")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w Kkq - 0 1", "e1c1")>]
@@ -46,7 +46,6 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQk - 0 1", "e8c8")>]
     member __. ``attempt to castle - no castling rights`` (fen:string, kingMoveAlgNotation:string) =
         let pos = FenParsing.parseToPosition fen
-
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 

@@ -213,25 +213,15 @@ module Positions =
 
     let private hasCastlingRights (castlingType:CastlingType) (kingSide:Side) (pos:Position) =
         let castlingRights = pos |> getCastlingRights kingSide
-
         match (castlingType) with
-            | KingSide ->  castlingRights &&& CastlingRights.KingSide > CastlingRights.None
-            | QueenSide -> castlingRights &&& CastlingRights.QueenSide > CastlingRights.None
+            | KingSide ->  castlingRights &&& (CastlingRights.KingSide) > CastlingRights.None
+            | QueenSide -> castlingRights &&& (CastlingRights.QueenSide) > CastlingRights.None
 
     let private setCastlingRights (castlingRights:CastlingRights) (kingSide:Side) (pos:Position) =
         match kingSide with
             | White -> { pos with WhiteCastlingRights = castlingRights }
             | Black -> { pos with BlackCastlingRights = castlingRights }
-        // let castlingRights = pos |> getCastlingRights kingSide
-        // let amendedCastlingRights = 
-        //     match castlingType with
-        //     | KingSide ->  castlingRights &&& ~~~CastlingRights.KingSide
-        //     | QueenSide -> castlingRights &&& ~~~CastlingRights.QueenSide
-
-        // match kingSide with
-        //     | White-> { pos with WhiteCastlingRights = amendedCastlingRights }
-        //     | Black -> { pos with BlackCastlingRights = amendedCastlingRights }
-
+        
     let makeMoveWithValidation (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
@@ -241,7 +231,6 @@ module Positions =
         let castlingTypeOpt = move |> Move.determineCastlingType (chessman, side)
 
         let alsoMoveRookIfCastling (p:Position) =
-        //TODO - check castling eligibility
             let rookMoveIfCastling =
                 match (side, castlingTypeOpt) with
                 | (White, Some(KingSide)) ->   (0, 2) |> Option.Some
@@ -271,7 +260,7 @@ module Positions =
         let castlingPrevalidationFilter p = 
             match castlingTypeOpt with
             | Some castlingType -> 
-                if (p |> hasCastlingRights castlingType side) && (p|> isCheck getAttacks side) then None else Some p
+                if (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks side) then Some p else None
             | None -> Some p
 
         let makeMoveInternal = 
