@@ -1,7 +1,7 @@
 ﻿namespace FulcrumChess.Engine
 
 [<System.FlagsAttribute>]
-type CastlingRights = None = 0 | KingSide = 1 | QueenSide = 2 
+type CastlingRights = None = 0 | KingSide = 1 | QueenSide = 2 | Both = 3 
 
 type Position = {
     WhiteKing:Bitboard;

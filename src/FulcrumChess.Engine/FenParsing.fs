@@ -1,6 +1,7 @@
 ﻿module FenParsing
 open FulcrumChess.Engine
 
+open System
 open System.Text
 open System.Text.RegularExpressions
 
@@ -32,7 +33,7 @@ let private parseSide (input:string) : Side =
     | "b" -> Side.Black
     | x -> invalidOp ("Unknown side to play in FEN: " + x)
 
-let parseCastlingRights (input:string) =
+let private parseCastlingRights (input:string) =
     let parts = input.Split(' ')
     let castlingRightsCharArray = parts.[2].ToCharArray()
 
@@ -108,4 +109,30 @@ let toFen (pos:Position) =
         rowCombiner 0 rowSb 0
     )
 
-    System.String.Join('/', allRowsArray)
+    let sideToLetter = function
+        | White -> 'w'
+        | Black -> 'b'
+
+    let castlingRightsToLetter (whiteCastlingRights,blackCastlingRights) =
+        let white = 
+            match whiteCastlingRights with
+            | r when r = CastlingRights.Both -> "KQ"
+            | r when r = CastlingRights.KingSide -> "K"
+            | r when r = CastlingRights.QueenSide -> "Q"
+            | _ -> ""
+
+        let black = 
+            match blackCastlingRights with
+            | r when r = CastlingRights.Both -> "kq"
+            | r when r = CastlingRights.KingSide -> "k"
+            | r when r = CastlingRights.QueenSide -> "q"
+            | _ -> ""
+
+        if white.Length > 0 || black.Length > 0 then
+            white + black
+        else "-"
+
+    let chessmen = String.Join('/', allRowsArray)
+    let side = sideToLetter pos.SideToPlay
+    let castlingRights = castlingRightsToLetter (pos.WhiteCastlingRights, pos.BlackCastlingRights)
+    sprintf "%s %c %s" chessmen side castlingRights

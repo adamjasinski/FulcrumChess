@@ -9,9 +9,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
 
     let lookups = magicGenerationSetupFixture.Lookups
 
-    let verifyOccupancy (expectedOccupancy:int array) (actualOccupancy:Bitboard) =
-        let actualBitboardAsBitArray = (uint64(actualOccupancy) |> BitUtils.getSetBits)
-        test <@ actualBitboardAsBitArray = expectedOccupancy @>
+    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 
     interface IAssemblyFixture<MagicGenerationSetupFixture>
 
@@ -26,7 +24,6 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
 
         let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 
         let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
@@ -36,7 +33,8 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
-        <@ expectedFen.StartsWith(actualFenAfterMove) @>
+        Assert.StartsWith(actualFenAfterMove, expectedFen)
+        //<@ expectedFen.StartsWith(actualFenAfterMove) @>
 
     [<Theory>]
     [<Trait("Castling","true")>]
@@ -47,7 +45,6 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     member __. ``attempt to castle - no castling rights`` (fen:string, kingMoveAlgNotation:string) =
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 
         let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
         test <@ pos' |> Option.isNone @>
@@ -71,7 +68,6 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let pos = FenParsing.parseToPosition fen
 
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 
         let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
         if pos' |> Option.isSome then
@@ -81,14 +77,13 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
 
     [<Theory>]
     [<Trait("Castling","true")>]
-    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b Kkq - 0 1")>]
-    [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQk - 0 1")>]
+    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
+    [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``make move - queen side castling with check next to rook (edge case)`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
 
         let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
 
         let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
@@ -98,4 +93,26 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
-        <@ expectedFen.StartsWith(actualFenAfterMove) @>
+        Assert.StartsWith(actualFenAfterMove, expectedFen)
+        //<@ expectedFen.StartsWith(actualFenAfterMove) = true @> |> ignore
+        //<@ actualFenAfterMove = expectedFen @>
+
+    [<Theory>]
+    [<Trait("Castling","true")>]
+    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
+    [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 0 1")>]
+    member __. ``moving rook should affect castling rights`` (fen:string, rookMoveAlgNotation:string, expectedFen:string) =
+        let pos = FenParsing.parseToPosition fen
+
+        let actualMove = Notation.fromLongAlgebraicNotationToMove rookMoveAlgNotation
+        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+
+        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        test <@ positionAfterMove |> Option.isSome @>
+
+        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
+        printfn "%A" posCharArray
+        printfn "-------------------------"
+        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
+        printfn "%s" actualFenAfterMove
+        Assert.StartsWith(actualFenAfterMove, expectedFen)
