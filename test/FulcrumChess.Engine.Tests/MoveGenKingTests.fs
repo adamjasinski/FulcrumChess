@@ -47,7 +47,7 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         ()
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1", 3, [|"f1"; "g1";|])>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1", 3, [|"d1"; "c1";|])>]
     [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", 59, [|"f8"; "g8";|])>]

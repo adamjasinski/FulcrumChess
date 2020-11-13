@@ -1,6 +1,9 @@
 ﻿namespace FulcrumChess.Engine.Tests
 open System
 open System.Reflection
+open Xunit
+open Xunit.Abstractions
+open Xunit.Sdk
 
 [<AttributeUsage(AttributeTargets.Method, AllowMultiple = false)>]
 type BoardRefAttribute(fen:string, url:string) =
@@ -14,7 +17,7 @@ type BoardRefAttribute(fen:string, url:string) =
 // See also https://github.com/xunit/xunit/blob/master/src/xunit.core/InlineDataAttribute.cs
 [<AttributeUsage(AttributeTargets.Method, AllowMultiple = true)>]
 type InlineDataExAttribute(data:obj array) =
-    inherit Xunit.Sdk.DataAttribute()
+    inherit DataAttribute()
     new(arg1:obj) = InlineDataExAttribute [|arg1|]
     new(arg1:obj, arg2:obj) = InlineDataExAttribute [|arg1; arg2|]
     new(arg1:obj, arg2:obj, arg3:obj) = InlineDataExAttribute [|arg1; arg2; arg3|]
@@ -45,7 +48,7 @@ module TupleHelper =
 //Extension for MemberDataAttribute that unrolls tuples into array of objects
 [<AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)>]
 type MemberDataExAttribute(memberName:string, parameters:obj[]) =
-    inherit Xunit.MemberDataAttributeBase(memberName, parameters)
+    inherit MemberDataAttributeBase(memberName, parameters)
 
     new(memberName:string) = MemberDataExAttribute(memberName, [||])
 
@@ -54,3 +57,20 @@ type MemberDataExAttribute(memberName:string, parameters:obj[]) =
         |> List.map box
         |> Array.ofList
 
+
+[<TraitDiscoverer("FulcrumChess.Engine.Tests.CategoryDiscoverer", "FulcrumChess.Engine.Tests")>]
+[<AttributeUsage(AttributeTargets.Method, AllowMultiple = true)>]
+//Apply this attribute to your test method to specify a category.
+//Adapted from https://github.com/xunit/samples.xunit/blob/main/TraitExtensibility/CategoryAttribute.cs
+type CategoryAttribute(category:string) =
+    inherit Attribute()
+    interface ITraitAttribute
+
+
+type CategoryDiscoverer() =
+    interface ITraitDiscoverer with
+        //Gets the trait values from the Category attribute.
+        member __.GetTraits(traitAttribute:IAttributeInfo) =
+            let singleCtorArg = traitAttribute.GetConstructorArguments() |> Seq.exactlyOne
+            let singleCategory = System.Collections.Generic.KeyValuePair<string,string>("Category", downcast singleCtorArg)
+            Seq.singleton singleCategory

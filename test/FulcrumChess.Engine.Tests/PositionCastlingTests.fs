@@ -14,7 +14,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     interface IAssemblyFixture<MagicGenerationSetupFixture>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1", "e1g1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1RK1 b kq - 1 1")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w KQkq - 0 1", "e1c1", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/2KR1BNR b kq - 1 1")>]
     [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8g8", "rnbq1rk1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
@@ -37,7 +37,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         //<@ expectedFen.StartsWith(actualFenAfterMove) @>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w Qkq - 0 1", "e1g1")>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w Kkq - 0 1", "e1c1")>]
     [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQq - 0 1", "e8g8")>]
@@ -50,7 +50,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         test <@ pos' |> Option.isNone @>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rnb1kbnr/ppp1qppp/8/3p4/8/8/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1g1", "white kingside, origin under check")>]
     [<InlineDataEx("rn1qkbnr/p1pp1ppp/bp6/4p3/8/8/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1g1", "white kingside, path under check")>]
     [<InlineDataEx("rnbqk1nr/pppp1ppp/8/2b1p3/8/5P2/PPPP2PP/RNBQK2R w KQkq - 0 1", "e1g1", "white kingside, destination under check")>]
@@ -76,7 +76,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         test <@ pos' |> Option.isNone @>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
     [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``make move - queen side castling with check next to rook (edge case)`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
@@ -98,7 +98,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         //<@ actualFenAfterMove = expectedFen @>
 
     [<Theory>]
-    [<Trait("Castling","true")>]
+    [<Category("Castling")>]
     [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
     [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 0 1")>]
     member __. ``moving rook should affect castling rights`` (fen:string, rookMoveAlgNotation:string, expectedFen:string) =
