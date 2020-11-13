@@ -27,7 +27,7 @@ module Program =
         printfn "Running perft for depth %d" perftDepth
         //runTimedFun <| fun () ->
         let perftDivideReport = 
-            Perft.generatePerftReport lookups.Value (0us, Positions.initialPosition) (1, perftDepth)
+            Perft.generatePerftReport lookups.Value (0us, Position.initialPosition) (1, perftDepth)
 
         perftDivideReport.InitialMovesNodeBreakdown
         |> Array.iter( fun (move,count) -> printfn "%s: %d" move count)

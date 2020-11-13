@@ -18,14 +18,14 @@ type PerftTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<InlineDataEx(1, 20UL)>]
     [<InlineDataEx(2, 400UL)>]
     member __.``shallow perft in initial position should return known values`` (depth:int, expectedNodes:uint64) =
-        let perftReport = Perft.generatePerftReport lookups (0us, Positions.initialPosition) (1, depth)
+        let perftReport = Perft.generatePerftReport lookups (0us, Position.initialPosition) (1, depth)
         test <@ perftReport.TotalNodes = expectedNodes @>
 
     [<Theory(Skip="Pending...")>]
     [<Category("Perft")>]
     [<InlineDataEx(3, 8902)>] //pending
     member __.``slightly deeper perft in initial position should return known values`` (depth:int, expectedNodes:uint64) =
-        let perftReport = Perft.generatePerftReport lookups (0us, Positions.initialPosition) (1, depth)
+        let perftReport = Perft.generatePerftReport lookups (0us, Position.initialPosition) (1, depth)
         test <@ perftReport.TotalNodes = expectedNodes @>
 
 

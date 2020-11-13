@@ -97,8 +97,8 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         
         let startBitRef = 39    //a5
         let pos = FenParsing.parseToPosition"8/p7/8/r2N4/8/8/p7/8 w - -"
-        let opponentOccupancy = pos |> Positions.whiteBitboard  //d5
-        let friendlyOccupancy = pos |> Positions.blackBitboard    //a5, a7, a2
+        let opponentOccupancy = pos |> Position.whiteBitboard  //d5
+        let friendlyOccupancy = pos |> Position.blackBitboard    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts

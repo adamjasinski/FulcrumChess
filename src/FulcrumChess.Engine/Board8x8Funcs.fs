@@ -45,7 +45,7 @@ let fromBitboard (bb:Bitboard) (pc:Chessmen, side:Side) =
 
 
 let fromPosition (pos:Position) =
-    let allBitboards = pos |> Positions.asBitboardSequence
+    let allBitboards = pos |> Position.asBitboardSequence
     let allArrays = 
         allBitboards
         |> Seq.map (fun x -> x ||> bitboardToLerbefCharArray)

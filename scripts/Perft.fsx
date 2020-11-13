@@ -12,7 +12,7 @@ printfn "Running Perft mode"
 let perftDepth = 3
 printfn "Running perft for depth %d" perftDepth
 let perftDivideReport = 
-    Perft.generatePerftReport lookups (0us, Positions.initialPosition) (1, perftDepth)
+    Perft.generatePerftReport lookups (0us, Position.initialPosition) (1, perftDepth)
 
 perftDivideReport.InitialMovesNodeBreakdown
 |> Array.iter( fun (move,count) -> printfn "%s: %d" move count)

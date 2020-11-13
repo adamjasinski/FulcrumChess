@@ -20,9 +20,9 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     member __. ``verify position of White Bishop at c4; a few other black and white pieces on the board`` () =
         let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
 
-        let opponentOccupancy = pos |> Positions.blackBitboard  //a6, f7
-        let friendlyOccupancy = pos |> Positions.whiteBitboard    //e2, c4
-        let allOccupancy = pos |> Positions.bothSidesBitboard
+        let opponentOccupancy = pos |> Position.blackBitboard  //a6, f7
+        let friendlyOccupancy = pos |> Position.whiteBitboard    //e2, c4
+        let allOccupancy = pos |> Position.bothSidesBitboard
 
         verifyOccupancy [|47; 50|] opponentOccupancy
         verifyOccupancy [|11; 29|] friendlyOccupancy
@@ -34,11 +34,11 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     member __. ``set position of Black Bishop;`` () =
         let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
 
-        let pos' = pos |> Positions.setFenPiece 'b' 56
+        let pos' = pos |> Position.setFenPiece 'b' 56
         
-        let opponentOccupancy = pos' |> Positions.blackBitboard  //a6, f7, h8
-        let friendlyOccupancy = pos' |> Positions.whiteBitboard    //e2, c4
-        let allOccupancy = pos' |> Positions.bothSidesBitboard
+        let opponentOccupancy = pos' |> Position.blackBitboard  //a6, f7, h8
+        let friendlyOccupancy = pos' |> Position.whiteBitboard    //e2, c4
+        let allOccupancy = pos' |> Position.bothSidesBitboard
 
         verifyOccupancy [|47; 50; 56|] opponentOccupancy
         verifyOccupancy [|11; 29|] friendlyOccupancy
@@ -52,7 +52,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
-        let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
+        let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
 
         test <@ None = pos' @>
 
@@ -64,6 +64,6 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
-        let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
+        let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
 
         test <@ None = pos' @>

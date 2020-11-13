@@ -34,7 +34,7 @@ type CastlingLookup = {
     DestinationBitRefQueenSideCastling:int;
 }
     
-module Positions =
+module Position =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
         Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;

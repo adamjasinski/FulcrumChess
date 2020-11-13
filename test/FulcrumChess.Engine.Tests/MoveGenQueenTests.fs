@@ -34,7 +34,7 @@ type MoveGenQueenTests(magicGenerationSetupFixture:MagicGenerationSetupFixture, 
 
         let movesAsBitboard = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef |> Move.movesToDstBitboard
 
-        let attacks = pos |> Positions.getCapturesFromPseudoMoves movesAsBitboard startBitRef
+        let attacks = pos |> Position.getCapturesFromPseudoMoves movesAsBitboard startBitRef
 
         test <@ attacks <> 0UL @>
         let algNotations = attacks |> setBitsToAlgebraicNotations

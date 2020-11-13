@@ -29,7 +29,7 @@ module Move =
 
     // let createCastling (castlingType:CastlingType) (side:Side) : Move =
     //     //uint16 ((srcBitRef <<< 6) ||| destBitRef)
-    //    let castlingLookup = Positions.castlingLookups.[side]
+    //    let castlingLookup = Position.castlingLookups.[side]
     //    let dst = match castlingLookup with
     //    | QueenSide -> castlingLookup
 

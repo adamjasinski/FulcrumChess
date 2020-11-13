@@ -20,8 +20,8 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
         
         let startBitRef = 29    //c4
         let pos = FenParsing.parseToPosition "8/5p2/p7/8/2B5/8/4P3/8 w - -"
-        let opponentOccupancy = pos |> Positions.blackBitboard  //a6, f7
-        let friendlyOccupancy = pos |> Positions.whiteBitboard    //e2, c4
+        let opponentOccupancy = pos |> Position.blackBitboard  //a6, f7
+        let friendlyOccupancy = pos |> Position.whiteBitboard    //e2, c4
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
@@ -42,8 +42,8 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
         let startBitRef = 56    //h8
         let pos = FenParsing.parseToPosition "7b/6n1/8/8/8/8/8/8 w - -"
-        let opponentOccupancy = pos |> Positions.whiteBitboard 
-        let friendlyOccupancy = pos |> Positions.blackBitboard
+        let opponentOccupancy = pos |> Position.whiteBitboard 
+        let friendlyOccupancy = pos |> Position.blackBitboard
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         let result =  Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
         test <@ Array.isEmpty result @>

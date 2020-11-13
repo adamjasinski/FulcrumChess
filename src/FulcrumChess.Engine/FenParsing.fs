@@ -60,7 +60,7 @@ let parseToPosition (fen:string) : Position =
     let sideToPlay = fen |> parseSide
     let (whiteCastlingRights,blackCastlingRights) = fen |> parseCastlingRights
     let startingPosition = 
-        { Positions.emptyBitboard with 
+        { Position.emptyBitboard with 
             SideToPlay=sideToPlay; 
             WhiteCastlingRights = whiteCastlingRights; 
             BlackCastlingRights = blackCastlingRights }
@@ -70,7 +70,7 @@ let parseToPosition (fen:string) : Position =
             match piece with
             | ' ' -> (counter+1,pos)
             | pc -> 
-                let pos' = pos |> Positions.setFenPiece piece counter
+                let pos' = pos |> Position.setFenPiece piece counter
                 (counter+1, pos') 
         )
     mapped |> snd
@@ -78,7 +78,7 @@ let parseToPosition (fen:string) : Position =
 let dumpPosition (pos:Position) =
     [|for i in 7..-1..0 ->
         [|for j in 7..-1..0 ->
-            let pc = pos |> Positions.getChessmanAndSide (8*i+j)
+            let pc = pos |> Position.getChessmanAndSide (8*i+j)
             match pc with
             | Some(chessmanAndSide) -> PieceFenLetters.getLetter chessmanAndSide
             | None -> ' '

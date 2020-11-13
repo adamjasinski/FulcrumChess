@@ -25,7 +25,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
-        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
         let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
@@ -46,7 +46,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
 
-        let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
+        let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
         test <@ pos' |> Option.isNone @>
 
     [<Theory>]
@@ -69,7 +69,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
 
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
 
-        let pos' = pos |> Positions.makeMoveWithValidation generateAttacks move
+        let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
         if pos' |> Option.isSome then
             let posCharArray = pos'.Value |> FenParsing.dumpPosition
             printfn "%A" posCharArray
@@ -85,7 +85,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
-        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
         let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
@@ -107,7 +107,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let actualMove = Notation.fromLongAlgebraicNotationToMove rookMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
-        let positionAfterMove = pos |> Positions.makeMoveWithValidation generateAttacks actualMove
+        let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
         let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
