@@ -280,7 +280,7 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
 
                 let goodMagicPredicate m =
                     // The resulting index, derived from the magic, must be big enough to contain all the attacks for each possible subset of the occupancy mask (minus edges of the board)
-                    let bitCountInMostSignificant8 = BitUtils.countSetBits_32  (uint(multiplyAndShift currentBitRefOccupancyMask m 56))
+                    let bitCountInMostSignificant8 = BitUtils.countSetBits_32  (uint32(multiplyAndShift currentBitRefOccupancyMask m 56))
                     // let g = ((multiplyAndShift currentBitRefOccupancyMask m 56))
                     // if bitCountInMostSignificant8 < 6 then 
                     //     printfn "Discarding magic, density was %d (%s) (Magic was %s)" 
