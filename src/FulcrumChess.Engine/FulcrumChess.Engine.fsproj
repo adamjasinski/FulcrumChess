@@ -23,6 +23,7 @@
     <Compile Include="Notation.fs" />
     <Compile Include="Perft.fs" />
     <Compile Include="Commands.fs" />
+    <Compile Include="Uci.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 </Project>

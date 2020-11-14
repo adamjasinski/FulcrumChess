@@ -53,7 +53,6 @@ let parseToBoard8x8 (fen:string) : Board8x8Array =
     let rows = boardPart.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
     rows |> List.map parseSingleRow
 
-
 let parseToPosition (fen:string) : Position =
     let board8x8 = parseToBoard8x8 fen
     let allPiecesOnBoard = board8x8 |> List.collect id |> Array.ofList |> Array.rev
@@ -74,7 +73,6 @@ let parseToPosition (fen:string) : Position =
                 (counter+1, pos') 
         )
     mapped |> snd
-       
 
 let toFen (pos:Position) =
     let boardArray = Position.dumpPosition pos
