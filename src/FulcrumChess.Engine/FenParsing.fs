@@ -74,19 +74,10 @@ let parseToPosition (fen:string) : Position =
                 (counter+1, pos') 
         )
     mapped |> snd
-
-let dumpPosition (pos:Position) =
-    [|for i in 7..-1..0 ->
-        [|for j in 7..-1..0 ->
-            let pc = pos |> Position.getChessmanAndSide (8*i+j)
-            match pc with
-            | Some(chessmanAndSide) -> PieceFenLetters.getLetter chessmanAndSide
-            | None -> ' '
-        |]
-    |]
+       
 
 let toFen (pos:Position) =
-    let boardArray = dumpPosition pos
+    let boardArray = Position.dumpPosition pos
 
     let allRowsArray = boardArray |> Array.map( fun rowArray ->
         let rec rowCombiner j (rowSb:StringBuilder) lastReadBlanks =

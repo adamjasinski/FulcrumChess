@@ -28,8 +28,8 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
-        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
-        printfn "%A" posCharArray
+        let posPrint = positionAfterMove.Value |> Position.prettyPrint
+        printfn "%s" posPrint
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
@@ -70,9 +70,6 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
 
         let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
-        if pos' |> Option.isSome then
-            let posCharArray = pos'.Value |> FenParsing.dumpPosition
-            printfn "%A" posCharArray
         test <@ pos' |> Option.isNone @>
 
     [<Theory>]
@@ -88,8 +85,8 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
-        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
-        printfn "%A" posCharArray
+        let posPrint = positionAfterMove.Value |> Position.prettyPrint
+        printfn "%s" posPrint
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
@@ -110,8 +107,8 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         let positionAfterMove = pos |> Position.makeMoveWithValidation generateAttacks actualMove
         test <@ positionAfterMove |> Option.isSome @>
 
-        let posCharArray = positionAfterMove.Value |> FenParsing.dumpPosition
-        printfn "%A" posCharArray
+        let posPrint = positionAfterMove.Value |> Position.prettyPrint
+        printfn "%s" posPrint
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove

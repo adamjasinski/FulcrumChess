@@ -192,6 +192,32 @@ module Position =
             | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
         pos'
 
+    
+    let dumpPosition (pos:Position) =
+        [|for i in 7..-1..0 ->
+            [|for j in 7..-1..0 ->
+                let pc = pos |> getChessmanAndSide (8*i+j)
+                match pc with
+                | Some(chessmanAndSide) -> PieceFenLetters.getLetter chessmanAndSide
+                | None -> ' '
+            |]
+        |]
+
+    let prettyPrint (pos:Position) =
+        let boardArray = dumpPosition pos
+
+        let stringJoinWithLeadingAndTrailing (separator:string) (values:string array) =
+            let inner = System.String.Join(separator, values)
+            sprintf "%s%s%s" separator inner separator
+
+        let allRows = boardArray |> Array.map( fun rowArray -> 
+            let charsWithSpaces = rowArray |> Array.map( fun c -> sprintf " %c " c)
+            stringJoinWithLeadingAndTrailing "|" charsWithSpaces
+        )
+
+        let rowSeparator = "\n+---+---+---+---+---+---+---+---+\n"
+        stringJoinWithLeadingAndTrailing rowSeparator allRows
+
     let isCheck (getAttacks:Side->Position->Move array) (kingSide:Side) (pos:Position) =
         let opponentAttacks = pos |> getAttacks (opposite kingSide) |> Move.movesToDstBitboard
         let kingBitboard = pos |> getKingBitboard kingSide
