@@ -6,7 +6,7 @@ open Position
 /// Performance test/move path enumerator
 let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (depth:int, totalDepth:int) =
     let srcBitRefs = pos |> getBitboardForSideToPlay |> BitUtils.getSetBits
-    let pseudoMovesForSide = srcBitRefs |> Array.Parallel.map (MoveGenerationLookupFunctions.generatePseudoMovesFullInfo lookups pos)
+    let pseudoMovesForSide = srcBitRefs |> Array.Parallel.map (MoveGenerationLookupFunctions.generatePseudoMoves lookups pos)
     if(depth = 0) then
         [||]
     else
@@ -17,7 +17,7 @@ let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (dept
         let nextValidatedPositions =
             allPseudoMovesForSide 
             |> Array.Parallel.map ( fun move ->
-                let pos' = pos |> Position.makeMoveWithValidation generateAttacks move
+                let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
                 (move, pos')
             )
             |> Array.where (snd >> Option.isSome)

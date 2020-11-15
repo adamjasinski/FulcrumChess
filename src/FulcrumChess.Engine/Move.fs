@@ -64,7 +64,7 @@ module Move =
     let determineCastlingType (chessman:Chessmen, side:Side) (move:Move) =
         match chessman with
         | King -> determineCastlingTypeIfKingsMove side move
-        | _ -> Option.None       
+        | _ -> Option.None
 
 
     

@@ -49,17 +49,5 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Theory; MemberDataEx("TestCasesBlack")>]
     member __. ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
-
-    
-    [<Fact>]
-    member __. ``perft 3 level issue repro`` () =
-        let fen = "rnbqkb1r/pppppppp/7n/8/8/7N/PPPPPPPP/RNBQKB1R w KQkq -"
-        let pos = FenParsing.parseToPosition fen
-        let srcBitRefs = pos |> Position.getBitboardForSideToPlay |> BitUtils.getSetBits
-        let pseudoMovesForSide = srcBitRefs |> Array.map (MoveGenerationLookupFunctions.generatePseudoMovesFullInfo lookups pos)
-        let allPseudoMovesForSide = pseudoMovesForSide |> Array.collect id
-        let pseudoMovesCount = allPseudoMovesForSide |> Array.length
-        allPseudoMovesForSide |> Array.iter (Notation.toAlgebraicNotation >> printfn "%s" )
-        test <@ 20 = pseudoMovesCount @>
    
     //TODO - en passant

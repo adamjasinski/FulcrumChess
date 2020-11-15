@@ -390,7 +390,6 @@ module MoveGenerationLookupFunctions =
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
-        //if(side <> pos.SideToPlay) then illegalMove "Attempted to generate a pseudo move for the incorrect side"
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
@@ -413,14 +412,14 @@ module MoveGenerationLookupFunctions =
         // |> Array.concat
         //|> Array.reduce (|||)
 
-    let generatePseudoMovesFullInfo (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
-        let side = pos.SideToPlay
-        let opponentPieces = pos |> getBitboardForSide (opposite side)
-        let moves = generatePseudoMoves lookups pos bitRef
-        moves
-        // bitboardResult 
-        // |> BitUtils.getSetBits
-        // |> Array.map (fun dstBitRef ->
-        //     let isCapture = bitboardResult |> BitUtils.hasBitSet dstBitRef
-        //     Move.create (bitRef, dstBitRef) isCapture)
+    // let generatePseudoMovesFullInfo (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
+    //     let side = pos.SideToPlay
+    //     let opponentPieces = pos |> getBitboardForSide (opposite side)
+    //     let moves = generatePseudoMoves lookups pos bitRef
+    //     moves
+    //     // bitboardResult 
+    //     // |> BitUtils.getSetBits
+    //     // |> Array.map (fun dstBitRef ->
+    //     //     let isCapture = bitboardResult |> BitUtils.hasBitSet dstBitRef
+    //     //     Move.create (bitRef, dstBitRef) isCapture)
 

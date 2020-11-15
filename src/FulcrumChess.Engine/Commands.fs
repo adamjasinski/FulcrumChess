@@ -26,6 +26,7 @@ type EngineState() =
     member __.EnsureReady() = lookups.Value |> ignore
     member __.EngineCpuArch = if System.Environment.Is64BitProcess then "x64" else "x86"
     member __.Lookups = lookups.Value
+    member val GeneratePseudoMoves = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups.Value
 
 module CommandHandler =
 
@@ -41,7 +42,7 @@ module CommandHandler =
                 else fenPosition |> FenParsing.parseToPosition
             let makeMove pos moveAlg = 
                 let move = Notation.fromLongAlgebraicNotationToMove moveAlg
-                let posOpt = pos |> Position.makeMoveWithValidation state.GenerateAttacks move
+                let posOpt = pos |> Position.tryMakeMoveWithFullValidation state.GeneratePseudoMoves state.GenerateAttacks move
                 match posOpt with
                 | Some p -> p
                 | None -> illegalMove moveAlg
