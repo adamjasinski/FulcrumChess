@@ -3,8 +3,10 @@ namespace FulcrumChess.Engine
 type Commands = 
     | Uci
     | IsReady
+    | UciNewGame
     | SetPosition of (string * string array)
     | Perft of int
+    | Display
     | Uknown of string
 
 module EngineConstants =
@@ -33,7 +35,10 @@ module CommandHandler =
     let handle (state:EngineState) cmd =
 
         let handleSetPosition (fenPosition:string, movesAlgNotation:string array) =
-            let position = fenPosition |> FenParsing.parseToPosition
+            let position = 
+                if fenPosition = FenParsing.InitialPositionFen then 
+                    Position.initialPosition
+                else fenPosition |> FenParsing.parseToPosition
             let makeMove pos moveAlg = 
                 let move = Notation.fromLongAlgebraicNotationToMove moveAlg
                 let posOpt = pos |> Position.makeMoveWithValidation state.GenerateAttacks move
@@ -51,16 +56,23 @@ module CommandHandler =
             perftDivideReport.InitialMovesNodeBreakdown
             |> Array.iter( fun (move,count) -> output "%s: %d" move count)
 
+            output "\n"
+            output "Nodes searched: %d" perftDivideReport.TotalNodes
+
         match cmd with
         | Uci ->
             //output "id name %s %s by %s" EngineConstants.EngineName state.EngineCpuArch EngineConstants.AuthorName
             output "id name %s %s" EngineConstants.EngineName state.EngineCpuArch 
             output "id author %s" EngineConstants.AuthorName
             output "uciok"
+        | UciNewGame -> () //nothing to do yet - keep current position
         | IsReady -> 
             state.EnsureReady()
             output "readyok"
         | SetPosition args -> handleSetPosition args
         | Perft depth -> handlePerft depth
+        | Display -> 
+            state.CurrentPosition |> Position.prettyPrint |> output "%s"
+            state.CurrentPosition |> FenParsing.toFen |> output "Fen: %s"
         | Uknown s -> output "Uknown command: %s" s
         //| _  -> failwithf "Fatal error"

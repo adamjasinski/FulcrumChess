@@ -23,15 +23,17 @@ module Program =
             lookups.Value |> ignore
         printfn "Magic generation finished"
 
-        let perftDepth = 3
-        printfn "Running perft for depth %d" perftDepth
-        //runTimedFun <| fun () ->
-        let perftDivideReport = 
-            Perft.generatePerftReport lookups.Value (0us, Position.initialPosition) (1, perftDepth)
+        // let perftDepth = 3
+        // printfn "Running perft for depth %d" perftDepth
+        // //runTimedFun <| fun () ->
+        // let perftDivideReport = 
+        //     Perft.generatePerftReport lookups.Value (0us, Position.initialPosition) (1, perftDepth)
 
-        perftDivideReport.InitialMovesNodeBreakdown
-        |> Array.iter( fun (move,count) -> printfn "%s: %d" move count)
-        printf "\n"
-        printfn "Nodes searched: %d" perftDivideReport.TotalNodes
+        // perftDivideReport.InitialMovesNodeBreakdown
+        // |> Array.iter( fun (move,count) -> printfn "%s: %d" move count)
+        // printf "\n"
+        // printfn "Nodes searched: %d" perftDivideReport.TotalNodes
+
+        Uci.mainLoop()
 
         0 // return an integer exit code
