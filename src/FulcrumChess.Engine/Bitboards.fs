@@ -157,8 +157,8 @@ let private generateSquaresAndCapturesForWhitePawn () =
             let captures = seq {
                 if rankIndex = 0 then yield -1 //white pawn cannot occupy the first rank
                 if rankIndex >= 1 && rankIndex <= 7 then
-                    if fileIndex >=2 then yield i+9
-                    if fileIndex <=7 then yield i+7
+                    if fileIndex >=1 then yield i+9
+                    if fileIndex <=6 then yield i+7
             }
             yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
     |]
@@ -177,8 +177,8 @@ let private generateSquaresAndCapturesForBlackPawn () =
             let captures = seq {
                 if rankIndex = 7 then yield -1 //black pawn cannot occupy the last rank
                 if rankIndex >= 1 && rankIndex <= 7 then
-                    if fileIndex >=2 then yield i-7
-                    if fileIndex <=7 then yield i-9
+                    if fileIndex >=1 then yield i-7
+                    if fileIndex <=6 then yield i-9
             }
             yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
     |]
