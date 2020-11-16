@@ -1,8 +1,5 @@
 ﻿namespace FulcrumChess.Engine
 
-[<System.FlagsAttribute>]
-type CastlingRights = None = 0 | KingSide = 1 | QueenSide = 2 | Both = 3 
-
 type Position = {
     WhiteKing:Bitboard;
     WhiteQueen:Bitboard;
@@ -284,11 +281,11 @@ module Position =
         let swapSide (p:Position) =
             { p with SideToPlay=opposite side }
 
-        let castlingPrevalidationFilter p = 
+        let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with
             | Some castlingType -> 
-                if (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks side) then Some p else None
-            | None -> Some p
+                (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks side)
+            | None -> true
 
         let alignOtherPiecesForSpecialMovesFilter = alsoMoveRookIfCastling
 
@@ -297,14 +294,10 @@ module Position =
             >> clearPieceInternal (chessman, side) srcBitRef
             >> clearOpponentPieceIfCapture
             >> alignOtherPiecesForSpecialMovesFilter
-            >> swapSide 
 
-        let predicateFilter predicate x =
-            if predicate x then Some x else None
-
-        let isNotCheckFilter = predicateFilter (fun p -> not (isCheck getAttacks side p))
-        let isNotCastlingPathUnderAttackFilter = predicateFilter (fun p ->
-            castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p))
+        let isNotCheckFilter p = not (isCheck getAttacks side p)
+        let isNotCastlingPathUnderAttackFilter p =
+            castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p)
 
         let updateCastlingRightsIfApplicableFilter p =
             let currentCastlingRights = p |> getCastlingRights side
@@ -326,35 +319,40 @@ module Position =
             | Some revisedCastlingRights -> p |> setCastlingRights revisedCastlingRights side
             | None -> p 
 
-        pos
-        |> castlingPrevalidationFilter
+        pos |> Some 
+        |> Option.filter isCastlingPreconditionsMet
         |> Option.map makeMoveInternal
-        |> Option.bind isNotCheckFilter
-        |> Option.bind isNotCastlingPathUnderAttackFilter
+        |> Option.filter isNotCheckFilter
+        |> Option.filter isNotCastlingPathUnderAttackFilter
         |> Option.map updateCastlingRightsIfApplicableFilter
+        |> Option.map swapSide
 
     let tryMakeMoveWithFullValidation (generatePseudoMoves:Position->int->Move array) (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         
-        let sideToPlayFilter p = 
+        let sideToPlayPredicate p = 
             let (_, side) = p |> getChessmanAndSide srcBitRef |> Option.get  
-            if(side = p.SideToPlay) then Some p else None
+            side = p.SideToPlay
         
-        let possibleMoveFilter p =
+        let possibleMovePredicate p =
             let generatedPseudoMoves = 
                 generatePseudoMoves pos srcBitRef 
                 |> Array.map Move.getSrcAndDestBitRefs
-            if generatedPseudoMoves |> Array.exists (fun srcAndDest -> srcAndDest = (srcBitRef,dstBitRef)) then
-                Some p
-            else
-                None
+            generatedPseudoMoves |> Array.exists (fun srcAndDest -> srcAndDest = (srcBitRef,dstBitRef))
 
         let legalMoveFilter = tryMakeMoveInternal getAttacks move
 
         pos |> Some
-        |> Option.bind sideToPlayFilter
-        |> Option.bind possibleMoveFilter
+        |> Option.filter sideToPlayPredicate
+        |> Option.filter possibleMovePredicate
         |> Option.bind legalMoveFilter
 
-        
+    // let isCheckMate (generateAllPseudoMovesForSide:Position->Move array) (getAttacks:Side->Position->Move array) (pos:Position) =
+    //     pos 
+    //     |> generateAllPseudoMovesForSide
+    //     |> Array.tryPick (fun m -> 
+    //         Option.filter
+    //         tryMakeMoveWithFullValidation getAttacks m pos)
+
+               
 
