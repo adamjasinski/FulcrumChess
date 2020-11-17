@@ -33,6 +33,8 @@ module Uci =
             Commands.SetPosition (fenToUse, moves)
         | CompiledMatch @"^go perft (\d+)$" [_; depth] -> Commands.Perft (System.Int32.Parse(depth.Value))
         | CompiledMatch @"^d$" [_] -> Commands.Display
+        | CompiledMatch @"^help$" [_] -> Commands.Help
+        | CompiledMatch @"^quit$" [_] -> Commands.Quit
         | s -> Commands.Uknown s
 
     let mainLoop () =
@@ -40,7 +42,9 @@ module Uci =
         let rec loop() =
             let input = System.Console.ReadLine()
             let cmd = parseCommand input
-            CommandHandler.handle state cmd
-            loop()
+            let cmdResult = CommandHandler.handle state cmd
+            match cmdResult with
+            | Ok -> loop()
+            | ExitSignal -> ()
         loop()
     

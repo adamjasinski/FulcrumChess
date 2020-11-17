@@ -8,6 +8,8 @@ type Commands =
     | Perft of int
     | Display
     | Uknown of string
+    | Help
+    | Quit
 
 module EngineConstants =
     [<Literal>] 
@@ -27,6 +29,8 @@ type EngineState() =
     member __.EngineCpuArch = if System.Environment.Is64BitProcess then "x64" else "x86"
     member __.Lookups = lookups.Value
     member val GeneratePseudoMoves = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups.Value
+
+type CommandResult = | Ok | ExitSignal
 
 module CommandHandler =
 
@@ -66,14 +70,28 @@ module CommandHandler =
             output "id name %s %s" EngineConstants.EngineName state.EngineCpuArch 
             output "id author %s" EngineConstants.AuthorName
             output "uciok"
-        | UciNewGame -> () //nothing to do yet - keep current position
+            Ok
+        | UciNewGame -> Ok //nothing to do yet - keep current position
         | IsReady -> 
             state.EnsureReady()
             output "readyok"
-        | SetPosition args -> handleSetPosition args
-        | Perft depth -> handlePerft depth
+            Ok
+        | SetPosition args -> 
+            handleSetPosition args
+            Ok
+        | Perft depth -> 
+            handlePerft depth
+            Ok
         | Display -> 
             state.CurrentPosition |> Position.prettyPrint |> output "%s"
             state.CurrentPosition |> FenParsing.toFen |> output "Fen: %s"
-        | Uknown s -> output "Uknown command: %s" s
+            Ok
+        | Uknown s -> 
+            output "Uknown command: %s" s
+            Ok
+        | Help ->
+            output "Special commands:\nd\ngo perft [n]\nquit"
+            Ok
+        | Quit ->
+            ExitSignal
         //| _  -> failwithf "Fatal error"
