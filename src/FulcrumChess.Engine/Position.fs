@@ -215,7 +215,8 @@ module Position =
         let rowSeparator = "\n+---+---+---+---+---+---+---+---+\n"
         stringJoinWithLeadingAndTrailing rowSeparator allRows
 
-    let isCheck (getAttacks:Side->Position->Move array) (side:Side) (pos:Position) =
+    let isCheck (getAttacks:Side->Position->Move array) (pos:Position) =
+        let side = pos.SideToPlay
         let opponentAttacks = pos |> getAttacks (opposite side) |> Move.movesToDstBitboard
         let kingBitboard = pos |> getKingBitboard side
         kingBitboard &&& opponentAttacks > 0UL
@@ -284,7 +285,7 @@ module Position =
         let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with
             | Some castlingType -> 
-                (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks side)
+                (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks)
             | None -> true
 
         let alignOtherPiecesForSpecialMovesFilter = alsoMoveRookIfCastling
@@ -295,7 +296,7 @@ module Position =
             >> clearOpponentPieceIfCapture
             >> alignOtherPiecesForSpecialMovesFilter
 
-        let isNotCheckFilter p = not (isCheck getAttacks side p)
+        let isNotCheckFilter = isCheck getAttacks >> not
         let isNotCastlingPathUnderAttackFilter p =
             castlingTypeOpt |> Option.isNone || not (isCastlingPathUnderAttack castlingTypeOpt.Value getAttacks side p)
 
@@ -347,12 +348,10 @@ module Position =
         |> Option.filter possibleMovePredicate
         |> Option.bind legalMoveFilter
 
-    // let isCheckMate (generateAllPseudoMovesForSide:Position->Move array) (getAttacks:Side->Position->Move array) (pos:Position) =
-    //     pos 
-    //     |> generateAllPseudoMovesForSide
-    //     |> Array.tryPick (fun m -> 
-    //         Option.filter
-    //         tryMakeMoveWithFullValidation getAttacks m pos)
-
-               
+    let isCheckMate (generateAllPseudoMovesForSide:Position->Move array) (getAttacks:Side->Position->Move array) (pos:Position) =
+        pos 
+        |> generateAllPseudoMovesForSide
+        |> Array.exists (fun m -> 
+            tryMakeMoveInternal getAttacks m pos |> Option.isSome)
+        |> not
 
