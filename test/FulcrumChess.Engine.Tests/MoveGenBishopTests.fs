@@ -24,7 +24,9 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
         let friendlyOccupancy = pos |> Position.whiteBitboard    //e2, c4
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
-        let result =  Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result = 
+            Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+            |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -45,7 +47,9 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
         let opponentOccupancy = pos |> Position.whiteBitboard 
         let friendlyOccupancy = pos |> Position.blackBitboard
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
-        let result =  Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result = 
+            Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+            |> Seq.toArray
         test <@ Array.isEmpty result @>
 
     interface IAssemblyFixture<MagicGenerationSetupFixture>

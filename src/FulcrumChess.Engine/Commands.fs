@@ -32,10 +32,20 @@ type EngineState() =
 
 type CommandResult = | Ok | ExitSignal
 
+module TimeManager =
+    let runTimedFun f =
+        let stopwatch = System.Diagnostics.Stopwatch()
+        stopwatch.Start()
+        f()
+        stopwatch.Stop()
+        printfn "Elapsed: %A" (stopwatch.Elapsed)
+
 module CommandHandler =
 
     let output = printfn
     let debugInfo = printfn
+    //let debugInfo = output "info string %s"
+    //let debugInfoError = output "info string Error: %s"
 
     let handle (state:EngineState) cmd =
 
@@ -80,7 +90,7 @@ module CommandHandler =
             handleSetPosition args
             Ok
         | Perft depth -> 
-            handlePerft depth
+            TimeManager.runTimedFun (fun () -> handlePerft depth)
             Ok
         | Display -> 
             state.CurrentPosition |> Position.prettyPrint |> output "%s"

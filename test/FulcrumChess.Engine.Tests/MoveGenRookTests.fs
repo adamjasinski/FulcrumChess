@@ -30,7 +30,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let friendlyOccupancy = 1UL <<< startBitRef ||| 1UL <<< 13
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
-        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
+        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -45,7 +45,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let friendlyOccupancy = 1UL <<< startBitRef
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
-        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
+        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -60,7 +60,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let friendlyOccupancy = (1UL <<< startBitRef) ||| (1UL <<< 55) ||| (1UL <<< 15)    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         
-        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef
+        let result = generateRookMovesViaBitboards allOccupancy friendlyOccupancy startBitRef |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -80,7 +80,9 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let friendlyOccupancy = (1UL <<< startBitRef) ||| (1UL <<< 55) ||| (1UL <<< 15)    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
-        let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result = 
+            Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+            |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -101,7 +103,9 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let friendlyOccupancy = pos |> Position.blackBitboard    //a5, a7, a2
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
 
-        let result =  Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+        let result = 
+            Bitboards.generateMovesForPosition SlidingPiece.Rook rookMovesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
+            |> Seq.toArray
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)

@@ -17,6 +17,9 @@ type Position = {
     WhiteCastlingRights:CastlingRights;
     BlackCastlingRights:CastlingRights;
     SideToPlay:Side;
+    EnPassantTarget:Bitboard;
+    HalfMoveClock:int;
+    FullMoveNumber:int
 }
 
 type CastlingLookup = {
@@ -37,7 +40,10 @@ module Position =
         Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;
         WhiteCastlingRights=CastlingRights.None;
         BlackCastlingRights=CastlingRights.None;
-        SideToPlay=White }
+        SideToPlay=White;
+        EnPassantTarget=0UL;
+        HalfMoveClock=0;
+        FullMoveNumber=1; }
 
     let initialPosition = {
          Position.WhiteKing = 8UL;
@@ -54,7 +60,10 @@ module Position =
          BlackPawns = 71776119061217280UL;
          WhiteCastlingRights=CastlingRights.None;
          BlackCastlingRights=CastlingRights.None;
-         SideToPlay = White;}
+         SideToPlay=White;
+         EnPassantTarget=0UL;
+         HalfMoveClock=0;
+         FullMoveNumber=1; }
 
     let castlingLookups = dict[
         Side.White, { 

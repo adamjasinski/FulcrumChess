@@ -105,6 +105,16 @@ module BitUtils =
             i <- i + 1
         res.ToArray()
 
+    let getSetBits_u64 (b:uint64) =
+        let res = ResizeArray<int>()
+        let mutable x = b
+        let mutable i = 0
+        while x > 0UL do
+            if x &&& 1UL = 1UL then res.Add(i)
+            x <- x >>> 1
+            i <- i + 1
+        res.ToArray()
+
     //let countSetBits = Hamming.popcount_64
     let inline countSetBits b = 
         int(System.Runtime.Intrinsics.X86.Popcnt.X64.PopCount b)
