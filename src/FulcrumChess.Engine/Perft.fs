@@ -5,7 +5,9 @@ open Bitboards
 open Position
 
 module PerftCache =
-    let cdict = new System.Collections.Concurrent.ConcurrentDictionary<(Side*Position),Move array>()
+    //let cdict = new System.Collections.Concurrent.ConcurrentDictionary<(Side*Position),Move array>()
+    let dict = new System.Collections.Generic.Dictionary<(Side*Position),Move array>()
+    //let bigLock = obj()
 
     let memoize f =
         let dict = new System.Collections.Generic.Dictionary<_,_>()
@@ -22,10 +24,21 @@ module PerftCache =
     //     fun k ->
     //         dict.GetOrAdd(k, f)
 
+    // let memoizeThreadSafeConcurrentDict (f:(Side*Position)->Move array) =
+    //     //let dict = new System.Collections.Concurrent.ConcurrentDictionary<'a,'b>()
+    //     fun k ->
+    //         //cdict.GetOrAdd(k, f)
+
     let memoizeThreadSafe (f:(Side*Position)->Move array) =
         //let dict = new System.Collections.Concurrent.ConcurrentDictionary<'a,'b>()
-        fun k ->
-            cdict.GetOrAdd(k, f)
+        fun n ->
+            match dict.TryGetValue(n) with
+            | (true, v) -> v
+            | _ ->
+                let temp = f(n)
+                //lock bigLock (fun() -> dict.[n] <- temp)
+                dict.[n] <- temp
+                temp
 
 module Perft =
     /// Performance test/move path enumerator
@@ -44,7 +57,7 @@ module Perft =
 
             let nextValidatedPositions =
                 allPseudoMovesForSide 
-                |> Array.Parallel.map ( fun move ->
+                |> Array.map ( fun move ->
                     let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
                     pos' |> Option.map ( fun p -> (move, p))
                 )

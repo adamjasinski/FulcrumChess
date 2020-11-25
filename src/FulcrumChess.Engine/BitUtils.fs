@@ -96,7 +96,7 @@ module BitUtils =
         |> Array.ofList
 
     let getSetBits_32 (b:int) =
-        let res = ResizeArray<int>()
+        let res = ResizeArray<int>(32)
         let mutable x = b
         let mutable i = 0
         while x > 0 do
@@ -106,7 +106,7 @@ module BitUtils =
         res.ToArray()
 
     let getSetBits_u64 (b:uint64) =
-        let res = ResizeArray<int>()
+        let res = ResizeArray<int>(64)
         let mutable x = b
         let mutable i = 0
         while x > 0UL do

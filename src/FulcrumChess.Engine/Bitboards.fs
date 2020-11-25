@@ -406,7 +406,7 @@ module MoveGenerationLookupFunctions =
         let bbForSide = getBitboardForSide side pos
         let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
         srcBitRefs 
-        |> Array.Parallel.collect (generatePseudoMoves lookups pos)
+        |> Array.collect (generatePseudoMoves lookups pos)
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat
         //|> Array.reduce (|||)
