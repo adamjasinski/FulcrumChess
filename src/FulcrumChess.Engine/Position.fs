@@ -33,6 +33,9 @@ type CastlingLookup = {
     DestinationBitRefKingSideCastling:int;
     DestinationBitRefQueenSideCastling:int;
 }
+
+type GetAttacks = Side->Position->Move array
+type GetMovesForSide = Position->Move array
     
 module Position =
     let emptyBitboard = {
@@ -224,13 +227,13 @@ module Position =
         let rowSeparator = "\n+---+---+---+---+---+---+---+---+\n"
         stringJoinWithLeadingAndTrailing rowSeparator allRows
 
-    let isCheck (getAttacks:Side->Position->Move array) (pos:Position) =
+    let isCheck (getAttacks:GetAttacks) (pos:Position) =
         let side = pos.SideToPlay
         let opponentAttacks = pos |> getAttacks (opposite side) |> Move.movesToDstBitboard
         let kingBitboard = pos |> getKingBitboard side
         kingBitboard &&& opponentAttacks > 0UL
 
-    let private isCastlingPathUnderAttack (castlingType:CastlingType) (getAttacks:Side->Position->Move array) (side:Side) (pos:Position) =
+    let private isCastlingPathUnderAttack (castlingType:CastlingType) (getAttacks:GetAttacks) (side:Side) (pos:Position) =
         let opponentAttacks = pos |> getAttacks (opposite side) |> Move.movesToDstBitboard
         let castlingLookup = castlingLookups.[side]
         let castlingPathBitboard = 
@@ -255,7 +258,7 @@ module Position =
             | White -> { pos with WhiteCastlingRights = castlingRights }
             | Black -> { pos with BlackCastlingRights = castlingRights }
         
-    let tryMakeMoveInternal (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
+    let tryMakeMoveInternal (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
@@ -337,7 +340,7 @@ module Position =
         |> Option.map updateCastlingRightsIfApplicableFilter
         |> Option.map swapSide
 
-    let tryMakeMoveWithFullValidation (generatePseudoMoves:Position->int->Move array) (getAttacks:Side->Position->Move array) (move:Move) (pos:Position) =
+    let tryMakeMoveWithFullValidation (generatePseudoMoves:Position->int->Move array) (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         
         let sideToPlayPredicate p = 
@@ -357,7 +360,7 @@ module Position =
         |> Option.filter possibleMovePredicate
         |> Option.bind legalMoveFilter
 
-    let isCheckMate (generateAllPseudoMovesForSide:Position->Move array) (getAttacks:Side->Position->Move array) (pos:Position) =
+    let isCheckMate (generateAllPseudoMovesForSide:GetMovesForSide) (getAttacks:GetAttacks) (pos:Position) =
         pos 
         |> generateAllPseudoMovesForSide
         |> Array.exists (fun m -> 
