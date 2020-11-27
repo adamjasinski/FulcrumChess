@@ -51,7 +51,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
 
         test <@ None = pos' @>
@@ -63,7 +63,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
         let pos = FenParsing.parseToPosition fen
         let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
 
         test <@ None = pos' @>

@@ -5,19 +5,31 @@ open Bitboards
 open Position
 
 module PerftCache =
+    open System.Collections.Generic
     //let cdict = new System.Collections.Concurrent.ConcurrentDictionary<(Side*Position),Move array>()
-    let dict = new System.Collections.Generic.Dictionary<(Side*Position),Move array>()
+    let cacheAttacks = new Dictionary<(Side*Position),Bitboard>()
+    let cachePseudoMoves = new Dictionary<(Side*Position),Move array>()
     //let bigLock = obj()
 
-    let memoize f =
-        let dict = new System.Collections.Generic.Dictionary<_,_>()
+    let memoize (cache:Dictionary<'a,'b>) (f:'a->'b) =
+        //let dict = new System.Collections.Generic.Dictionary<_,_>()
         fun n ->
-            match dict.TryGetValue(n) with
+            match cache.TryGetValue(n) with
             | (true, v) -> v
             | _ ->
                 let temp = f(n)
-                dict.Add(n, temp)
+                cache.Add(n, temp)
                 temp
+
+    // let memoize f =
+    //     //let dict = new System.Collections.Generic.Dictionary<_,_>()
+    //     fun n ->
+    //         match dict1.TryGetValue(n) with
+    //         | (true, v) -> v
+    //         | _ ->
+    //             let temp = f(n)
+    //             dict1.Add(n, temp)
+    //             temp
 
     // let memoizeThreadSafe (f:'a->'b) =
     //     let dict = new System.Collections.Concurrent.ConcurrentDictionary<'a,'b>()
@@ -29,16 +41,16 @@ module PerftCache =
     //     fun k ->
     //         //cdict.GetOrAdd(k, f)
 
-    let memoizeThreadSafe (f:(Side*Position)->Move array) =
-        //let dict = new System.Collections.Concurrent.ConcurrentDictionary<'a,'b>()
-        fun n ->
-            match dict.TryGetValue(n) with
-            | (true, v) -> v
-            | _ ->
-                let temp = f(n)
-                //lock bigLock (fun() -> dict.[n] <- temp)
-                dict.[n] <- temp
-                temp
+    // let memoizeThreadSafe (f:(Side*Position)->Move array) =
+    //     //let dict = new System.Collections.Concurrent.ConcurrentDictionary<'a,'b>()
+    //     fun n ->
+    //         match dict.TryGetValue(n) with
+    //         | (true, v) -> v
+    //         | _ ->
+    //             let temp = f(n)
+    //             //lock bigLock (fun() -> dict.[n] <- temp)
+    //             dict.[n] <- temp
+    //             temp
 
 module Perft =
     /// Performance test/move path enumerator
@@ -48,12 +60,22 @@ module Perft =
         else
             //printfn "Depth %d: %A" depth (allPseudoMovesForSide |> Array.map Moves.toAlgebraicNotation)
 
-            let generateAttacks (s:Side) (p:Position) = 
-                let gen = PerftCache.memoizeThreadSafe <| fun (s:Side,p:Position) ->
+            // let generateAttacks (s:Side) (p:Position) = 
+            //     let gen = PerftCache.memoizeThreadSafe <| fun (s:Side,p:Position) ->
+            //         MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
+            //     gen (s,p)
+
+            let generateAttacks (s:Side) (p:Position) =
+                let gen = PerftCache.memoize PerftCache.cacheAttacks <| fun (s:Side,p:Position) ->
+                    MoveGenerationLookupFunctions.generateAttacks lookups s p
+                gen (s,p)
+
+            let generateAllPseudoMovesForSide (s:Side) (p:Position) =
+                let gen = PerftCache.memoize PerftCache.cachePseudoMoves <| fun (s:Side,p:Position) ->
                     MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
                 gen (s,p)
 
-            let allPseudoMovesForSide = pos |> generateAttacks pos.SideToPlay
+            let allPseudoMovesForSide = pos |> MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups pos.SideToPlay
 
             let nextValidatedPositions =
                 allPseudoMovesForSide 

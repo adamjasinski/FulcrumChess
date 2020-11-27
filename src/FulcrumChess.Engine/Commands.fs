@@ -21,15 +21,15 @@ module EngineConstants =
 type EngineState() =
     let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll()
     //let mutable currentPosition:Position = Position.initialPosition
-
+    let generatePseudoMovesAdapter pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups.Value pos bitRef |> Seq.toArray
     //member __.IsInitialized = lookups.IsValueCreated
     member val CurrentPosition:Position = Position.initialPosition with get, set
-    member val GenerateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups.Value with get
+    member val GenerateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups.Value with get
     member __.EnsureReady() = lookups.Value |> ignore
     member __.EngineCpuArch = if System.Environment.Is64BitProcess then "x64" else "x86"
     member __.Lookups = lookups.Value
-    member val GeneratePseudoMoves = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups.Value
-
+    member val GeneratePseudoMoves = generatePseudoMovesAdapter
+    
 type CommandResult = | Ok | ExitSignal
 
 module TimeManager =

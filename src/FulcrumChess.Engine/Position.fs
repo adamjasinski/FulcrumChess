@@ -32,9 +32,11 @@ type CastlingLookup = {
     PathNonUnderCheckQueen:Bitboard;
     DestinationBitRefKingSideCastling:int;
     DestinationBitRefQueenSideCastling:int;
+    DestinationKingSideCastling:Bitboard;
+    DestinationQueenSideCastling:Bitboard;
 }
 
-type GetAttacks = Side->Position->Move array
+type GetAttacks = Side->Position->Bitboard
 type GetMovesForSide = Position->Move array
     
 module Position =
@@ -79,6 +81,8 @@ module Position =
             PathNonUnderCheckQueen = (1UL <<< 4) ||| (1UL <<< 5);
             DestinationBitRefKingSideCastling = 1;
             DestinationBitRefQueenSideCastling = 5;
+            DestinationKingSideCastling = (1UL <<< 1);
+            DestinationQueenSideCastling = (1UL <<< 5);
             };
         Side.Black, { 
             CastlingLookup.InitialPositionKing = 576460752303423488UL;
@@ -90,6 +94,8 @@ module Position =
             PathNonUnderCheckQueen = (1UL <<< 60) ||| (1UL <<< 61);
             DestinationBitRefKingSideCastling = 57;
             DestinationBitRefQueenSideCastling = 61;
+            DestinationKingSideCastling = (1UL <<< 57);
+            DestinationQueenSideCastling = (1UL <<< 61);
             };
     ]
 
@@ -229,12 +235,12 @@ module Position =
 
     let isCheck (getAttacks:GetAttacks) (pos:Position) =
         let side = pos.SideToPlay
-        let opponentAttacks = pos |> getAttacks (opposite side) |> Move.movesToDstBitboard
+        let opponentAttacks = pos |> getAttacks (opposite side)
         let kingBitboard = pos |> getKingBitboard side
         kingBitboard &&& opponentAttacks > 0UL
 
     let private isCastlingPathUnderAttack (castlingType:CastlingType) (getAttacks:GetAttacks) (side:Side) (pos:Position) =
-        let opponentAttacks = pos |> getAttacks (opposite side) |> Move.movesToDstBitboard
+        let opponentAttacks = pos |> getAttacks (opposite side)
         let castlingLookup = castlingLookups.[side]
         let castlingPathBitboard = 
             match castlingType with

@@ -9,7 +9,7 @@ type PositionCheckMateTests(magicGenerationSetupFixture:MagicGenerationSetupFixt
 
     let lookups = magicGenerationSetupFixture.Lookups
 
-    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups
+    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
 
     interface IAssemblyFixture<MagicGenerationSetupFixture>
 
