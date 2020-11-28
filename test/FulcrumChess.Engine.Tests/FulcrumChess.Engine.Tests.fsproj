@@ -2,7 +2,6 @@
   <PropertyGroup>
     <RootNamespace>FulcrumChess.Engine.Tests</RootNamespace>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <DefineConstants>FAST_32BIT_MULT</DefineConstants>
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
   <ItemGroup>

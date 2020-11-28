@@ -11,6 +11,8 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 
 Target.initEnvironment ()
+//Pre-defined environment
+let publishRuntime = "linux-x64"
 
 Target.create "Clean" (fun _ ->
     !! "src/**/bin"
@@ -28,6 +30,12 @@ Target.create "Build" (fun _ ->
 Target.create "Test" (fun _ ->
     !! "test/**/*.*proj"
     |> Seq.iter (DotNet.test id)
+)
+
+Target.create "Publish" (fun _ ->
+    !! "test/**/*.*proj"
+    |> Seq.iter (DotNet.publish (fun opt -> { 
+        opt with Runtime=Some(publishRuntime); SelfContained=Some(false) }))
 )
 
 Target.create "All" ignore

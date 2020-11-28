@@ -11,8 +11,20 @@
     [<InlineDataEx(8, [|3|])>]
     [<InlineDataEx(141, [|0;2;3;7|])>]
     [<InlineDataEx(2017, [|0;5;6;7;8;9;10|])>]
-    let ``getSetBits returns expected result `` (input:int, expectedResult:int[]) =
+    let ``getSetBits (32-bit) returns expected result `` (input:int, expectedResult:int[]) =
         let result = input |> BitUtils.getSetBits_32
+        printfn "%s:  %d elements" "GetSetBits found something" result.Length
+        printfn "%A" result
+        test <@ (result |> Array.length) > 0 @>
+        test <@ expectedResult = result  @>
+
+    [<Theory>]
+    [<InlineDataEx(1UL, [|0|])>]
+    [<InlineDataEx(8UL, [|3|])>]
+    [<InlineDataEx(141UL, [|0;2;3;7|])>]
+    [<InlineDataEx(2017UL, [|0;5;6;7;8;9;10|])>]
+    let ``getSetBits (64-bit) returns expected result `` (input:uint64, expectedResult:int[]) =
+        let result = input |> BitUtils.getSetBits_u64
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
         test <@ (result |> Array.length) > 0 @>

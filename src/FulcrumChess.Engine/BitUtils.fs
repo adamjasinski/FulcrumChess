@@ -105,7 +105,7 @@ module BitUtils =
             i <- i + 1
         res.ToArray()
 
-    let getSetBits_u64 (b:uint64) =
+    let inline getSetBits_u64_anycpu (b:uint64) =
         let res = ResizeArray<int>(64)
         let mutable x = b
         let mutable i = 0
@@ -115,12 +115,41 @@ module BitUtils =
             i <- i + 1
         res.ToArray()
 
-    //let countSetBits = Hamming.popcount_64
+    // let inline getLsb b =
+    //     int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount b)
+
+    // let inline extractLsb b =
+    //     b &&& (b-1)
+
+    let inline getSetBits_u64_intrinsic(b:uint64) =
+        let res = ResizeArray<int>(64)
+        let mutable x = b
+        while x > 0UL do
+            let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
+            res.Add(lsb)
+            x <- x &&& (x-1UL)
+        res.ToArray()
+        
+    let inline getSetBits_u64 (b:uint64) =
+        #if USE_INTRINSIC_BMI
+        getSetBits_u64_intrinsic b
+        #else
+        getSetBits_u64_anycpu b
+        #endif
+
     let inline countSetBits b = 
+        #if USE_INTRINSIC_POPCNT
         int(System.Runtime.Intrinsics.X86.Popcnt.X64.PopCount b)
+        #else
+        Hamming.popcount_64 b
+        #endif
 
     let inline countSetBits_32 b = 
+        #if USE_INTRINSIC_POPCNT
         int(System.Runtime.Intrinsics.X86.Popcnt.PopCount b)
+        #else
+        Hamming.popcount_32 b
+        #endif
 
     let inline hasBitSet (i:int) (b:^a) =
         let one:^a = LanguagePrimitives.GenericOne

@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>FulcrumChess.Engine</RootNamespace>
-    <DefineConstants>FAST_32BIT_MULT</DefineConstants>
+    <DefineConstants>FAST_32BIT_MULT;USE_INTRINSIC_POPCNT;USE_INTRINSIC_BMI</DefineConstants>
     <OtherFlags>$(OtherFlags) --optimize+ --platform:x64</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
