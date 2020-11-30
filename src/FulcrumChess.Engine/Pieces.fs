@@ -72,3 +72,19 @@ module PieceFenLetters =
         | (Chessmen.Bishop, Side.Black) -> BlackBishop
         | (Chessmen.Knight, Side.Black) -> BlackKnight
         | (Chessmen.Pawn, Side.Black) -> BlackPawn
+
+    let fromLetter (letter:char) =
+        match letter with
+            | 'p' -> Some(Chessmen.Pawn, Side.Black)
+            | 'n' -> Some(Chessmen.Knight, Side.Black)
+            | 'b' -> Some(Chessmen.Bishop, Side.Black)
+            | 'r' -> Some(Chessmen.Rook, Side.Black)
+            | 'q' -> Some(Chessmen.Queen, Side.Black)
+            | 'k' -> Some(Chessmen.King, Side.Black)
+            | 'P' -> Some(Chessmen.Pawn, Side.White)
+            | 'N' -> Some(Chessmen.Knight, Side.White)
+            | 'B' -> Some(Chessmen.Bishop, Side.White)
+            | 'R' -> Some(Chessmen.Rook, Side.White)
+            | 'Q' -> Some(Chessmen.Queen, Side.White)
+            | 'K' -> Some(Chessmen.King, Side.White)
+            | _ -> None

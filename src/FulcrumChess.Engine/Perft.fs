@@ -80,6 +80,7 @@ module Perft =
             let nextValidatedPositions =
                 allPseudoMovesForSide 
                 |> Array.map ( fun move ->
+                    //printfn "Depth %d. Trying move #%d for %A: %s; History: %A" depth pos.FullMoveNumber pos.SideToPlay (move |> Notation.toAlgebraicNotation) (pos.History |> List.map(Notation.toAlgebraicNotation))
                     let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
                     pos' |> Option.map ( fun p -> (move, p))
                 )

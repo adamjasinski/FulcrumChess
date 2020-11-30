@@ -1,6 +1,7 @@
 ﻿namespace FulcrumChess.Engine
 
 type Position = {
+    Board:char[];
     WhiteKing:Bitboard;
     WhiteQueen:Bitboard;
     WhiteRooks:Bitboard;
@@ -19,7 +20,7 @@ type Position = {
     SideToPlay:Side;
     EnPassantTarget:Bitboard;
     HalfMoveClock:int;
-    FullMoveNumber:int
+    FullMoveNumber:int;
 }
 
 type CastlingLookup = {
@@ -41,6 +42,7 @@ type GetMovesForSide = Position->Move array
     
 module Position =
     let emptyBitboard = {
+        Position.Board = Array.replicate 64 ' '
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
         Position.BlackKing=0UL;BlackQueen=0UL;BlackRooks=0UL;BlackBishops=0UL;BlackKnights=0UL;BlackPawns=0UL;
         WhiteCastlingRights=CastlingRights.None;
@@ -48,9 +50,18 @@ module Position =
         SideToPlay=White;
         EnPassantTarget=0UL;
         HalfMoveClock=0;
-        FullMoveNumber=1; }
+        FullMoveNumber=1;}
 
     let initialPosition = {
+         Position.Board = 
+            [|'R'; 'N'; 'B'; 'K'; 'Q'; 'B'; 'N'; 'R'; 
+            'P'; 'P'; 'P'; 'P'; 'P'; 'P'; 'P'; 'P';
+            ' '; ' '; ' '; ' '; ' '; ' '; ' '; ' '; 
+            ' '; ' '; ' '; ' '; ' '; ' '; ' '; ' ';
+            ' '; ' '; ' '; ' '; ' '; ' '; ' '; ' '; 
+            ' '; ' '; ' '; ' '; ' '; ' '; ' '; ' ';
+            'p'; 'p'; 'p'; 'p'; 'p'; 'p'; 'p'; 'p';
+            'r'; 'n'; 'b'; 'k'; 'q'; 'b'; 'n'; 'r'|];
          Position.WhiteKing = 8UL;
          WhiteQueen = 16UL;
          WhiteRooks = 129UL;
@@ -68,7 +79,7 @@ module Position =
          SideToPlay=White;
          EnPassantTarget=0UL;
          HalfMoveClock=0;
-         FullMoveNumber=1; }
+         FullMoveNumber=1;}
 
     let castlingLookups = dict[
         Side.White, { 
@@ -119,6 +130,11 @@ module Position =
     let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
         let candidate:Bitboard = 0UL |> BitUtils.setBit bitRef
+        let setPieceOnBoardArray (board:char[]) =
+            let board' = Array.copy board
+            board'.[bitRef] <- piece
+            board'
+
         let pos' = 
             match piece with
             | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate }
@@ -134,7 +150,7 @@ module Position =
             | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate }
             | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate }
             | _ -> invalidArg "piece" ("parameter has invalid value: " + piece.ToString())
-        pos'
+        { pos' with Board = pos'.Board |> setPieceOnBoardArray }
 
     let asBitboardSequence (pos:Position) =
         seq {
@@ -163,13 +179,20 @@ module Position =
         | Side.Black -> pos.BlackRooks
 
     let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
-        let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        let res =
-            pos
-            |> asBitboardSequence
-            |> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef)
+        PieceFenLetters.fromLetter pos.Board.[bitRef]
+        // let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
+        // let res =
+        //     pos
+        //     |> asBitboardSequence
+        //     |> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef)
 
-        res |> Option.map snd
+        // let fromBb = res |> Option.map snd
+        // let newWay = PieceFenLetters.fromLetter pos.Board.[bitRef]
+        // if fromBb <> newWay then 
+        //     printfn "Ouch!"
+        //     printfn "%A" (pos.Board)
+        //     invalidOp (sprintf "That's super weird... old way got %A, but new way got %A; bitRef: %d" fromBb newWay bitRef)
+        // else newWay
 
     let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
@@ -191,6 +214,11 @@ module Position =
     let private clearPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
         let clearBitRef = BitUtils.clearBit bitRef
+        let clearBoardLetter bitRef (board:char[]) = 
+            let board' = Array.copy board
+            board'.[bitRef] <- ' '
+            board'
+
         let pos' = 
             match piece,side with
             | (Chessmen.Pawn, Side.Black) -> {pos with BlackPawns= pos.BlackPawns |> clearBitRef}
@@ -205,9 +233,8 @@ module Position =
             | (Chessmen.Rook, Side.White) -> {pos with WhiteRooks=pos.WhiteRooks |> clearBitRef }
             | (Chessmen.Queen, Side.White) -> {pos with WhiteQueen=pos.WhiteQueen |> clearBitRef }
             | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
-        pos'
+        { pos' with Board = pos'.Board |> clearBoardLetter bitRef }
 
-    
     let dumpPosition (pos:Position) =
         [|for i in 7..-1..0 ->
             [|for j in 7..-1..0 ->
@@ -297,8 +324,9 @@ module Position =
                 if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
                 p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
 
-        let swapSide (p:Position) =
-            { p with SideToPlay=opposite side }
+        let swapSideAndUpdateOtherStats (p:Position) =
+            let targetMoveCount = if side=Black then pos.FullMoveNumber + 1 else pos.FullMoveNumber
+            { p with SideToPlay=opposite side; FullMoveNumber = targetMoveCount }
 
         let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with
@@ -309,9 +337,9 @@ module Position =
         let alignOtherPiecesForSpecialMovesFilter = alsoMoveRookIfCastling
 
         let makeMoveInternal = 
-            setPieceInternal (chessman, side) dstBitRef
-            >> clearPieceInternal (chessman, side) srcBitRef
+            clearPieceInternal (chessman, side) srcBitRef
             >> clearOpponentPieceIfCapture
+            >> setPieceInternal (chessman, side) dstBitRef
             >> alignOtherPiecesForSpecialMovesFilter
 
         let isNotCheckFilter = isCheck getAttacks >> not
@@ -344,7 +372,7 @@ module Position =
         |> Option.filter isNotCheckFilter
         |> Option.filter isNotCastlingPathUnderAttackFilter
         |> Option.map updateCastlingRightsIfApplicableFilter
-        |> Option.map swapSide
+        |> Option.map swapSideAndUpdateOtherStats
 
     let tryMakeMoveWithFullValidation (generatePseudoMoves:Position->int->Move array) (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
