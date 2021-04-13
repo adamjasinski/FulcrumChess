@@ -3,11 +3,11 @@ open FulcrumChess.Engine
 
 
 let private bitboardToLerbefArray (bitboard:Bitboard) =
-    let arr = Array.zeroCreate<byte> 64
-    bitboard 
-    |> BitUtils.getSetBits_u64
-    |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
-    arr
+    let res = Array.zeroCreate 64
+    let bits = BitUtils.getSetBits_u64 bitboard 
+    for bitRef in bits do
+        res.[bitRef] <- 1uy
+    res
 
 let private bitboardToLerbefCharArray (bb:Bitboard) (pc:Chessmen, side:Side) =
     let arr = bb |> bitboardToLerbefArray

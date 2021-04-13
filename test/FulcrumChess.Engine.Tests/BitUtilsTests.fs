@@ -7,6 +7,7 @@
     open FulcrumChess.Engine
 
     [<Theory>]
+    [<Category("BitUtils")>]
     [<InlineDataEx(1, [|0|])>]
     [<InlineDataEx(8, [|3|])>]
     [<InlineDataEx(141, [|0;2;3;7|])>]
@@ -19,18 +20,21 @@
         test <@ expectedResult = result  @>
 
     [<Theory>]
+    [<Category("BitUtils")>]
     [<InlineDataEx(1UL, [|0|])>]
     [<InlineDataEx(8UL, [|3|])>]
     [<InlineDataEx(141UL, [|0;2;3;7|])>]
     [<InlineDataEx(2017UL, [|0;5;6;7;8;9;10|])>]
     let ``getSetBits (64-bit) returns expected result `` (input:uint64, expectedResult:int[]) =
-        let result = input |> BitUtils.getSetBits_u64
+        //let inline toArray (a:Span<_>) = a.ToArray()
+        let result = (BitUtils.getSetBits_u64 input).ToArray()
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
-        test <@ (result |> Array.length) > 0 @>
-        test <@ expectedResult = result  @>
+        test <@ (result.Length ) > 0 @>
+        test <@ expectedResult = result @>
 
     [<Fact>]
+    [<Category("BitUtils")>]
     let ``getSetBits for zero returns empty array`` () =
         let input = 0
         let expectedResult:int[] = [||]
@@ -38,6 +42,7 @@
         test <@ expectedResult = result  @>
 
     [<Fact>]
+    [<Category("BitUtils")>]
     let ``getSetBits for large number returns expected result`` () =
         let input = 1266637395197952UL
         let expectedResult:int[] = [|47; 50|]
@@ -45,6 +50,7 @@
         test <@ expectedResult = result  @>
 
     [<Theory>]
+    [<Category("BitUtils")>]
     [<InlineDataEx(1UL, 1)>]
     [<InlineDataEx(3UL, 2)>]
     [<InlineDataEx(141UL, 4)>]
@@ -54,6 +60,7 @@
         test <@ expectedResult = result  @>
 
     [<Theory>]
+    [<Category("BitUtils")>]
     [<InlineDataEx(1UL, 1)>]
     [<InlineDataEx(3UL, 2)>]
     [<InlineDataEx(141UL, 4)>]

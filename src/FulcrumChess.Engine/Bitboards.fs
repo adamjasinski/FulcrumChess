@@ -197,11 +197,15 @@ let bootstrapBishopMagicMoves (magicNumbersAndShifts:(uint64*int)[]) =
     (generateOccupancyVariations >> generateBishopMagicMoves occupancyMasks magicNumbersAndShifts) 
 
 let bitboardToConventionalMoves (srcIndex:int) (moveSquares:Bitboard) =
-    moveSquares 
-    |> BitUtils.getSetBits_u64 
-    |> Array.map (fun dst -> 
-        //let isCapture = allPieces |> BitUtils.hasBitSet dst
-        Move.create (srcIndex, dst))
+    let dstBitRefs = BitUtils.getSetBits_u64 moveSquares
+    let moves = Array.create<Move> dstBitRefs.Length 0us
+    for i=0 to dstBitRefs.Length-1 do
+        let dst = dstBitRefs.[i]
+        moves.[i] <- Move.create(srcIndex, dst)
+    moves
+    // |> Array.map (fun dst -> 
+    //     //let isCapture = allPieces |> BitUtils.hasBitSet dst
+    //     Move.create (srcIndex, dst))
 
 let generateMovesForPosition (pc:SlidingPiece) (magicMoves:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) (magicNumbersAndShifts:(uint64*int)[])=
     let occupancyMasks = getOccupancyMask pc
@@ -405,17 +409,20 @@ module MoveGenerationLookupFunctions =
 
     let generateAttacks (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos
-        let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
-        srcBitRefs 
-        |> Array.map (generatePseudoMovesBitboard lookups pos)
-        |> Array.reduce (|||)
+        let srcBitRefs = BitUtils.getSetBits_u64 bbForSide
+        let mutable acc:Bitboard = 0UL
+        for src in srcBitRefs do
+            acc <- acc ||| (generatePseudoMovesBitboard lookups pos src)
+        acc
+        // srcBitRefs 
+        // |> Array.map (generatePseudoMovesBitboard lookups pos)
+        // |> Array.reduce (|||)
     
 
     let generateAllPseudoMovesForSide (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos
-        let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
-        srcBitRefs 
-        |> Array.collect (generatePseudoMoves lookups pos)
+        let srcBitRefs = BitUtils.getSetBits_u64 bbForSide
+        Array.collect (generatePseudoMoves lookups pos) (srcBitRefs.ToArray())
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat
         //|> Array.reduce (|||)

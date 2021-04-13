@@ -119,16 +119,32 @@ module BitUtils =
     //     int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount b)
 
     // let inline extractLsb b =
-    //     b &&& (b-1)
+    //     b &&& (b-1) 
+
+    open System.Runtime.CompilerServices
+    open Microsoft.FSharp.NativeInterop
+    // [<MethodImpl(MethodImplOptions.NoInlining)>]
+    // let stackAlloc x =
+    //     let mutable ints:nativeptr<int> = NativePtr.stackalloc x
+    //     ()   
+
+    // NB - there's no stackalloc keyword in F#, hence we must do it the long way
+    // https://bartoszsypytkowski.com/writing-high-performance-f-code/
+    let inline stackalloc<'a when 'a: unmanaged> size =
+        let p = NativePtr.stackalloc<'a> size |> NativePtr.toVoidPtr
+        System.Span<'a>(p, size)
 
     let inline getSetBits_u64_intrinsic(b:uint64) =
-        let res = ResizeArray<int>(64)
+        //let res = ResizeArray<int>(64)
+        let res = stackalloc 64
         let mutable x = b
+        let mutable i = 0
         while x > 0UL do
             let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
-            res.Add(lsb)
+            res.[i] <- lsb
             x <- x &&& (x-1UL)
-        res.ToArray()
+            i <- i + 1
+        res.Slice(0,i)
         
     let inline getSetBits_u64 (b:uint64) =
         #if USE_INTRINSIC_BMI
