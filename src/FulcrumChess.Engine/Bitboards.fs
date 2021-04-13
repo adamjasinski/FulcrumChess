@@ -421,8 +421,15 @@ module MoveGenerationLookupFunctions =
 
     let generateAllPseudoMovesForSide (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos
-        let srcBitRefs = BitUtils.getSetBits_u64 bbForSide
-        Array.collect (generatePseudoMoves lookups pos) (srcBitRefs.ToArray())
+        let srcBitRefs = (BitUtils.getSetBits_u64 bbForSide)
+        Seq.collect (generatePseudoMoves lookups pos) (srcBitRefs.ToArray())
+
+    // let spanCollect mapping (source:System.ReadOnlySpan<_>) =
+    //     seq { 
+    //         for s in source do
+    //             yield! s |> mapping
+    //     }
+        //Array.collect (generatePseudoMoves lookups pos) (srcBitRefs.ToArray())
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat
         //|> Array.reduce (|||)

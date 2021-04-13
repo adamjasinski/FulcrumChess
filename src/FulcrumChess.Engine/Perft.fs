@@ -72,18 +72,19 @@ module Perft =
 
             let generateAllPseudoMovesForSide (s:Side) (p:Position) =
                 let gen = PerftCache.memoize PerftCache.cachePseudoMoves <| fun (s:Side,p:Position) ->
-                    MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
+                    MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p |> Array.ofSeq
                 gen (s,p)
 
             let allPseudoMovesForSide = pos |> MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups pos.SideToPlay
 
             let nextValidatedPositions =
                 allPseudoMovesForSide 
-                |> Array.map ( fun move ->
+                |> Seq.map ( fun move ->
                     //printfn "Depth %d. Trying move #%d for %A: %s; History: %A" depth pos.FullMoveNumber pos.SideToPlay (move |> Notation.toAlgebraicNotation) (pos.History |> List.map(Notation.toAlgebraicNotation))
                     let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
                     pos' |> Option.map ( fun p -> (move, p))
                 )
+                |> Array.ofSeq
                 |> Array.choose id
 
             let stats = 

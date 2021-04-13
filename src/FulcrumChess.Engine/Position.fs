@@ -38,7 +38,7 @@ type CastlingLookup = {
 }
 
 type GetAttacks = Side->Position->Bitboard
-type GetMovesForSide = Position->Move array
+type GetMovesForSide = Position->Move seq
     
 module Position =
     let emptyBitboard = {
@@ -397,7 +397,7 @@ module Position =
     let isCheckMate (generateAllPseudoMovesForSide:GetMovesForSide) (getAttacks:GetAttacks) (pos:Position) =
         pos 
         |> generateAllPseudoMovesForSide
-        |> Array.exists (fun m -> 
+        |> Seq.exists (fun m -> 
             tryMakeMoveInternal getAttacks m pos |> Option.isSome)
         |> not
 
