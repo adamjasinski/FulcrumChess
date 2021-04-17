@@ -3,6 +3,7 @@
 open System
 open Xunit
 open Swensen.Unquote
+open FulcrumChess.Engine
 
 module FenParsingTests = 
 
@@ -108,5 +109,30 @@ module FenParsingTests =
         let actualResultAsBoard8x8 = result |> Board8x8Funcs.fromPosition
         printfn "%A" actualResultAsBoard8x8
         test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
+
+    [<Fact>]
+    let ``Parse specific position with en passant pawn`` () =
+        let input = "rnbqkbnr/pp1ppppp/8/8/2pPP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3"
+        let result = input |> FenParsing.parseToPosition
+
+        let expectedAsBoard8x8 = [
+                ['r';'n';'b';'q';'k';'b';'n';'r'];
+                ['p';'p';' ';'p';'p';'p';'p';'p'];
+                [' ';' ';' ';' ';' ';' ';' ';' ']
+                [' ';' ';' ';' ';' ';' ';' ';' '];
+                [' ';' ';'p';'P';'P';' ';' ';' '];
+                [' ';' ';' ';' ';' ';'N';' ';' '];
+                ['P';'P';'P';' ';' ';'P';'P';'P'];
+                ['R';'N';'B';'Q';'K';'B';' ';'R'];
+            ]
+        let actualResultAsBoard8x8 = result |> Board8x8Funcs.fromPosition
+        printfn "%A" actualResultAsBoard8x8
+        test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
+
+        test <@ Side.Black = result.SideToPlay @>
+        test <@ CastlingRights.Both = result.WhiteCastlingRights @>
+        test <@ CastlingRights.Both = result.BlackCastlingRights @>
+        test <@ 20 = result.EnPassantTarget @>
+        test <@ 3 = result.FullMoveNumber @>
 
 

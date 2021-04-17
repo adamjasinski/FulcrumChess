@@ -19,17 +19,21 @@ module Notation =
         else
             "0000" //NULL move
 
+    let fromSquareNotationToBitRef (s:string) =
+        let pattern = "[a-h][1-8]"
+        if not <| Regex.IsMatch(s, pattern) then failwithf "Invalid square notation: %s" s
+
+        let file = byte('h') - byte(s.[0]) |> int
+        let rank = byte(s.[1]) - byte('1') |> int
+        (rank*8+file)
+
     let fromLongAlgebraicNotationToBitRefs (s:string) =
         let pattern = "[a-h][1-8][a-h][1-8]"
         if not <| Regex.IsMatch(s, pattern) then failwithf "Invalid long algebraic notation: %s" s
       
-        let srcFile = byte('h') - byte(s.[0]) |> int
-        let srcRank = byte(s.[1]) - byte('1') |> int
-        let dstFile = byte('h') - byte(s.[2]) |> int
-        let dstRank = byte(s.[3]) - byte('1') |> int
-
-        (srcRank*8 + srcFile, dstRank*8 + dstFile)
+        let srcBitRef = s.Substring(0,2) |> fromSquareNotationToBitRef
+        let dstBitRef = s.Substring(2,2) |> fromSquareNotationToBitRef
+        (srcBitRef, dstBitRef)
 
     let fromLongAlgebraicNotationToMove = fromLongAlgebraicNotationToBitRefs >> Move.create
 
-        

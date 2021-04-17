@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -18,9 +18,9 @@
     <Compile Include="Move.fs" />
     <Compile Include="Position.fs" />
     <Compile Include="Board8x8Funcs.fs" />
+    <Compile Include="Notation.fs" />
     <Compile Include="FenParsing.fs" />
     <Compile Include="Bitboards.fs" />
-    <Compile Include="Notation.fs" />
     <Compile Include="Perft.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Uci.fs" />

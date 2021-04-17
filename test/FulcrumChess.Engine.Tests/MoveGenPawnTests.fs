@@ -13,7 +13,7 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     let verifyMoves (fen:string, startBitRef:int, expectedSquaresList:string list) =
         let pos = FenParsing.parseToPosition fen
 
-        let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
+        let result = MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups pos startBitRef
 
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -49,5 +49,24 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Theory; MemberDataEx("TestCasesBlack")>]
     member __. ``verify moves of Black Pawn (data bound)`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
-   
-    //TODO - en passant
+
+    static member EnPassantTestCasesWhite() =
+        seq {
+            yield ("rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3", 35, ["d6"; "e6" ]); //e5
+            yield ("rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3", 35, [ "e6" ]); //e5, no en passant privilege
+        } 
+
+    static member EnPassantTestCasesBlack() =
+        seq {
+            yield ("rnbqkbnr/pp1ppppp/8/8/2pPP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3", 29, ["c3"; "d3" ]); //c4
+            yield ("rnbqkbnr/pp1p1ppp/8/4p3/2pPP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4", 29, ["c3"; ]); //c4, no en passant privilege
+        } 
+
+    [<Theory; MemberDataEx("EnPassantTestCasesWhite")>]
+    member __. ``verify en passant-potential moves of White Pawn`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+        verifyMoves (fen, startBitRef, expectedSquaresList)
+
+
+    [<Theory; MemberDataEx("EnPassantTestCasesBlack")>]
+    member __. ``verify en passant-potential moves of Black Pawn`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+        verifyMoves (fen, startBitRef, expectedSquaresList)

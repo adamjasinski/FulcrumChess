@@ -183,6 +183,24 @@ let private generateSquaresAndCapturesForBlackPawn () =
             yield (moves, captures) |> Tuple2.map createBitboardFromSetBitsSeq
     |]
 
+let private generateEnPassantTargetsForWhite() =
+    [|  
+        //squares directly behind the opposing pawn (i.e. ones that a black pawn skips when moving 2 squares in the first move)
+        for i = 0 to 63 do
+            let rankIndex = getRankIndex i
+
+            if rankIndex = 5 then BitUtils.setBit i 0UL else 0UL
+    |]
+
+let private generateEnPassantTargetsForBlack() =
+    [|  
+        //squares directly behind the opposing pawn (i.e. ones that a white pawn skips when moving 2 squares in the first move)
+        for i = 0 to 63 do
+            let rankIndex = getRankIndex i
+
+            if rankIndex = 2 then BitUtils.setBit i 0UL else 0UL
+    |]
+
 let generateRookMagicMoves  = generateMagicMoves SlidingPiece.Rook
 let generateBishopMagicMoves  = generateMagicMoves SlidingPiece.Bishop
 
@@ -330,6 +348,8 @@ module MoveGenerationLookupFunctions =
             KnightMovesDb = generateSquaresKnightMoves();
             WhitePawnMovesDb = generateSquaresAndCapturesForWhitePawn();
             BlackPawnMovesDb = generateSquaresAndCapturesForBlackPawn();
+            WhitePawnEnpassantDb = generateEnPassantTargetsForWhite();
+            BlackPawnEnpassantDb = generateEnPassantTargetsForBlack();
         }
 
     module private Rows  =
@@ -403,6 +423,29 @@ module MoveGenerationLookupFunctions =
         generatePseudoMovesBitboard lookups pos bitRef 
         |> bitboardToConventionalMoves bitRef
 
+    let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
+        let generateEnPassantMoves side enPassantTarget =
+            let ((_, captures), enPassantTargets) = 
+                match side with 
+                | White -> lookups.WhitePawnMovesDb.[bitRef], lookups.WhitePawnEnpassantDb.[enPassantTarget]
+                | Black -> lookups.BlackPawnMovesDb.[bitRef], lookups.BlackPawnEnpassantDb.[enPassantTarget]
+
+            captures &&& enPassantTargets//TODO - AND with en passant shadows
+            |> BitUtils.getSetBits_u64 
+            |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) SpecialMoveType.EnPassant)
+
+        let moves = generatePseudoMoves lookups pos bitRef
+        if pos.EnPassantTarget > 0 then
+            let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
+            let specials = 
+                match chessman with
+                | Pawn -> generateEnPassantMoves side pos.EnPassantTarget
+                | _ -> [||]
+            Array.append moves specials
+        else
+            moves
+
+
     let generateAttacks (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos
         let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
@@ -415,7 +458,7 @@ module MoveGenerationLookupFunctions =
         let bbForSide = getBitboardForSide side pos
         let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
         srcBitRefs 
-        |> Array.collect (generatePseudoMoves lookups pos)
+        |> Array.collect (generatePseudoMovesWithSpecial lookups pos)
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat
         //|> Array.reduce (|||)

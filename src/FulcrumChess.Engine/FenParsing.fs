@@ -27,27 +27,53 @@ let parseSingleRow (input:string) : char list =
     if result |> List.length <> 8 then invalidOp (sprintf "Input was supposed to yield 8 fields, but yielded %d" (List.length result))
     result |> List.rev
 
+let private getNthSegmentOrNone (input:string) n =
+    let parts = input.Split(' ')
+    if parts.Length > n then Some parts.[n] else None
 
 let private parseSide (input:string) : Side =
-    let parts = input.Split(' ')
-    match parts.[1] with
-    | "w" -> Side.White
-    | "b" -> Side.Black
-    | x -> invalidOp ("Unknown side to play in FEN: " + x)
+    let sideOption =  getNthSegmentOrNone input 1
+    if sideOption.IsSome then
+        match sideOption.Value with
+        | "w" -> Side.White
+        | "b" -> Side.Black
+        | x -> invalidOp ("Unknown side to play in FEN: " + x)
+    else invalidOp "Missing side in FEN"
 
 let private parseCastlingRights (input:string) =
-    let parts = input.Split(' ')
-    let castlingRightsCharArray = parts.[2].ToCharArray()
+    getNthSegmentOrNone input 2
+    |> Option.map(fun castlingRights ->
+        let castlingRightsCharArray = castlingRights.ToCharArray()
 
-    ((CastlingRights.None,CastlingRights.None), castlingRightsCharArray)
-    ||> Array.fold(fun (whiteRights,blackRights) letter ->
-        match letter with
-        | 'K' -> ((whiteRights ||| CastlingRights.KingSide), blackRights)
-        | 'Q' -> ((whiteRights ||| CastlingRights.QueenSide), blackRights)
-        | 'k' -> (whiteRights, (blackRights ||| CastlingRights.KingSide))
-        | 'q' -> (whiteRights, (blackRights ||| CastlingRights.QueenSide))
-        | '-' -> (whiteRights, blackRights)
-        | _ -> invalidOp(sprintf "Unknown castling right in FEN: %c" letter))
+        ((CastlingRights.None,CastlingRights.None), castlingRightsCharArray)
+        ||> Array.fold(fun (whiteRights,blackRights) letter ->
+            match letter with
+            | 'K' -> ((whiteRights ||| CastlingRights.KingSide), blackRights)
+            | 'Q' -> ((whiteRights ||| CastlingRights.QueenSide), blackRights)
+            | 'k' -> (whiteRights, (blackRights ||| CastlingRights.KingSide))
+            | 'q' -> (whiteRights, (blackRights ||| CastlingRights.QueenSide))
+            | '-' -> (whiteRights, blackRights)
+            | _ -> invalidOp(sprintf "Unknown castling right in FEN: %c" letter)))
+    |> Option.defaultValue (CastlingRights.None,CastlingRights.None)
+
+let private parseEnPassantTarget (input:string) =
+    getNthSegmentOrNone input 3
+    |> Option.map (fun target -> 
+        match target with
+        | t when t.Length = 2 -> Notation.fromSquareNotationToBitRef t
+        | "-" -> 0
+        | _ -> invalidOp(sprintf "Unknown en passant target in FEN: %s" target))
+    |> Option.defaultValue 0
+
+let private parseHalfMoveClock (input:string) =
+    getNthSegmentOrNone input 4
+    |> Option.map Int32.Parse
+    |> Option.defaultValue 0
+
+let private parseFullMoveNumber (input:string) =
+    getNthSegmentOrNone input 5
+    |> Option.map Int32.Parse
+    |> Option.defaultValue 1
 
 // fen example: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 let parseToBoard8x8 (fen:string) : Board8x8Array =
@@ -60,11 +86,17 @@ let parseToPosition (fen:string) : Position =
     let allPiecesOnBoard = board8x8 |> List.collect id |> Array.ofList |> Array.rev
     let sideToPlay = fen |> parseSide
     let (whiteCastlingRights,blackCastlingRights) = fen |> parseCastlingRights
+    let enPassantTarget = fen |> parseEnPassantTarget
+    let halfMoveClock = fen |> parseHalfMoveClock
+    let fullMoveNumber = fen |> parseFullMoveNumber
     let startingPosition = 
         { Position.emptyBitboard with 
             SideToPlay=sideToPlay; 
             WhiteCastlingRights = whiteCastlingRights; 
-            BlackCastlingRights = blackCastlingRights }
+            BlackCastlingRights = blackCastlingRights;
+            EnPassantTarget = enPassantTarget;
+            HalfMoveClock = halfMoveClock;
+            FullMoveNumber = fullMoveNumber; }
     let mapped = 
         ((0,startingPosition), allPiecesOnBoard) 
         ||> Array.fold (fun (counter,pos) (piece:char) -> 
@@ -123,7 +155,14 @@ let toFen (pos:Position) =
             white + black
         else "-"
 
+    let enPassantToSquareNotation (enPassantTarget:int) =
+        if enPassantTarget > 0 then
+            Notation.bitRefToAlgebraicNotation enPassantTarget
+        else "-"
+
     let chessmen = String.Join('/', allRowsArray)
     let side = sideToLetter pos.SideToPlay
     let castlingRights = castlingRightsToLetter (pos.WhiteCastlingRights, pos.BlackCastlingRights)
-    sprintf "%s %c %s" chessmen side castlingRights
+    let enPassantTargetNotation = enPassantToSquareNotation pos.EnPassantTarget
+    //sprintf "%s %c %s %s %d %d" chessmen side castlingRights enPassantTargetNotation pos.HalfMoveClock pos.FullMoveNumber
+    sprintf "%s %c %s %s" chessmen side castlingRights enPassantTargetNotation

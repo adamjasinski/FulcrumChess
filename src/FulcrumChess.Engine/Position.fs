@@ -17,7 +17,7 @@ type Position = {
     WhiteCastlingRights:CastlingRights;
     BlackCastlingRights:CastlingRights;
     SideToPlay:Side;
-    EnPassantTarget:Bitboard;
+    EnPassantTarget:int;
     HalfMoveClock:int;
     FullMoveNumber:int
 }
@@ -46,7 +46,7 @@ module Position =
         WhiteCastlingRights=CastlingRights.None;
         BlackCastlingRights=CastlingRights.None;
         SideToPlay=White;
-        EnPassantTarget=0UL;
+        EnPassantTarget=0;
         HalfMoveClock=0;
         FullMoveNumber=1; }
 
@@ -66,7 +66,7 @@ module Position =
          WhiteCastlingRights=CastlingRights.None;
          BlackCastlingRights=CastlingRights.None;
          SideToPlay=White;
-         EnPassantTarget=0UL;
+         EnPassantTarget=0;
          HalfMoveClock=0;
          FullMoveNumber=1; }
 

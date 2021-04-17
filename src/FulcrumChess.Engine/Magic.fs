@@ -11,12 +11,14 @@ type MagicValues ={
 
 type MoveGenerationLookups = {
     MagicNumbersAndShifts:MagicValues;
-    RookMovesDb:uint64[][];
-    BishopMovesDb:uint64[][];
-    KingMovesDb:uint64[];
-    KnightMovesDb:uint64[];
-    WhitePawnMovesDb:(uint64*uint64)[];
-    BlackPawnMovesDb:(uint64*uint64)[];
+    RookMovesDb:Bitboard[][];
+    BishopMovesDb:Bitboard[][];
+    KingMovesDb:Bitboard[];
+    KnightMovesDb:Bitboard[];
+    WhitePawnMovesDb:(Bitboard*Bitboard)[];
+    BlackPawnMovesDb:(Bitboard*Bitboard)[];
+    WhitePawnEnpassantDb:Bitboard[];
+    BlackPawnEnpassantDb:Bitboard[];
 }
 
 module PregeneratedMagic =
