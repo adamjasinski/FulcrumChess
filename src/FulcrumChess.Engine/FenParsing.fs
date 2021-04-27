@@ -164,5 +164,4 @@ let toFen (pos:Position) =
     let side = sideToLetter pos.SideToPlay
     let castlingRights = castlingRightsToLetter (pos.WhiteCastlingRights, pos.BlackCastlingRights)
     let enPassantTargetNotation = enPassantToSquareNotation pos.EnPassantTarget
-    //sprintf "%s %c %s %s %d %d" chessmen side castlingRights enPassantTargetNotation pos.HalfMoveClock pos.FullMoveNumber
-    sprintf "%s %c %s %s" chessmen side castlingRights enPassantTargetNotation
+    sprintf "%s %c %s %s %d %d" chessmen side castlingRights enPassantTargetNotation pos.HalfMoveClock pos.FullMoveNumber

@@ -296,9 +296,24 @@ module Position =
                 let (opponentPiece,opponentSide) = dstSquare |> Option.get
                 if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
                 p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
+                //TODO - include en passant case
 
-        let swapSide (p:Position) =
-            { p with SideToPlay=opposite side }
+        let increaseCountersAndSwapSide (p:Position) =
+            //NB - takes advantage of the fact that this is the last step in the pipeline (including en passant)
+            let isCapture =
+                let originalOpponentBitboard = pos |> getBitboardForSide (opposite side)
+                let opponentBitboardAfterMove = p |> getBitboardForSide (opposite side)
+                not (opponentBitboardAfterMove = originalOpponentBitboard)
+            let isPawnMove = (chessman = Chessmen.Pawn)
+            let nextHalfMoveClock = if (isCapture || isPawnMove) then 0 else p.HalfMoveClock + 1
+            //let nextHalfMoveClock = p.HalfMoveClock + 1
+
+            let (nextMoveNumber, oppositeSide) = 
+                match p.SideToPlay with 
+                | White -> (p.FullMoveNumber, Black)
+                | Black -> (p.FullMoveNumber+1, White)
+            //TODO - update also Half Move clock - https://www.chessprogramming.org/Halfmove_Clock
+            { p with SideToPlay=oppositeSide; FullMoveNumber=nextMoveNumber; HalfMoveClock = nextHalfMoveClock}
 
         let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with
@@ -344,7 +359,7 @@ module Position =
         |> Option.filter isNotCheckFilter
         |> Option.filter isNotCastlingPathUnderAttackFilter
         |> Option.map updateCastlingRightsIfApplicableFilter
-        |> Option.map swapSide
+        |> Option.map increaseCountersAndSwapSide
 
     let tryMakeMoveWithFullValidation (generatePseudoMoves:Position->int->Move array) (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs

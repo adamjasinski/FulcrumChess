@@ -33,8 +33,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
-        Assert.StartsWith(actualFenAfterMove, expectedFen)
-        //<@ expectedFen.StartsWith(actualFenAfterMove) @>
+        test <@ actualFenAfterMove = expectedFen @>
 
     [<Theory>]
     [<Category("Castling")>]
@@ -74,7 +73,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
 
     [<Theory>]
     [<Category("Castling")>]
-    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
+    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 1 1")>]
     [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``make move - queen side castling with check next to rook (edge case)`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
@@ -90,14 +89,12 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
-        Assert.StartsWith(actualFenAfterMove, expectedFen)
-        //<@ expectedFen.StartsWith(actualFenAfterMove) = true @> |> ignore
-        //<@ actualFenAfterMove = expectedFen @>
-
+        test <@ actualFenAfterMove = expectedFen @>
+        
     [<Theory>]
     [<Category("Castling")>]
-    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 0 1")>]
-    [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 0 1")>]
+    [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 1 1")>]
+    [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``moving rook should affect castling rights`` (fen:string, rookMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
 
@@ -112,4 +109,4 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
         printfn "-------------------------"
         let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
         printfn "%s" actualFenAfterMove
-        Assert.StartsWith(actualFenAfterMove, expectedFen)
+        test <@ actualFenAfterMove = expectedFen @>

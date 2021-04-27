@@ -21,7 +21,7 @@ type PositionCheckMateTests(magicGenerationSetupFixture:MagicGenerationSetupFixt
     [<InlineDataEx("1r3kr1/pbpBBp1p/1b3P2/8/8/2P2q2/P4PPP/3R2K1 b - - 0 24", true, true)>]       //From Evergreen Game
     [<InlineDataEx("rnb1k1nr/p2p1ppp/3B4/1p1NPN1P/6P1/3P1Q2/P1P5/q4Kb1 w kq - 0 20", true, false)>]  //From Immortal Game 
     [<InlineDataEx("r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1 b - - 1 23", true, true)>]  //From Immortal Game 
-    member __.Test1(fen:string, isCheckExpected:bool, isMateExpected:bool) = 
+    member __.``make move - checkmate``(fen:string, isCheckExpected:bool, isMateExpected:bool) = 
         let pos = FenParsing.parseToPosition fen
         let generateAllPseudoMovesForSide = Bitboards.MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups pos.SideToPlay
 
