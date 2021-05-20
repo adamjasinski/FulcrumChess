@@ -296,7 +296,17 @@ module Position =
                 let (opponentPiece,opponentSide) = dstSquare |> Option.get
                 if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
                 p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
-                //TODO - include en passant case
+
+        let clearOpponentPawnIfEnPassant (p:Position) =
+            if move |> Move.isEnPassant then
+                let opponentPawnToClearBitRef = 
+                    match side with
+                    | White -> dstBitRef-8
+                    | Black -> dstBitRef+8
+                let opponentPawnToClearSquare = pos |> getChessmanAndSide opponentPawnToClearBitRef
+                if opponentPawnToClearSquare |> Option.isNone then illegalMove "Error: Move is supposed to be en passant, but there's no opponent pawn in front of the en passant target"
+                p |> clearPieceInternal (Chessmen.Pawn, opposite side) opponentPawnToClearBitRef
+            else p
 
         let increaseCountersAndSwapSide (p:Position) =
             //NB - takes advantage of the fact that this is the last step in the pipeline (including en passant)
@@ -304,16 +314,32 @@ module Position =
                 let originalOpponentBitboard = pos |> getBitboardForSide (opposite side)
                 let opponentBitboardAfterMove = p |> getBitboardForSide (opposite side)
                 not (opponentBitboardAfterMove = originalOpponentBitboard)
-            let isPawnMove = (chessman = Chessmen.Pawn)
+            
+            let (isPawnMove, isPawnDoubleMove) = 
+                match (chessman, side) with
+                | (Chessmen.Pawn, Side.White) -> 
+                    let dbl = pos.WhitePawns &&& Rows.FourthRow > 0UL
+                    (true, dbl)
+                | (Chessmen.Pawn, Side.Black) -> 
+                    let dbl = pos.BlackPawns &&& Rows.FifthRow > 0UL
+                    (true, dbl)
+                | (_, _) -> false,false
+
+            let enPassantTarget = if isPawnDoubleMove then dstBitRef else 0
+
+            // Half Move clock rules - see https://www.chessprogramming.org/Halfmove_Clock
             let nextHalfMoveClock = if (isCapture || isPawnMove) then 0 else p.HalfMoveClock + 1
-            //let nextHalfMoveClock = p.HalfMoveClock + 1
 
             let (nextMoveNumber, oppositeSide) = 
                 match p.SideToPlay with 
                 | White -> (p.FullMoveNumber, Black)
                 | Black -> (p.FullMoveNumber+1, White)
-            //TODO - update also Half Move clock - https://www.chessprogramming.org/Halfmove_Clock
-            { p with SideToPlay=oppositeSide; FullMoveNumber=nextMoveNumber; HalfMoveClock = nextHalfMoveClock}
+
+            { p with 
+                SideToPlay=oppositeSide;
+                EnPassantTarget = enPassantTarget;
+                FullMoveNumber=nextMoveNumber; 
+                HalfMoveClock = nextHalfMoveClock}
 
         let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with
@@ -321,7 +347,7 @@ module Position =
                 (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks)
             | None -> true
 
-        let alignOtherPiecesForSpecialMovesFilter = alsoMoveRookIfCastling
+        let alignOtherPiecesForSpecialMovesFilter = clearOpponentPawnIfEnPassant >> alsoMoveRookIfCastling
 
         let makeMoveInternal = 
             setPieceInternal (chessman, side) dstBitRef

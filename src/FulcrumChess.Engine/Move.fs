@@ -66,5 +66,8 @@ module Move =
         | King -> determineCastlingTypeIfKingsMove side move
         | _ -> Option.None
 
+    let isEnPassant (move:Move) =
+        move &&& 0x8000us > 0us
+
 
     

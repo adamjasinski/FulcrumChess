@@ -352,12 +352,6 @@ module MoveGenerationLookupFunctions =
             BlackPawnEnpassantDb = generateEnPassantTargetsForBlack();
         }
 
-    module private Rows  =
-        let [<Literal>] ThirdRow =  0xFF0000UL
-        let [<Literal>] FourthRow = 0xFF000000UL
-        let [<Literal>] FifthRow =  0xFF00000000UL
-        let [<Literal>] SixthRow =  0xFF0000000000UL
-
     let private generatePawnPseudoMoves (pos:Position) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
         //let friendlyPieces = pos |> getBitboardForSide side
         let opposingPieces = pos |> getBitboardForSide (Common.opposite side)
