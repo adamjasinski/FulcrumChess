@@ -21,7 +21,7 @@ module EngineConstants =
 type EngineState() =
     let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll()
     //let mutable currentPosition:Position = Position.initialPosition
-    let generatePseudoMovesAdapter pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups.Value pos bitRef |> Seq.toArray
+    let generatePseudoMovesAdapter pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups.Value pos bitRef |> Seq.toArray
     //member __.IsInitialized = lookups.IsValueCreated
     member val CurrentPosition:Position = Position.initialPosition with get, set
     member val GenerateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups.Value with get
@@ -55,7 +55,7 @@ module CommandHandler =
                     Position.initialPosition
                 else fenPosition |> FenParsing.parseToPosition
             let makeMove pos moveAlg = 
-                let move = Notation.fromLongAlgebraicNotationToMove moveAlg
+                let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlg
                 let posOpt = pos |> Position.tryMakeMoveWithFullValidation state.GeneratePseudoMoves state.GenerateAttacks move
                 match posOpt with
                 | Some p -> p

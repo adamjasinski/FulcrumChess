@@ -380,6 +380,7 @@ module MoveGenerationLookupFunctions =
         bishopMoves ||| rookMoves
 
     let private generateKingPseudoMoves (pos:Position) (allPieces:Bitboard) (friendlyPieces:Bitboard) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
+        // TODO - check castling rights
         let castlingSpecial = 
             let castlingLookup = Position.castlingLookups.[side]
             let kingBitboard = Position.getKingBitboard side pos
@@ -419,12 +420,12 @@ module MoveGenerationLookupFunctions =
 
     let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let generateEnPassantMoves side enPassantTarget =
-            let ((_, captures), enPassantTargets) = 
+            let ((_, diagonalMoves), enPassantTargets) = 
                 match side with 
                 | White -> lookups.WhitePawnMovesDb.[bitRef], lookups.WhitePawnEnpassantDb.[enPassantTarget]
                 | Black -> lookups.BlackPawnMovesDb.[bitRef], lookups.BlackPawnEnpassantDb.[enPassantTarget]
 
-            captures &&& enPassantTargets//TODO - AND with en passant shadows
+            diagonalMoves &&& enPassantTargets
             |> BitUtils.getSetBits_u64 
             |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) SpecialMoveType.EnPassant)
 

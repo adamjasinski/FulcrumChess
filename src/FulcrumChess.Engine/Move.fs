@@ -10,9 +10,12 @@ module Move =
     // Follows Stockfish convention
     /// bit  0- 5: destination square (from 0 to 63)
     /// bit  6-11: origin square (from 0 to 63)
-    /// bit 12-13: promotion piece type - 2 (from KNIGHT-2 to QUEEN-2)
+    /// bit 12-13: promotion piece type - 2 (from KNIGHT- 0 to QUEEN-3)
     /// bit 14-15: special move flag: promotion (1), en passant (2), castling (3)
     /// NOTE: EN-PASSANT bit is set only when a pawn can be captured
+    /// Slighly customized values for castling:
+    /// - King side castling: bits 14-15 are set
+    /// - Queen side castling bits 12-15 are set
 
     let inline create (srcBitRef:int, destBitRef:int) : Move =
         uint16 ((srcBitRef <<< 6) ||| destBitRef)
@@ -40,14 +43,14 @@ module Move =
         int((move &&& 0xFC0us) >>> 6)
 
     let getSrcAndDestBitRefs = 
-        Arrow.onSingle getSrcBitRef getDestBitRef 
+        getSrcBitRef .&&&. getDestBitRef 
 
     let movesToDstBitboard (moves:Move array) =
         (0UL, moves) 
         ||> Array.fold (fun acc mv -> 
             acc |> BitUtils.setBit (getDestBitRef mv))
 
-    let determineCastlingTypeIfKingsMove (side:Side) (move:Move) =
+    let private determineCastlingTypeIfKingsMove (side:Side) (move:Move) =
         let (srcBitRef, dstBitRef) = move |> getSrcAndDestBitRefs
         match side with
         | Side.White -> 

@@ -50,7 +50,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
+        let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
 
@@ -62,7 +62,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = Notation.fromLongAlgebraicNotationToMove moveAlgNotation
+        let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
         let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
 

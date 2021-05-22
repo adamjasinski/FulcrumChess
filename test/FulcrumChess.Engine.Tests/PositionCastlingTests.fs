@@ -22,7 +22,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     member __. ``make move - castling`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
 
-        let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
+        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
         let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove
@@ -43,7 +43,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQk - 0 1", "e8c8")>]
     member __. ``attempt to castle - no castling rights`` (fen:string, kingMoveAlgNotation:string) =
         let pos = FenParsing.parseToPosition fen
-        let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
+        let move = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
 
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
         test <@ pos' |> Option.isNone @>
@@ -66,7 +66,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     member __. ``illegal move - castling under check`` (fen:string, kingMoveAlgNotation:string, description:string)=
         let pos = FenParsing.parseToPosition fen
 
-        let move = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
+        let move = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
 
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
         test <@ pos' |> Option.isNone @>
@@ -78,7 +78,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     member __. ``make move - queen side castling with check next to rook (edge case)`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
 
-        let actualMove = Notation.fromLongAlgebraicNotationToMove kingMoveAlgNotation
+        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
         let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove
@@ -98,7 +98,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     member __. ``moving rook should affect castling rights`` (fen:string, rookMoveAlgNotation:string, expectedFen:string) =
         let pos = FenParsing.parseToPosition fen
 
-        let actualMove = Notation.fromLongAlgebraicNotationToMove rookMoveAlgNotation
+        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos rookMoveAlgNotation
         printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
         let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove

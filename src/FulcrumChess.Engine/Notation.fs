@@ -34,6 +34,3 @@ module Notation =
         let srcBitRef = s.Substring(0,2) |> fromSquareNotationToBitRef
         let dstBitRef = s.Substring(2,2) |> fromSquareNotationToBitRef
         (srcBitRef, dstBitRef)
-
-    let fromLongAlgebraicNotationToMove = fromLongAlgebraicNotationToBitRefs >> Move.create
-
