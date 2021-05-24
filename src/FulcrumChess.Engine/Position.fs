@@ -303,7 +303,14 @@ module Position =
                     | White -> dstBitRef-8
                     | Black -> dstBitRef+8
                 let opponentPawnToClearSquare = pos |> getChessmanAndSide opponentPawnToClearBitRef
-                if opponentPawnToClearSquare |> Option.isNone then illegalMove "Error: Move is supposed to be en passant, but there's no opponent pawn in front of the en passant target"
+                if opponentPawnToClearSquare |> Option.isNone then 
+                //     printfn "----"
+                //     printfn "(%d,%d)" srcBitRef dstBitRef
+                //     printfn "Before"
+                //     pos |> prettyPrint |> printfn "%s"
+                //     printfn "Midway"
+                //     p |> prettyPrint |> printfn "%s"
+                    illegalMove "Error: Move is supposed to be en passant, but there's no opponent pawn in front of the en passant target"
                 p |> clearPieceInternal (Chessmen.Pawn, opposite side) opponentPawnToClearBitRef
             else p
 
@@ -317,14 +324,19 @@ module Position =
             let (isPawnMove, isPawnDoubleMove) = 
                 match (chessman, side) with
                 | (Chessmen.Pawn, Side.White) -> 
-                    let dbl = pos.WhitePawns &&& Rows.FourthRow > 0UL
-                    (true, dbl)
+                    let isPawnDoubleMove = Rows.FourthRow |> BitUtils.hasBitSet dstBitRef
+                    (true, isPawnDoubleMove)
                 | (Chessmen.Pawn, Side.Black) -> 
-                    let dbl = pos.BlackPawns &&& Rows.FifthRow > 0UL
-                    (true, dbl)
-                | (_, _) -> false,false
+                    let isPawnDoubleMove = Rows.FifthRow |> BitUtils.hasBitSet dstBitRef
+                    (true, isPawnDoubleMove)
+                | (_, _) -> (false,false)
 
-            let enPassantTarget = if isPawnDoubleMove then dstBitRef else 0
+            //TODO - en passant target should only be set if the pawn CAN BE captured (i.e. there's opponent's pawn beside)
+            let enPassantTarget = 
+                match (isPawnDoubleMove, side) with
+                | (true, White) -> dstBitRef-8
+                | (true, Black) -> dstBitRef+8
+                | (false,_) -> 0
 
             // Half Move clock rules - see https://www.chessprogramming.org/Halfmove_Clock
             let nextHalfMoveClock = if (isCapture || isPawnMove) then 0 else p.HalfMoveClock + 1
