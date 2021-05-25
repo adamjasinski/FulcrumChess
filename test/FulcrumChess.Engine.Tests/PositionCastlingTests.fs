@@ -1,15 +1,12 @@
 ﻿namespace FulcrumChess.Engine.Tests
-open FulcrumChess.Engine
 open FulcrumChess.Engine.Tests.MoveGeneration
 open Xunit
 open Xunit.Extensions.AssemblyFixture
-open Swensen.Unquote
+open FulcrumChess.Engine.Tests.PositionTestHelper
 
 type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
     let lookups = magicGenerationSetupFixture.Lookups
-
-    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
 
     interface IAssemblyFixture<MagicGenerationSetupFixture>
 
@@ -20,20 +17,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8g8", "rnbq1rk1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 1 2")>]
     member __. ``make move - castling`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
-        let pos = FenParsing.parseToPosition fen
-
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
-
-        let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove
-        test <@ positionAfterMove |> Option.isSome @>
-
-        let posPrint = positionAfterMove.Value |> Position.prettyPrint
-        printfn "%s" posPrint
-        printfn "-------------------------"
-        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
-        printfn "%s" actualFenAfterMove
-        test <@ actualFenAfterMove = expectedFen @>
+        verifyPositionAfterMoveWithFullValidation lookups fen kingMoveAlgNotation expectedFen
 
     [<Theory>]
     [<Category("Castling")>]
@@ -42,11 +26,7 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQq - 0 1", "e8g8")>]
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQk - 0 1", "e8c8")>]
     member __. ``attempt to castle - no castling rights`` (fen:string, kingMoveAlgNotation:string) =
-        let pos = FenParsing.parseToPosition fen
-        let move = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
-
-        let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
-        test <@ pos' |> Option.isNone @>
+        verifyPositionAfterIllegalMove lookups fen kingMoveAlgNotation
 
     [<Theory>]
     [<Category("Castling")>]
@@ -64,49 +44,19 @@ type PositionCastlingTests(magicGenerationSetupFixture:MagicGenerationSetupFixtu
     [<InlineDataEx("r3kbnr/ppp2ppp/8/3p2B1/3P4/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "black queenside, path under check")>]
     [<InlineDataEx("r3kbnr/pp3ppp/8/3p1B2/3P4/8/PPP2PPP/RNBQK1NR b KQkq - 0 1", "e8c8", "black queenside, destination under check")>]
     member __. ``illegal move - castling under check`` (fen:string, kingMoveAlgNotation:string, description:string)=
-        let pos = FenParsing.parseToPosition fen
-
-        let move = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
-
-        let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
-        test <@ pos' |> Option.isNone @>
+        verifyPositionAfterIllegalMove lookups fen kingMoveAlgNotation
 
     [<Theory>]
     [<Category("Castling")>]
     [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 1 1")>]
     [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``make move - queen side castling with check next to rook (edge case)`` (fen:string, kingMoveAlgNotation:string, expectedFen:string) =
-        let pos = FenParsing.parseToPosition fen
+        verifyPositionAfterMoveWithFullValidation lookups fen kingMoveAlgNotation expectedFen
 
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos kingMoveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
-
-        let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove
-        test <@ positionAfterMove |> Option.isSome @>
-
-        let posPrint = positionAfterMove.Value |> Position.prettyPrint
-        printfn "%s" posPrint
-        printfn "-------------------------"
-        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
-        printfn "%s" actualFenAfterMove
-        test <@ actualFenAfterMove = expectedFen @>
-        
     [<Theory>]
     [<Category("Castling")>]
     [<InlineDataEx("rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/R3KBNR w KQkq - 0 1", "e1c1", "rn1qkbnr/ppp2ppp/8/3ppb2/8/2P5/PP3PPP/2KR1BNR b kq - 1 1")>]
     [<InlineDataEx("r3kbnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR b KQkq - 0 1", "e8c8", "2kr1bnr/pp3ppp/2p5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR w KQ - 1 2")>]
     member __. ``moving rook should affect castling rights`` (fen:string, rookMoveAlgNotation:string, expectedFen:string) =
-        let pos = FenParsing.parseToPosition fen
+        verifyPositionAfterMoveWithFullValidation lookups fen rookMoveAlgNotation expectedFen
 
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos rookMoveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
-
-        let positionAfterMove = pos |> Position.tryMakeMoveInternal generateAttacks actualMove
-        test <@ positionAfterMove |> Option.isSome @>
-
-        let posPrint = positionAfterMove.Value |> Position.prettyPrint
-        printfn "%s" posPrint
-        printfn "-------------------------"
-        let actualFenAfterMove = positionAfterMove.Value |> FenParsing.toFen
-        printfn "%s" actualFenAfterMove
-        test <@ actualFenAfterMove = expectedFen @>

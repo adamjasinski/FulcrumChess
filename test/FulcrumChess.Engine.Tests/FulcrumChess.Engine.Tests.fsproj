@@ -17,6 +17,7 @@
     <Compile Include="MoveTests.fs"/>
     <Compile Include="MoveGenerationTestSetup.fs"/>
     <Compile Include="PositionTests.fs"/>
+    <Compile Include="PositionTestHelper.fs"/>
     <Compile Include="PositionCastlingTests.fs"/>
     <Compile Include="PositionCheckMateTests.fs"/>
     <Compile Include="PositionEnPassantTests.fs"/>
