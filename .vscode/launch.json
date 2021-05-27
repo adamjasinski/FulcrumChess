@@ -4,12 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    
         { 
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/FulcrumChess.Engine/bin/Debug/netcoreapp3.1/FulcrumChess.Engine.dll",
+            "program": "${workspaceFolder}/src/FulcrumChess.Engine/bin/Debug/net50/FulcrumChess.Engine.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/FulcrumChess.Engine",
             "console": "internalConsole",
