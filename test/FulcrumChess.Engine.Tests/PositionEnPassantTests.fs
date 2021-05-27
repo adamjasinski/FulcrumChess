@@ -28,5 +28,12 @@ type PositionEnPassantTests(magicGenerationSetupFixture:MagicGenerationSetupFixt
     [<Theory>]
     [<Category("EnPassant")>]
     [<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", "a2a4", "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0 1")>]
-    member __. ``try to make move - pawn double move should update en passant target`` (fen:string, pawnMoveAlgNotation:string, expectedFen:string) =
+    [<InlineDataEx("rnbqkbnr/pp1ppppp/8/2p1P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2", "f7f5", "rnbqkbnr/pp1pp1pp/8/2p1Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3")>]
+    member __. ``make move - pawn double move should update en passant target`` (fen:string, pawnMoveAlgNotation:string, expectedFen:string) =
+        verifyPositionAfterMoveWithFullValidation lookups fen pawnMoveAlgNotation expectedFen
+
+    [<Theory(Skip="Pending")>]
+    [<Category("EnPassant")>]
+    [<InlineDataEx("rnbqkbnr/pp1ppppp/8/2p1P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2", "g7g5", "rnbqkbnr/pp1ppppp/8/2p1P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")>]
+    member __. ``make move - pawn double move should not update en passant target if no pawn can capture it`` (fen:string, pawnMoveAlgNotation:string, expectedFen:string) =
         verifyPositionAfterMoveWithFullValidation lookups fen pawnMoveAlgNotation expectedFen

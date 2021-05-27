@@ -192,6 +192,19 @@ let private generateEnPassantTargetsForWhite() =
             if rankIndex = 5 then BitUtils.setBit i 0UL else 0UL
     |]
 
+// let private generateEnPassantPotentialCaptorsForWhite() =
+//     [|  
+//         //white pawns directly beside the black pawn that just moved by 2 squares; indexed by black pawn destination 
+            //   e.g. 32-> 33
+            //   33 -> 32,34
+            //   34 -> 33,35
+            //   40 -> 39
+//         for i = 0 to 63 do
+//             let rankIndex = getRankIndex i
+
+//             if rankIndex = 5 then BitUtils.setBit i 0UL else 0UL
+//     |]
+
 let private generateEnPassantTargetsForBlack() =
     [|  
         //squares directly behind the opposing pawn (i.e. ones that a white pawn skips when moving 2 squares in the first move)
@@ -264,67 +277,73 @@ let generateAttackSets (pc:SlidingPiece) (occupancyVariations:uint64[][]) (occup
     |]
     
 
-let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) (pregeneratedMagicAndShifts:(uint64*int)[]) =
-    pregeneratedMagicAndShifts 
-    |> Array.mapi (fun bitRef pregeneratedCandidate -> 
-            if fst pregeneratedCandidate = 0UL then
-                let bitCount = BitUtils.countSetBits occupancyMasks.[bitRef]
-                let variationCount = 1 <<< bitCount;
-                let magicShift = 64-bitCount
-                let currentBitRefOccupancyVariations = occupancyVariations.[bitRef]
-                let currentBitRefOccupancyMask = occupancyMasks.[bitRef]
-                let currentBitRefAttackSet = occupancyAttackSets.[bitRef]
-                let mutable candidateCount = 0
+let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations:uint64[][]) (occupancyAttackSets:uint64[][]) =
+    [|
+        for bitRef in 0..63 do 
+            let bitCount = BitUtils.countSetBits occupancyMasks.[bitRef]
+            let variationCount = 1 <<< bitCount;
+            let magicShift = 64-bitCount
+            let currentBitRefOccupancyVariations = occupancyVariations.[bitRef]
+            let currentBitRefOccupancyMask = occupancyMasks.[bitRef]
+            let currentBitRefAttackSet = occupancyAttackSets.[bitRef]
+            let mutable candidateCount = 0
 
-                let magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet (magicNumber:uint64) =
-                    candidateCount <- candidateCount + 1
-                    #if DIAG
-                    if(candidateCount % 100000 = 0) then
-                        printfn "Total magic attempts: %d" candidateCount
-                    //magicAttemptsPerBitCount.[bitRef] <- candidateCount
-                    #endif
+            let magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet (magicNumber:uint64) =
+                candidateCount <- candidateCount + 1
+                #if DIAG
+                if(candidateCount % 100000 = 0) then
+                    printfn "Total magic attempts: %d" candidateCount
+                //magicAttemptsPerBitCount.[bitRef] <- candidateCount
+                #endif
 
-                    let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
-                    let variations = [|0..variationCount-1|]
+                let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
+                let variations = [|0..variationCount-1|]
 
-                    let noClashes = 
-                        variations |> Array.forall (fun i -> 
-                            let attackSet = currentBitRefAttackSet.[i]
-                            let index:int = multiplyAndShift currentBitRefOccupancyVariations.[i] magicNumber magicShift
-                            let collision = usedBy.[index] <> 0UL && usedBy.[index] <> attackSet
-                            usedBy.[index] <- attackSet
-                            not collision )
-                    noClashes
+                let noClashes = 
+                    variations |> Array.forall (fun i -> 
+                        let attackSet = currentBitRefAttackSet.[i]
+                        let index:int = multiplyAndShift currentBitRefOccupancyVariations.[i] magicNumber magicShift
+                        let collision = usedBy.[index] <> 0UL && usedBy.[index] <> attackSet
+                        usedBy.[index] <- attackSet
+                        not collision )
+                noClashes
 
-                let goodMagicPredicate m =
-                    // The resulting index, derived from the magic, must be big enough to contain all the attacks for each possible subset of the occupancy mask (minus edges of the board)
-                    let bitCountInMostSignificant8 = BitUtils.countSetBits_32  (uint32(multiplyAndShift currentBitRefOccupancyMask m 56))
-                    // let g = ((multiplyAndShift currentBitRefOccupancyMask m 56))
-                    // if bitCountInMostSignificant8 < 6 then 
-                    //     printfn "Discarding magic, density was %d (%s) (Magic was %s)" 
-                    //         bitCountInMostSignificant8
-                    //         (System.Convert.ToString(g, 2)) 
-                    //         (System.Convert.ToString(int64(m), 2))
-                    bitCountInMostSignificant8 >= 6
+            let goodMagicPredicate m =
+                // The resulting index, derived from the magic, must be big enough to contain all the attacks for each possible subset of the occupancy mask (minus edges of the board)
+                let bitCountInMostSignificant8 = BitUtils.countSetBits_32  (uint32(multiplyAndShift currentBitRefOccupancyMask m 56))
+                // let g = ((multiplyAndShift currentBitRefOccupancyMask m 56))
+                // if bitCountInMostSignificant8 < 6 then 
+                //     printfn "Discarding magic, density was %d (%s) (Magic was %s)" 
+                //         bitCountInMostSignificant8
+                //         (System.Convert.ToString(g, 2)) 
+                //         (System.Convert.ToString(int64(m), 2))
+                bitCountInMostSignificant8 >= 6
 
-                let magicNumber = 
-                    Randomness.infiniteSparseUInt64SequenceFor (bitRef / 8) 
-                    |> Seq.where goodMagicPredicate
-                    |> Seq.find magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet
+            let magicNumber = 
+                Randomness.infiniteSparseUInt64SequenceFor (bitRef / 8) 
+                |> Seq.where goodMagicPredicate
+                |> Seq.find magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet
 
-                printfn "Found magic number for bitref %d: %x" bitRef magicNumber
-                printfn "Magic attempts: %d" candidateCount
-                (magicNumber, magicShift)
-            else
-                pregeneratedCandidate
-     )
+            printfn "Found magic number for bitref %d: %x" bitRef magicNumber
+            printfn "Magic attempts: %d" candidateCount
+            yield (magicNumber, magicShift)
+    |]
 
 let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let occupancyMask = getOccupancyMask pc
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
     let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
-    let pregeneratedMagic = PregeneratedMagic.PartialMagicFor32BitHashing |> PregeneratedMagic.getMagicValuesAndShiftsFor pc
-    let magick = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets pregeneratedMagic
+    
+    let generaMagicWithCaching () =
+        let cacheFilePath = 
+            match pc with
+            | Rook -> "RookMagicNumbers.txt"
+            | Bishop -> "BishopMagicNumbers.txt"
+        let generator() = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets
+        //MagicCache.resolveMagicNumbersWithPersistentCaching cacheFilePath generator
+        generator()
+    
+    let magick = generaMagicWithCaching()
     printfn "=================Magic for %A=========================" pc
     magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%xUL" i (pair |> fst))
     magick |> Array.ofSeq

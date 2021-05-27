@@ -24,3 +24,16 @@ module Common =
     let opposite = function
         | Side.White -> Side.Black
         | _ -> Side.White
+
+module EngineConstants =
+    [<Literal>] 
+    let EngineName = "Fulcrum Chess 0.1"
+    [<Literal>] 
+    let AuthorName = "Adam Jasinski"
+    [<Literal>]
+    let UseFast32BitMultiplyingForHashing = 
+    #if FAST_32BIT_MULT
+        true
+    #else
+        false
+    #endif

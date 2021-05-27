@@ -29,7 +29,8 @@ Target.create "Build" (fun _ ->
 
 Target.create "Test" (fun _ ->
     !! "test/**/*.*proj"
-    |> Seq.iter (DotNet.test id)
+    |> Seq.iter (DotNet.test (fun opt -> { 
+        opt with Filter=Some("Category!=Slow")}))
 )
 
 Target.create "Publish" (fun _ ->

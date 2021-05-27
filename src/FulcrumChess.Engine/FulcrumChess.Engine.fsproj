@@ -21,6 +21,7 @@
     <Compile Include="Notation.fs" />
     <Compile Include="UciMove.fs" />
     <Compile Include="FenParsing.fs" />
+    <Compile Include="MagicCache.fs" />
     <Compile Include="Bitboards.fs" />
     <Compile Include="Perft.fs" />
     <Compile Include="Commands.fs" />

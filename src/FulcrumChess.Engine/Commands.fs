@@ -11,13 +11,6 @@ type Commands =
     | Help
     | Quit
 
-module EngineConstants =
-    [<Literal>] 
-    let EngineName = "Fulcrum Chess 0.1"
-    [<Literal>] 
-    let AuthorName = "AJ"
-
-
 type EngineState() =
     let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll()
     //let mutable currentPosition:Position = Position.initialPosition
