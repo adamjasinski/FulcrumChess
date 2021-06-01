@@ -22,7 +22,7 @@ type PerftTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let perftReport = Perft.generatePerftReport lookups (0us, Position.initialPosition) (1, depth)
         test <@ perftReport.TotalNodes = expectedNodes @>
 
-    [<Theory(Skip="Level 5 not working yet")>]
+    [<Theory>]
     [<Category("Perft")>]
     [<Category("Slow")>]
     [<InlineDataEx(4, 197281UL)>]
@@ -36,8 +36,8 @@ type PerftTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Category("Perft")>]
     [<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 1, 48)>] 
     [<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 2, 2039)>]
-    //[<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 97862)>] //pending
-    //[<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4, 193690690)>] //pending
+    [<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 97862)>] //pending
+    //[<InlineDataEx("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4, 4085603)>] //pending
     member __.``perft in specific positions should return known values`` (fen:string, depth:int, expectedNodes:uint64) =
         let pos = FenParsing.parseToPosition fen
         let perftReport = Perft.generatePerftReport lookups (0us, pos) (1, depth)

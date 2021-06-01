@@ -324,10 +324,12 @@ module Position =
             let (isPawnMove, isPawnDoubleMove) = 
                 match (chessman, side) with
                 | (Chessmen.Pawn, Side.White) -> 
-                    let isPawnDoubleMove = Rows.FourthRow |> BitUtils.hasBitSet dstBitRef
+                    let isPawnDoubleMove = 
+                        Rows.FourthRow |> BitUtils.hasBitSet dstBitRef && Rows.SecondRow |> BitUtils.hasBitSet srcBitRef
                     (true, isPawnDoubleMove)
                 | (Chessmen.Pawn, Side.Black) -> 
-                    let isPawnDoubleMove = Rows.FifthRow |> BitUtils.hasBitSet dstBitRef
+                    let isPawnDoubleMove = 
+                        Rows.FifthRow |> BitUtils.hasBitSet dstBitRef && Rows.SeventhRow |> BitUtils.hasBitSet srcBitRef
                     (true, isPawnDoubleMove)
                 | (_, _) -> (false,false)
 
