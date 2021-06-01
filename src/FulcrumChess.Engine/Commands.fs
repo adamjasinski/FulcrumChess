@@ -12,7 +12,10 @@ type Commands =
     | Quit
 
 type EngineState() =
-    let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll()
+    let options = 
+        { EngineOptions.RookMagicFilePath = "RookMagicNumbers.json"
+          BishopMagicFilePath = "BishopMagicNumbes.json" }
+    let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll(Some options)
     //let mutable currentPosition:Position = Position.initialPosition
     let generatePseudoMovesAdapter pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups.Value pos bitRef |> Seq.toArray
     //member __.IsInitialized = lookups.IsValueCreated

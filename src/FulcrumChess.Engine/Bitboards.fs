@@ -334,26 +334,20 @@ let bootstrapMagicNumberGeneration (pc:SlidingPiece) =
     let occupancyVariations = occupancyMask  |>  generateOccupancyVariations
     let attackSets = generateAttackSets pc occupancyVariations occupancyMask |> Array.ofSeq
     
-    let generaMagicWithCaching () =
-        let cacheFilePath = 
-            match pc with
-            | Rook -> "RookMagicNumbers.txt"
-            | Bishop -> "BishopMagicNumbers.txt"
-        let generator() = generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets
-        //MagicCache.resolveMagicNumbersWithPersistentCaching cacheFilePath generator
-        generator()
-    
-    let magick = generaMagicWithCaching()
-    printfn "=================Magic for %A=========================" pc
-    magick |> Array.iteri (fun i pair -> printfn "a.[%d] <- 0x%xUL" i (pair |> fst))
-    magick |> Array.ofSeq
+    generateMagicNumbersAndShifts occupancyMask occupancyVariations attackSets
 
 module MoveGenerationLookupFunctions =
     open Position
 
-    let bootstrapAll () = 
-        let magicNumbersAndShiftsRook = bootstrapMagicNumberGeneration SlidingPiece.Rook
-        let magicNumbersAndShiftsBishop = bootstrapMagicNumberGeneration SlidingPiece.Bishop
+    let bootstrapAll (engineOptions:EngineOptions option) = 
+        let maybeCache pc gen = 
+            match (engineOptions, pc) with
+            | (Some opts, Rook) -> MagicCache.resolveMagicNumbersWithPersistentCaching opts.RookMagicFilePath gen
+            | (Some opts, Bishop) -> MagicCache.resolveMagicNumbersWithPersistentCaching opts.BishopMagicFilePath gen
+            | (None, _) -> gen()
+
+        let magicNumbersAndShiftsRook = maybeCache SlidingPiece.Rook ( fun () -> bootstrapMagicNumberGeneration SlidingPiece.Rook)
+        let magicNumbersAndShiftsBishop = maybeCache SlidingPiece.Bishop (fun () -> bootstrapMagicNumberGeneration SlidingPiece.Bishop)
         let allMagic = {
             MagicValues.MagicNumbersAndShiftsRook = magicNumbersAndShiftsRook; 
             MagicValues.MagicNumbersAndShiftsBishop = magicNumbersAndShiftsBishop

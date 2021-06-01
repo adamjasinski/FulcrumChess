@@ -37,3 +37,7 @@ module EngineConstants =
     #else
         false
     #endif
+
+type EngineOptions = 
+    { RookMagicFilePath:string
+      BishopMagicFilePath:string }
