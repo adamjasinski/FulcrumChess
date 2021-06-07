@@ -377,14 +377,19 @@ module MoveGenerationLookupFunctions =
         bishopMoves ||| rookMoves
 
     let private generateKingPseudoMoves (pos:Position) (allPieces:Bitboard) (friendlyPieces:Bitboard) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
-        // TODO - check castling rights
         let castlingSpecial = 
             let castlingLookup = Position.castlingLookups.[side]
             let kingBitboard = Position.getKingBitboard side pos
             if (kingBitboard &&&  castlingLookup.InitialPositionKing) > 0UL then
                 let rooksBitBoard = Position.getRooksBitboard side pos
-                let kingSideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL
-                let queensideCastling = (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL
+                let kingSideCastling = 
+                    (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && 
+                    (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL &&
+                    pos |> Position.hasCastlingRights CastlingType.KingSide side
+                let queensideCastling = 
+                    (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && 
+                    (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL &&
+                    pos |> Position.hasCastlingRights CastlingType.QueenSide side
                 match(kingSideCastling, queensideCastling) with
                 | (true, false) -> castlingLookup.DestinationKingSideCastling
                 | (false, true) -> castlingLookup.DestinationQueenSideCastling

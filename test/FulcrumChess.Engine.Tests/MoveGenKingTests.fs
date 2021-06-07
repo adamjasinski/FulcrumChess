@@ -63,14 +63,14 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquaresSet = expectedSquares |> Set.ofArray
         test <@ expectedSquaresSet = (algNotations |> Set.ofArray) @>
 
-    [<Theory(Skip="Pending")>]
+    [<Theory>]
     [<Category("Castling")>]
-    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w Qkq - 0 1", 3, [|"g1"|])>]
-    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w - - 0 1", 3, [|"g1"|])>]
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w Qkq - 0 1", 3, [|"f1"|])>]
+    [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w - - 0 1", 3, [|"f1"|])>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w Kkq - 0 1", 3, [|"d1"|])>]
     [<InlineDataEx("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3KBNR w - - 0 1", 3, [|"d1"|])>]
-    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQq - 0 1", 59, [|"g8"|])>]
-    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b - - 0 1", 59, [|"g8"|])>]
+    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQq - 0 1", 59, [|"f8"|])>]
+    [<InlineDataEx("rnbqk2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b - - 0 1", 59, [|"f8"|])>]
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQk - 0 1", 59, [|"d8"|])>]
     [<InlineDataEx("r3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b - - 0 1", 59, [|"d8"|])>]
     member __.``verify castling - no castling rights`` (fen:string, startBitRef:int, expectedSquares:string array) =
