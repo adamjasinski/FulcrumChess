@@ -193,5 +193,11 @@ docs/content/paket.exe
 TestResult.xml
 tests/Paket.Tests/NuGetConfig/PasswordConfig.xml
 
+#Generated Magic values files
+BishopMagicNumbers.json
+RookMagicNumbers.json
+!test/FulcrumChess.Engine.Tests/data/BishopMagicNumbers.json
+!test/FulcrumChess.Engine.Tests/data/RookMagicNumbers.json
+
 #Visual Studio Code
 .ionide
