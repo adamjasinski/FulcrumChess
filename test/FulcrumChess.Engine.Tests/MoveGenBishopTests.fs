@@ -10,6 +10,7 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
     let magicNumbersAndShifts = magicGenerationSetupFixture.Lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsBishop
 
     [<Fact>]
+    [<Category("MagicGeneration")>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
     let ``verify moves of White Bishop at c4; a few other black and white pieces on the board - with fresh magic and FEN`` () =
         let pc = SlidingPiece.Bishop

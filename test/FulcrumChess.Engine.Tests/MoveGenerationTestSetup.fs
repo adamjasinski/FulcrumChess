@@ -2,6 +2,10 @@
 open FulcrumChess.Engine
 
 type MagicGenerationSetupFixture() = 
-    let currentLookups = Bitboards.MoveGenerationLookupFunctions.bootstrapAll None
+    let testProjectPathRelativeToVsTest = "../../../data"
+    let options = 
+        { EngineOptions.RookMagicFilePath = $"{testProjectPathRelativeToVsTest}/RookMagicNumbers.json"
+          BishopMagicFilePath = $"{testProjectPathRelativeToVsTest}/BishopMagicNumbers.json" }
+    let currentLookups = Bitboards.MoveGenerationLookupFunctions.bootstrapAll <| Some options
 
     member __.Lookups = currentLookups

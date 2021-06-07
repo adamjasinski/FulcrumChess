@@ -26,7 +26,7 @@ type PerftTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Category("Perft")>]
     [<Category("Slow")>]
     [<InlineDataEx(4, 197281UL)>]
-    [<InlineDataEx(5, 4865609UL)>]
+    //[<InlineDataEx(5, 4865609UL)>]
     member __.``slightly deeper perft in initial position should return known values`` (depth:int, expectedNodes:uint64) =
         let perftReport = Perft.generatePerftReport lookups (0us, Position.initialPosition) (1, depth)
         test <@ perftReport.TotalNodes = expectedNodes @>

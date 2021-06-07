@@ -73,7 +73,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<Fact; Category("Slow")>]
+    [<Fact; Category("Slow"); Category("MagicGeneration")>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic`` () =
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
@@ -95,7 +95,7 @@ type MoveGenRookTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let expectedSquares = ["a3";"a4";"a6";"b5";"c5";"d5"] |> Set.ofList
         test <@ expectedSquares = (algNotations |> Set.ofArray) @>
 
-    [<Fact; Category("Slow")>]
+    [<Fact; Category("Slow"); Category("MagicGeneration")>]
     [<BoardRef("8/p7/8/r2N4/8/8/p7/8 b - -")>]
     let ``verify moves of Black Rook at a5; a few other black and white pieces on the board - with fresh magic and FEN`` () =
         let occupancyMasks = Bitboards.Constants.occupancyMaskRook
