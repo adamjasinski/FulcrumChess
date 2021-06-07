@@ -77,9 +77,6 @@ let private generateSquaresInAllDirsWithMixMaxFunctionsForSlidingPieces (piece:S
 let createBitboardFromSetBitsSeq (setBits:int seq) =
     setBits |> Seq.fold (fun (updatedMoves:Bitboard) j ->  (updatedMoves |> BitUtils.setBit j)) 0UL 
 
-let inline getFileIndex bitRef = 7 - (bitRef % 8) //  = squareIndex & 7
-let inline getRankIndex bitRef = bitRef / 8  //= squareIndex >> 3 
-
 let generateMagicMoves (pc:SlidingPiece) (occupancyMasks:uint64[]) (magicNumbersAndShifts:(uint64*int)[]) (occupancyVariations:uint64[][]) =
     let maxUpperBound = magicNumbersAndShifts |> Array.map (snd >> (-)64 ) |> Array.max //max 12 bits set - rook in a corner
     let mutable magicMoves:uint64[][] = [| for i in 0 .. 63 -> Array.zeroCreate (1 <<< maxUpperBound) |] 
@@ -191,19 +188,6 @@ let private generateEnPassantTargetsForWhite() =
 
             if rankIndex = 5 then BitUtils.setBit i 0UL else 0UL
     |]
-
-// let private generateEnPassantPotentialCaptorsForWhite() =
-//     [|  
-//         //white pawns directly beside the black pawn that just moved by 2 squares; indexed by black pawn destination 
-            //   e.g. 32-> 33
-            //   33 -> 32,34
-            //   34 -> 33,35
-            //   40 -> 39
-//         for i = 0 to 63 do
-//             let rankIndex = getRankIndex i
-
-//             if rankIndex = 5 then BitUtils.setBit i 0UL else 0UL
-//     |]
 
 let private generateEnPassantTargetsForBlack() =
     [|  

@@ -26,6 +26,9 @@ module Common =
     let opposite = function
         | Side.White -> Side.Black
         | _ -> Side.White
+    let inline getFileIndex bitRef = 7 - (bitRef % 8) //  = squareIndex & 7
+    let inline getRankIndex bitRef = bitRef / 8  //= squareIndex >> 3 
+
 
 module EngineConstants =
     [<Literal>] 

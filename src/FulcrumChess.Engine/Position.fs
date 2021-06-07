@@ -263,7 +263,33 @@ module Position =
         match side with
             | White -> { pos with WhiteCastlingRights = castlingRights }
             | Black -> { pos with BlackCastlingRights = castlingRights }
-        
+
+    let private getEnPassantPotentialCaptorOfBlack dstBitRef =
+            //white pawns directly beside the black pawn that just moved by 2 squares; indexed by black pawn destination 
+            //   e.g. 32-> 33
+            //   33 -> 32,34
+            //   34 -> 33,35
+            //   40 -> 39
+            let rankIndex = getRankIndex dstBitRef
+            let fileIndex = getFileIndex dstBitRef
+            
+            match (rankIndex, fileIndex) with
+            | (4, 0) -> BitUtils.setBit 38 0UL
+            | (4, col) when col > 0 && col < 7 -> (BitUtils.setBit (dstBitRef-1) 0UL) ||| (BitUtils.setBit (dstBitRef+1) 0UL)
+            | (4, 7) -> BitUtils.setBit 33 0UL
+            | (_, _) -> 0UL 
+
+    let private getEnPassantPotentialCaptorOfWhite dstBitRef =
+            //white pawns directly beside the white pawn that just moved by 2 squares; indexed by white pawn destination 
+            let rankIndex = getRankIndex dstBitRef
+            let fileIndex = getFileIndex dstBitRef
+
+            match (rankIndex, fileIndex) with
+            | (3, 0) -> BitUtils.setBit 30 0UL
+            | (3, col) when col > 0 && col < 7 -> (BitUtils.setBit (dstBitRef-1) 0UL) ||| (BitUtils.setBit (dstBitRef+1) 0UL)
+            | (3, 7) -> BitUtils.setBit 25 0UL
+            | (_, _) -> 0UL 
+ 
     let tryMakeMoveInternal (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
@@ -333,12 +359,15 @@ module Position =
                     (true, isPawnDoubleMove)
                 | (_, _) -> (false,false)
 
-            //TODO - en passant target should only be set if the pawn CAN BE captured (i.e. there's opponent's pawn beside)
             let enPassantTarget = 
                 match (isPawnDoubleMove, side) with
-                | (true, White) -> dstBitRef-8
-                | (true, Black) -> dstBitRef+8
-                | (false,_) -> 0
+                | (true, White) ->
+                    let potentialCaptorsBitboard = getEnPassantPotentialCaptorOfWhite dstBitRef
+                    if pos.BlackPawns &&& potentialCaptorsBitboard > 0UL then dstBitRef-8 |> Some else None
+                | (true, Black) -> 
+                    let potentialCaptorsBitboard = getEnPassantPotentialCaptorOfBlack dstBitRef
+                    if pos.WhitePawns &&& potentialCaptorsBitboard > 0UL then dstBitRef+8 |> Some else None
+                | (false,_) -> None
 
             // Half Move clock rules - see https://www.chessprogramming.org/Halfmove_Clock
             let nextHalfMoveClock = if (isCapture || isPawnMove) then 0 else p.HalfMoveClock + 1
@@ -350,7 +379,7 @@ module Position =
 
             { p with 
                 SideToPlay=oppositeSide;
-                EnPassantTarget = enPassantTarget;
+                EnPassantTarget = enPassantTarget |> Option.defaultValue 0
                 FullMoveNumber=nextMoveNumber; 
                 HalfMoveClock = nextHalfMoveClock}
 
