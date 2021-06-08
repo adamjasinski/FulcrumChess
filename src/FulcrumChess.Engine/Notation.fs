@@ -28,9 +28,18 @@ module Notation =
         (rank*8+file)
 
     let fromLongAlgebraicNotationToBitRefs (s:string) =
-        let pattern = "[a-h][1-8][a-h][1-8]"
+        let pattern = "^[a-h][1-8][a-h][1-8]"
         if not <| Regex.IsMatch(s, pattern) then failwithf "Invalid long algebraic notation: %s" s
       
         let srcBitRef = s.Substring(0,2) |> fromSquareNotationToBitRef
         let dstBitRef = s.Substring(2,2) |> fromSquareNotationToBitRef
-        (srcBitRef, dstBitRef)
+
+        let promotionOpt = 
+            match s.Substring(4).ToUpperInvariant() with
+            | "Q" -> PromotionType.QueenProm |> Some
+            | "R" -> PromotionType.RookProm |> Some
+            | "B" -> PromotionType.BishopProm |> Some
+            | "N" -> PromotionType.KnightProm |> Some
+            | _ -> None
+
+        (srcBitRef, dstBitRef, promotionOpt)

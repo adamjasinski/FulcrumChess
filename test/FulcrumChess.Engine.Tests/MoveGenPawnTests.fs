@@ -70,3 +70,16 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Theory; MemberDataEx("EnPassantTestCasesBlack")>]
     member __. ``verify en passant-potential moves of Black Pawn`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
         verifyMoves (fen, startBitRef, expectedSquaresList)
+
+    static member PromotionTestCasesWhite() =
+        seq {
+            yield ("4k3/2P5/8/8/6p1/8/8/4K3 w - - 0 1", 53, ["c8q"; "c8r"; "c8b"; "c8n" ]); //e5
+            //yield ("4k3/2P5/8/8/6p1/8/8/4K3 w - - 0 1", 53, ["c8"; ]); //e5
+            //yield ("rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3", 35, [ "e6" ]); //e5, no en passant privilege
+        } 
+
+    [<Theory(Skip="Pending"); MemberDataEx("PromotionTestCasesWhite")>]
+    [<Category("Promotion")>]
+    member __. ``verify promotion potential moves of White Pawn`` (fen:string, startBitRef:int, expectedSquaresList:string list) =
+        verifyMoves (fen, startBitRef, expectedSquaresList)
+

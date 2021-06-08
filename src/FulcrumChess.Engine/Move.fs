@@ -2,7 +2,9 @@
 
 type Move = uint16
 
-type SpecialMoveType = |Conventional|Promotion|EnPassant|Castling
+type PromotionType = |KnightProm|BishopProm|RookProm|QueenProm //:D (piece types only were confusing the compiler with Chessmen type)
+
+type SpecialMoveType = |Conventional|Promotion of PromotionType|EnPassant|Castling
 
 module Move =
 
@@ -22,8 +24,13 @@ module Move =
     let createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType) : Move =
         let basicBits = create (srcBitRef, destBitRef)
         let extraMask = 
+            let promotionTypeToMask = function
+                | QueenProm -> 3000us
+                | RookProm -> 2000us
+                | BishopProm -> 1000us
+                | KnightProm -> 0us
             match specialMoveType with
-            | Promotion -> 0x4000us
+            | Promotion target -> 0x4000us ||| promotionTypeToMask target
             | EnPassant -> 0x8000us
             | Castling -> 0xC000us
             | _ -> 0us

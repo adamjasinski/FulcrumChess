@@ -23,9 +23,14 @@ module UciMove =
 
 
     let fromLongAlgebraicNotationToMove (positionBeforeMove:Position) (moveLongAlgNotation:string) =
-        let (srcBitRef, dstBitRef) = Notation.fromLongAlgebraicNotationToBitRefs moveLongAlgNotation
+        let (srcBitRef, dstBitRef, promotionOpt) = Notation.fromLongAlgebraicNotationToBitRefs moveLongAlgNotation
         let isEnPassant = determineEnPassant positionBeforeMove (srcBitRef, dstBitRef)
-        let specialFlags = match isEnPassant with | true -> SpecialMoveType.EnPassant | false -> SpecialMoveType.Conventional
 
-        // TODO - determine castling and promotion
+        let specialFlags = 
+            match (isEnPassant, promotionOpt) with
+            | (true, _) -> SpecialMoveType.EnPassant
+            | (_, Some promType) -> SpecialMoveType.Promotion promType
+            | (_, _) -> SpecialMoveType.Conventional
+
+        // TODO - determine castling
         Move.createSpecial (srcBitRef, dstBitRef) specialFlags
