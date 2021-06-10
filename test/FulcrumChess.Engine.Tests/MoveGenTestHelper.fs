@@ -8,8 +8,20 @@ module MoveGenTestHelper =
         let targetBitRefs = bitboard |> BitUtils.getSetBits
         targetBitRefs |> Array.map Notation.bitRefToAlgebraicNotation
 
+   let private promotionOptToLetter (promotionTypeOpt) =
+      match promotionTypeOpt with
+      | Some KnightProm -> "n"
+      | Some BishopProm -> "b"
+      | Some RookProm -> "r"
+      | Some QueenProm -> "q"
+      | None -> ""
+
+   let private moveDstToAlgebraicNotation move =
+      let mapDstToLetter = Move.getDestBitRef >> Notation.bitRefToAlgebraicNotation
+      let mapPromotionTypeOptLetter = Move.getPromotionType >> promotionOptToLetter
+      move |> Arrow.onSingleCombine (+) mapDstToLetter mapPromotionTypeOptLetter
+
    let movesToAlgebraicNotations (moves:Move array) =
-      moves |> Array.map (
-         Move.getDestBitRef >> Notation.bitRefToAlgebraicNotation) 
+      moves |> Array.map moveDstToAlgebraicNotation
          
   

@@ -420,6 +420,13 @@ module MoveGenerationLookupFunctions =
         generatePseudoMovesBitboard lookups pos bitRef 
         |> bitboardToConventionalMoves bitRef
 
+    let private AllPromotionTypes = [|
+            SpecialMoveType.Promotion(PromotionType.QueenProm); 
+            SpecialMoveType.Promotion(PromotionType.RookProm); 
+            SpecialMoveType.Promotion(PromotionType.BishopProm); 
+            SpecialMoveType.Promotion(PromotionType.KnightProm); 
+        |]
+
     let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let generateEnPassantMoves side enPassantTarget =
             let ((_, diagonalMoves), enPassantTargets) = 
@@ -431,16 +438,31 @@ module MoveGenerationLookupFunctions =
             |> BitUtils.getSetBits_u64 
             |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) SpecialMoveType.EnPassant)
 
+        let convertLastRankPawnMovesToPromotionIfApplicable side moves =
+            let isLastRankMovePredicate m =
+                let dst = m |> Move.getDestBitRef 
+                match side with
+                | White -> dst >= 56 && dst <= 63
+                | Black -> dst >= 0 && dst <= 7
+            
+            match moves |> Array.partition isLastRankMovePredicate with
+            | ([||], nonPromotables) -> nonPromotables
+            | (promotables, [||])    -> promotables |> Array.collect (fun m -> 
+                    AllPromotionTypes |> Array.map (Move.createSpecialFromExisting m))
+            | (_, _)                -> failwithf "Invalid case: generated both promotions and non-promotions moves for the same pawn: %d" bitRef
+
+        let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let moves = generatePseudoMoves lookups pos bitRef
+
         if pos.EnPassantTarget > 0 then
-            let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
-            let specials = 
+            let enpassants = 
                 match chessman with
                 | Pawn -> generateEnPassantMoves side pos.EnPassantTarget
                 | _ -> [||]
-            Array.append moves specials
-        else
-            moves
+            Array.append moves enpassants
+        elif chessman = Pawn then
+            moves |> convertLastRankPawnMovesToPromotionIfApplicable side
+        else moves
 
 
     let generateAttacks (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =

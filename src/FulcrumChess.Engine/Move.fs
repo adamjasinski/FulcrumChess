@@ -21,20 +21,24 @@ module Move =
     let inline create (srcBitRef:int, destBitRef:int) : Move =
         uint16 ((srcBitRef <<< 6) ||| destBitRef)
 
-    let createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType) : Move =
-        let basicBits = create (srcBitRef, destBitRef)
+    let createSpecialFromExisting (move:Move) (specialMoveType:SpecialMoveType) : Move =
+        let basicBits = move
         let extraMask = 
             let promotionTypeToMask = function
-                | QueenProm -> 3000us
-                | RookProm -> 2000us
-                | BishopProm -> 1000us
-                | KnightProm -> 0us
+                | QueenProm -> 0x3000us
+                | RookProm -> 0x2000us
+                | BishopProm -> 0x1000us
+                | KnightProm -> 0x0us
             match specialMoveType with
             | Promotion target -> 0x4000us ||| promotionTypeToMask target
             | EnPassant -> 0x8000us
             | Castling -> 0xC000us
-            | _ -> 0us
+            | _ -> 0x0us
         basicBits ||| extraMask
+
+    let createSpecial (srcBitRef:int, destBitRef:int) (specialMoveType:SpecialMoveType) : Move =
+        let basicBits = create (srcBitRef, destBitRef)
+        createSpecialFromExisting basicBits specialMoveType
 
     // let createCastling (castlingType:CastlingType) (side:Side) : Move =
     //     //uint16 ((srcBitRef <<< 6) ||| destBitRef)
@@ -58,6 +62,17 @@ module Move =
 
     let isEnPassant (move:Move) =
         move &&& 0x8000us > 0us
+
+    let getPromotionType (move:Move) =
+        if move &&& 0x4000us > 0us then
+            let promotionType = 
+                match (move &&& 0x3000us) >>> 12 with
+                | 0us -> PromotionType.KnightProm
+                | 1us -> PromotionType.BishopProm
+                | 2us -> PromotionType.RookProm
+                | _ -> PromotionType.QueenProm
+            promotionType |> Some
+        else None
 
 type CastlingType = |KingSide|QueenSide
 
