@@ -20,8 +20,9 @@ module PseudoRandomTests =  //just 'RandomTests' would sound silly ;)
         let expectedHi = int(((float)seqLength / 2.0) * (1.0+allowedRandomnessAsymmetry))
         let expectedLo = int(((float)seqLength / 2.0) * (1.0-allowedRandomnessAsymmetry))
 
-        test <@ lessThanMidPoint <= expectedHi @>
-        test <@ lessThanMidPoint >= expectedLo @> 
+        let epsilon = 2
+        test <@ lessThanMidPoint <= expectedHi + epsilon @>
+        test <@ lessThanMidPoint >= expectedLo - epsilon @> 
 
     [<Fact>]
     let ``NextUInt64 return values have on average half of bits set`` () =
