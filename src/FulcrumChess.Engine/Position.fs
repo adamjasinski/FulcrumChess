@@ -330,15 +330,27 @@ module Position =
                     | Black -> dstBitRef+8
                 let opponentPawnToClearSquare = pos |> getChessmanAndSide opponentPawnToClearBitRef
                 if opponentPawnToClearSquare |> Option.isNone then 
-                //     printfn "----"
-                //     printfn "(%d,%d)" srcBitRef dstBitRef
-                //     printfn "Before"
-                //     pos |> prettyPrint |> printfn "%s"
-                //     printfn "Midway"
-                //     p |> prettyPrint |> printfn "%s"
                     illegalMove "Error: Move is supposed to be en passant, but there's no opponent pawn in front of the en passant target"
                 p |> clearPieceInternal (Chessmen.Pawn, opposite side) opponentPawnToClearBitRef
             else p
+
+        let replacePawnIfPromotion (p:Position) =
+            let newPieceOpt = 
+                move 
+                |> Move.getPromotionType
+                |> Option.map (function 
+                    | QueenProm -> Chessmen.Queen 
+                    | RookProm -> Chessmen.Rook 
+                    | BishopProm -> Chessmen.Bishop 
+                    | KnightProm-> Chessmen.Knight)
+
+            match newPieceOpt with
+            | Some pc -> 
+                pos 
+                |> clearPieceInternal (Chessmen.Pawn, side) srcBitRef
+                |> clearPieceInternal (Chessmen.Pawn, side) dstBitRef
+                |> setPieceInternal (pc, side) dstBitRef
+            | _ -> p
 
         let increaseCountersAndSwapSide (p:Position) =
             //NB - takes advantage of the fact that this is the last step in the pipeline (including en passant)
@@ -389,7 +401,7 @@ module Position =
                 (p |> hasCastlingRights castlingType side) && not(p|> isCheck getAttacks)
             | None -> true
 
-        let alignOtherPiecesForSpecialMovesFilter = clearOpponentPawnIfEnPassant >> alsoMoveRookIfCastling
+        let alignOtherPiecesForSpecialMovesFilter = clearOpponentPawnIfEnPassant >> alsoMoveRookIfCastling >> replacePawnIfPromotion
 
         let makeMoveInternal = 
             setPieceInternal (chessman, side) dstBitRef
@@ -441,7 +453,8 @@ module Position =
             let generatedPseudoMoves = 
                 generatePseudoMoves pos srcBitRef 
                 |> Array.map Move.getSrcAndDestBitRefs
-            //printfn "Got following pseudo moves: %A" generatedPseudoMoves
+            printfn "Got following pseudo moves: %A" generatedPseudoMoves
+            printfn "Attempted move: %A" (srcBitRef,dstBitRef)
             generatedPseudoMoves |> Array.exists (fun srcAndDest -> srcAndDest = (srcBitRef,dstBitRef))
 
         let legalMoveFilter = tryMakeMoveInternal getAttacks move
