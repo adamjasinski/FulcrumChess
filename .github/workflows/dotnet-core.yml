@@ -18,8 +18,11 @@ jobs:
       with:
         dotnet-version: 5.0.202
     - name: Install dependencies
-      run: dotnet restore
+      #run: dotnet restore
+      run: dotnet tool restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      #run: dotnet build --configuration Release --no-restore
+      run: dotnet fake run build.fsx -t Build
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      #run: dotnet test --no-restore --verbosity normal
+      run: dotnet fake run build.fsx -t All

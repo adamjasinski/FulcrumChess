@@ -15,6 +15,7 @@ Target.initEnvironment ()
 let publishRuntime = "linux-x64"
 
 Target.create "Clean" (fun _ ->
+    Trace.trace " --- Cleaning the artifacts --- "
     !! "src/**/bin"
     ++ "src/**/obj"
     ++ "test/**/bin"
@@ -23,27 +24,45 @@ Target.create "Clean" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
+    Trace.trace " --- Building the app --- "
     !! "src/**/*.*proj"
     |> Seq.iter (DotNet.build id)
 )
 
 Target.create "Test" (fun _ ->
+    Trace.trace " --- Running standard test suite --- "
     !! "test/**/*.*proj"
     |> Seq.iter (DotNet.test (fun opt -> { 
         opt with Filter=Some("Category!=Slow")}))
 )
 
-Target.create "Publish" (fun _ ->
+// Explicit "SlowTest" target
+Target.create "SlowTest" (fun _ ->
+    Trace.trace " --- Running slow test suite --- "
     !! "test/**/*.*proj"
-    |> Seq.iter (DotNet.publish (fun opt -> { 
-        opt with Runtime=Some(publishRuntime); SelfContained=Some(false) }))
+    |> Seq.iter (DotNet.test (fun opt -> { 
+        opt with Filter=Some("Category=Slow")}))
 )
 
+Target.create "Publish" (fun _ ->
+    Trace.trace " --- Publishing the app artifacts --- "
+    !! "test/**/*.*proj"
+    |> Seq.iter (DotNet.publish (fun opt -> { 
+        opt with Runtime=Some(publishRuntime); SelfContained=Some(false); }))
+)
+
+Target.create "QuickBVT" ignore
 Target.create "All" ignore
 
 "Clean"
   ==> "Build"
   ==> "Test"
+  ==> "QuickBVT"
+
+"Clean"
+  ==> "Build"
+  ==> "Test"
+  ==> "Publish"
   ==> "All"
 
-Target.runOrDefault "All"
+Target.runOrDefault "QuickBVT"
