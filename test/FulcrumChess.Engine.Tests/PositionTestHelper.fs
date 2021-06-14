@@ -10,7 +10,7 @@ module PositionTestHelper =
         let pos = FenParsing.parseToPosition fen
 
         let actualMove = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        printfn "Gota moove: %d <- %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
 
         let generateAttacks' = generateAttacks lookups
         let generatePseudoMovesAdapter' = generatePseudoMovesAdapter lookups

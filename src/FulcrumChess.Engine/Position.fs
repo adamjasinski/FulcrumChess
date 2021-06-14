@@ -346,8 +346,7 @@ module Position =
 
             match newPieceOpt with
             | Some pc -> 
-                pos 
-                |> clearPieceInternal (Chessmen.Pawn, side) srcBitRef
+                p 
                 |> clearPieceInternal (Chessmen.Pawn, side) dstBitRef
                 |> setPieceInternal (pc, side) dstBitRef
             | _ -> p
@@ -453,8 +452,8 @@ module Position =
             let generatedPseudoMoves = 
                 generatePseudoMoves pos srcBitRef 
                 |> Array.map Move.getSrcAndDestBitRefs
-            printfn "Got following pseudo moves: %A" generatedPseudoMoves
-            printfn "Attempted move: %A" (srcBitRef,dstBitRef)
+            // printfn "Got following pseudo moves: %A" generatedPseudoMoves
+            // printfn "Attempted move: %A" (srcBitRef,dstBitRef)
             generatedPseudoMoves |> Array.exists (fun srcAndDest -> srcAndDest = (srcBitRef,dstBitRef))
 
         let legalMoveFilter = tryMakeMoveInternal getAttacks move
