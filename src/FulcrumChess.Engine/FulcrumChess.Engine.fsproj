@@ -16,6 +16,7 @@
     <Compile Include="Pieces.fs" />
     <Compile Include="Magic.fs" />
     <Compile Include="Move.fs" />
+    <Compile Include="Zobrist.fs" />
     <Compile Include="Position.fs" />
     <Compile Include="Board8x8Funcs.fs" />
     <Compile Include="Notation.fs" />

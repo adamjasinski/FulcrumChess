@@ -264,6 +264,19 @@ module Position =
             | White -> { pos with WhiteCastlingRights = castlingRights }
             | Black -> { pos with BlackCastlingRights = castlingRights }
 
+    let calculateZobristHash (pos:Position) =
+        let castlingRightsHash = pos |> getCastlingRights pos.SideToPlay |> Zobrist.getCastlingRightsHash
+        let enPassantsHash = pos.EnPassantTarget |> Zobrist.getEnPassantHash
+        let sideHash = pos.SideToPlay |> Zobrist.getSideToPlayHash
+        let chessmenHash = 
+            pos 
+            |> asBitboardSequence
+            |> Seq.collect (fun (bb, pcAndSide) ->
+                    let bitRefs = BitUtils.getSetBits_u64 bb
+                    bitRefs |> Array.map (Zobrist.getChessmanHash pcAndSide))
+            |> Seq.reduce (^^^)
+        chessmenHash ^^^ castlingRightsHash ^^^ enPassantsHash ^^^ sideHash
+
     let private getEnPassantPotentialCaptorOfBlack dstBitRef =
             //white pawns directly beside the black pawn that just moved by 2 squares; indexed by black pawn destination 
             //   e.g. 32-> 33
@@ -356,7 +369,7 @@ module Position =
             let isCapture =
                 let originalOpponentBitboard = pos |> getBitboardForSide (opposite side)
                 let opponentBitboardAfterMove = p |> getBitboardForSide (opposite side)
-                not (opponentBitboardAfterMove = originalOpponentBitboard)
+                opponentBitboardAfterMove <> originalOpponentBitboard
             
             let (isPawnMove, isPawnDoubleMove) = 
                 match (chessman, side) with

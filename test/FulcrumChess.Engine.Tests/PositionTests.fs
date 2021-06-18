@@ -9,7 +9,7 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
     let lookups = magicGenerationSetupFixture.Lookups
 
-    let verifyOccupancy (expectedOccupancy:int array) (actualOccupancy:Bitboard) =
+    let verifyOccupancy (expectedOccupancy:int[]) (actualOccupancy:Bitboard) =
         let actualBitboardAsBitArray = (uint64(actualOccupancy) |> BitUtils.getSetBits)
         test <@ actualBitboardAsBitArray = expectedOccupancy @>
 
