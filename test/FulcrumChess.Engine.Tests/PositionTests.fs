@@ -67,3 +67,11 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
 
         test <@ None = pos' @>
+
+    [<Fact>]
+    [<Category("Zobrist")>]
+    member __.``should calculate Zobrist hash for the initial position`` () =
+        let pos = Position.initialPosition
+        let hashKey = pos |> Position.calculateZobristHash
+        printfn "Hash: %d" hashKey
+        test <@ hashKey = 16566630060555062715UL @> //previously calculated value

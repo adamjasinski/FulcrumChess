@@ -19,7 +19,8 @@ type Position = {
     SideToPlay:Side;
     EnPassantTarget:int;
     HalfMoveClock:int;
-    FullMoveNumber:int
+    FullMoveNumber:int;
+    HashKey:uint64;
 }
 
 type CastlingLookup = {
@@ -48,7 +49,8 @@ module Position =
         SideToPlay=White;
         EnPassantTarget=0;
         HalfMoveClock=0;
-        FullMoveNumber=1; }
+        FullMoveNumber=1; 
+        HashKey=0UL;}
 
     let initialPosition = {
          Position.WhiteKing = 8UL;
@@ -68,7 +70,8 @@ module Position =
          SideToPlay=White;
          EnPassantTarget=0;
          HalfMoveClock=0;
-         FullMoveNumber=1; }
+         FullMoveNumber=1; 
+         HashKey=16566630060555062715UL }
 
     let castlingLookups = dict[
         Side.White, { 
@@ -119,20 +122,21 @@ module Position =
     let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
         let candidate:Bitboard = 0UL |> BitUtils.setBit bitRef
+        let updateWithTargetChessmanHash pc = pos.HashKey ^^^ Zobrist.getChessmanHash (pc, pos.SideToPlay) bitRef
         let pos' = 
             match piece with
-            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate }
-            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate }
-            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate }
-            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate }
-            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate }
-            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate }
-            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate }
-            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate }
-            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate }
-            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate }
-            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate }
-            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate }
+            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Pawn }
+            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Knight  }
+            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Bishop  }
+            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Rook  }
+            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Queen  }
+            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.King  }
+            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Pawn  }
+            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Knight  }
+            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Bishop  }
+            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Rook  }
+            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Queen  }
+            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.King  }
             | _ -> invalidArg "piece" ("parameter has invalid value: " + piece.ToString())
         pos'
 
@@ -191,20 +195,23 @@ module Position =
     let private clearPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
         let clearBitRef = BitUtils.clearBit bitRef
+        //let updatedHash = pos.HashKey ^^^ Zobrist.getEmptyFieldHash bitRef
+        let updatedHash = pos.HashKey ^^^ Zobrist.getChessmanHash (piece, pos.SideToPlay) bitRef
+
         let pos' = 
             match piece,side with
-            | (Chessmen.Pawn, Side.Black) -> {pos with BlackPawns= pos.BlackPawns |> clearBitRef}
-            | (Chessmen.Knight, Side.Black) -> {pos with BlackKnights=pos.BlackKnights |> clearBitRef }
-            | (Chessmen.Bishop, Side.Black) -> {pos with BlackBishops=pos.BlackBishops |> clearBitRef }
-            | (Chessmen.Rook, Side.Black) -> {pos with BlackRooks=pos.BlackRooks |> clearBitRef }
-            | (Chessmen.Queen, Side.Black) -> {pos with BlackQueen=pos.BlackQueen |> clearBitRef }
-            | (Chessmen.King, Side.Black) -> {pos with BlackKing=pos.BlackKing |> clearBitRef }
-            | (Chessmen.Pawn, Side.White) -> {pos with WhitePawns=pos.WhitePawns |> clearBitRef }
-            | (Chessmen.Knight, Side.White) -> {pos with WhiteKnights=pos.WhiteKnights |> clearBitRef }
-            | (Chessmen.Bishop, Side.White) -> {pos with WhiteBishops=pos.WhiteBishops |> clearBitRef }
-            | (Chessmen.Rook, Side.White) -> {pos with WhiteRooks=pos.WhiteRooks |> clearBitRef }
-            | (Chessmen.Queen, Side.White) -> {pos with WhiteQueen=pos.WhiteQueen |> clearBitRef }
-            | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef }
+            | (Chessmen.Pawn, Side.Black) -> {pos with BlackPawns= pos.BlackPawns |> clearBitRef; HashKey=updatedHash}
+            | (Chessmen.Knight, Side.Black) -> {pos with BlackKnights=pos.BlackKnights |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Bishop, Side.Black) -> {pos with BlackBishops=pos.BlackBishops |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Rook, Side.Black) -> {pos with BlackRooks=pos.BlackRooks |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Queen, Side.Black) -> {pos with BlackQueen=pos.BlackQueen |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.King, Side.Black) -> {pos with BlackKing=pos.BlackKing |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Pawn, Side.White) -> {pos with WhitePawns=pos.WhitePawns |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Knight, Side.White) -> {pos with WhiteKnights=pos.WhiteKnights |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Bishop, Side.White) -> {pos with WhiteBishops=pos.WhiteBishops |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Rook, Side.White) -> {pos with WhiteRooks=pos.WhiteRooks |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.Queen, Side.White) -> {pos with WhiteQueen=pos.WhiteQueen |> clearBitRef; HashKey=updatedHash }
+            | (Chessmen.King, Side.White) -> {pos with WhiteKing=pos.WhiteKing |> clearBitRef; HashKey=updatedHash }
         pos'
 
     
@@ -260,9 +267,10 @@ module Position =
             | QueenSide -> castlingRights &&& (CastlingRights.QueenSide) > CastlingRights.None
 
     let private setCastlingRights (castlingRights:CastlingRights) (side:Side) (pos:Position) =
+        let updatedHashKey = pos.HashKey ^^^ Zobrist.getCastlingRightsHash castlingRights
         match side with
-            | White -> { pos with WhiteCastlingRights = castlingRights }
-            | Black -> { pos with BlackCastlingRights = castlingRights }
+            | White -> { pos with WhiteCastlingRights = castlingRights; HashKey = updatedHashKey }
+            | Black -> { pos with BlackCastlingRights = castlingRights; HashKey = updatedHashKey }
 
     let calculateZobristHash (pos:Position) =
         let castlingRightsHash = pos |> getCastlingRights pos.SideToPlay |> Zobrist.getCastlingRightsHash
@@ -401,11 +409,17 @@ module Position =
                 | White -> (p.FullMoveNumber, Black)
                 | Black -> (p.FullMoveNumber+1, White)
 
+            let updatedHash = 
+                pos.HashKey ^^^ 
+                (oppositeSide |> Zobrist.getSideToPlayHash ) ^^^ 
+                (enPassantTarget |> Option.map Zobrist.getEnPassantHash |> Option.defaultValue 0UL)
+
             { p with 
-                SideToPlay=oppositeSide;
+                SideToPlay = oppositeSide;
                 EnPassantTarget = enPassantTarget |> Option.defaultValue 0
-                FullMoveNumber=nextMoveNumber; 
-                HalfMoveClock = nextHalfMoveClock}
+                FullMoveNumber = nextMoveNumber; 
+                HalfMoveClock = nextHalfMoveClock;
+                HashKey = updatedHash }
 
         let isCastlingPreconditionsMet p = 
             match castlingTypeOpt with

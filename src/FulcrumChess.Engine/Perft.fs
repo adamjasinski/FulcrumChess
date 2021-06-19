@@ -7,18 +7,20 @@ open Position
 module PerftCache =
     open System.Collections.Generic
     //let cdict = new System.Collections.Concurrent.ConcurrentDictionary<(Side*Position),Move array>()
-    let cacheAttacks = new Dictionary<(Side*Position),Bitboard>()
-    let cachePseudoMoves = new Dictionary<(Side*Position),Move array>()
+    let cacheAttacks = new Dictionary<uint64, Bitboard>()
+    let cachePseudoMoves = new Dictionary<uint64, Move[]>()
     //let bigLock = obj()
 
-    let memoize (cache:Dictionary<'a,'b>) (f:'a->'b) =
+    let memoize (cache:Dictionary<uint64,'b>) (h:'a->uint64) (f:'a->'b) =
         //let dict = new System.Collections.Generic.Dictionary<_,_>()
         fun n ->
-            match cache.TryGetValue(n) with
+            let hash = h(n)
+            match cache.TryGetValue(hash) with
             | (true, v) -> v
             | _ ->
                 let temp = f(n)
-                cache.Add(n, temp)
+                cache.Add(hash, temp)
+                //if cache.Count % 10000 = 0 then printfn "Cache item count: %d" cache.Count
                 temp
 
     // let memoize f =
@@ -65,15 +67,15 @@ module Perft =
             //         MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
             //     gen (s,p)
 
-            let generateAttacks (s:Side) (p:Position) =
-                let gen = PerftCache.memoize PerftCache.cacheAttacks <| fun (s:Side,p:Position) ->
+            let generateAttacks (s:Side) (p:Position) = 
+                let gen = PerftCache.memoize PerftCache.cacheAttacks (fun (p:Position) -> p.HashKey) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAttacks lookups s p
-                gen (s,p)
+                gen p
 
             let generateAllPseudoMovesForSide (s:Side) (p:Position) =
-                let gen = PerftCache.memoize PerftCache.cachePseudoMoves <| fun (s:Side,p:Position) ->
+                let gen = PerftCache.memoize PerftCache.cachePseudoMoves (fun (p:Position) -> p.HashKey) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
-                gen (s,p)
+                gen p
 
             let allPseudoMovesForSide = pos |> MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups pos.SideToPlay
 
