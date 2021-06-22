@@ -55,6 +55,17 @@ module PerftCache =
     //             temp
 
 module Perft =
+    let assertHashCalculation (move:Move) (originalPos:Position) (newPos:Position) = 
+        let expected = newPos |> calculateZobristHash
+        let actualViaIncremental = newPos.HashKey
+        if expected <> actualViaIncremental then
+            printfn "Warning: hash calculated via incremental updates doesn't match freshly calculated hash; expected: %d; actual: %d" expected actualViaIncremental
+            printfn "FEN: %s" (FenParsing.toFen originalPos)
+            printfn "Move: %s" (Notation.toAlgebraicNotation move)
+            printfn "=============================================="
+            failwith "Fatal. End of game!"
+        else newPos
+
     /// Performance test/move path enumerator
     let rec perft (lookups:MoveGenerationLookups) (srcMove:Move, pos:Position) (depth:int, totalDepth:int) =
         if(depth = 0) then
@@ -68,12 +79,12 @@ module Perft =
             //     gen (s,p)
 
             let generateAttacks (s:Side) (p:Position) = 
-                let gen = PerftCache.memoize PerftCache.cacheAttacks (fun (p:Position) -> p.HashKey) <| fun (p:Position) ->
+                let gen = PerftCache.memoize PerftCache.cacheAttacks (Position.calculateZobristHash) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAttacks lookups s p
                 gen p
 
             let generateAllPseudoMovesForSide (s:Side) (p:Position) =
-                let gen = PerftCache.memoize PerftCache.cachePseudoMoves (fun (p:Position) -> p.HashKey) <| fun (p:Position) ->
+                let gen = PerftCache.memoize PerftCache.cachePseudoMoves (Position.calculateZobristHash) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
                 gen p
 
@@ -83,7 +94,9 @@ module Perft =
                 allPseudoMovesForSide 
                 |> Array.map ( fun move ->
                     let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
-                    pos' |> Option.map ( fun p -> (move, p))
+                    pos'
+                    |> Option.map (assertHashCalculation move pos)
+                    |> Option.map ( fun p -> (move, p))
                 )
                 |> Array.choose id
 
@@ -113,9 +126,9 @@ module Perft =
             // | _ -> Math.Sign ( bitRef1 - bitRef2)
         let movesNodeBreakdownAlgebraicCoordinates:(string*uint64) array =
             movesNodeBreakdown
-            |> Array.sortWith( fun (move1,_) (move2,_) ->
-                moveAlgebraicComparerForNiceOutput move1 move2
-            )
+            // |> Array.sortWith( fun (move1,_) (move2,_) ->
+            //     moveAlgebraicComparerForNiceOutput move1 move2
+            // )
             |> Array.map (Tuple2.mapFirst Notation.toAlgebraicNotation)
 
         let totalNodesCount = movesNodeBreakdown |> Array.sumBy snd

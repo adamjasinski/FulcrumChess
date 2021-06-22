@@ -89,6 +89,11 @@ let parseToPosition (fen:string) : Position =
     let enPassantTarget = fen |> parseEnPassantTarget
     let halfMoveClock = fen |> parseHalfMoveClock
     let fullMoveNumber = fen |> parseFullMoveNumber
+    let initialHashKey = 
+        Zobrist.getCastlingRightsHash (whiteCastlingRights, blackCastlingRights) ^^^
+        Zobrist.getEnPassantHash enPassantTarget ^^^
+        Zobrist.getSideToPlayHash sideToPlay
+
     let startingPosition = 
         { Position.emptyBitboard with 
             SideToPlay=sideToPlay; 
@@ -96,7 +101,8 @@ let parseToPosition (fen:string) : Position =
             BlackCastlingRights = blackCastlingRights;
             EnPassantTarget = enPassantTarget;
             HalfMoveClock = halfMoveClock;
-            FullMoveNumber = fullMoveNumber; }
+            FullMoveNumber = fullMoveNumber;
+            HashKey = initialHashKey }
     let mapped = 
         ((0,startingPosition), allPiecesOnBoard) 
         ||> Array.fold (fun (counter,pos) (piece:char) -> 
@@ -106,7 +112,10 @@ let parseToPosition (fen:string) : Position =
                 let pos' = pos |> Position.setFenPiece piece counter
                 (counter+1, pos') 
         )
-    mapped |> snd
+    //TODO - Test only. Replace with incremental calculation
+    let pos'' = mapped |> snd
+    { pos'' with HashKey = Position.calculateZobristHash pos'' }
+    //mapped |> snd
 
 let toFen (pos:Position) =
     let boardArray = Position.dumpPosition pos

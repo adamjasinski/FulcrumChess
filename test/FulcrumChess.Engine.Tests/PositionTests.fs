@@ -74,4 +74,4 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         let pos = Position.initialPosition
         let hashKey = pos |> Position.calculateZobristHash
         printfn "Hash: %d" hashKey
-        test <@ hashKey = 16566630060555062715UL @> //previously calculated value
+        test <@ hashKey = 6346835357807462450UL @> //previously calculated value

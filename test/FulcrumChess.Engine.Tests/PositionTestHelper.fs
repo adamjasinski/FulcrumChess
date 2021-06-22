@@ -3,8 +3,8 @@ open FulcrumChess.Engine
 open Swensen.Unquote
 
 module PositionTestHelper =
-    let private generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks 
-    let private generatePseudoMovesAdapter lookups pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups pos bitRef |> Seq.toArray
+    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks 
+    let generatePseudoMovesAdapter lookups pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups pos bitRef |> Seq.toArray
     
     let verifyPositionAfterMoveWithFullValidation lookups fen moveAlgNotation expectedFen =
         let pos = FenParsing.parseToPosition fen

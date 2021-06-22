@@ -408,12 +408,12 @@ module MoveGenerationLookupFunctions =
 
         let generator = 
             match chessman with
+            | Pawn -> generatePawnPseudoMoves pos side 
+            | Knight -> generateKnightPseudoMoves allPieces friendlyPieces
             | Chessmen.Bishop -> generateMovesForPositionViaLookups Bishop allPieces friendlyPieces
             | Chessmen.Rook -> generateMovesForPositionViaLookups Rook allPieces friendlyPieces
             | Queen -> generateQueenPseudoMoves allPieces friendlyPieces
             | King -> generateKingPseudoMoves pos allPieces friendlyPieces side 
-            | Knight -> generateKnightPseudoMoves allPieces friendlyPieces
-            | Pawn -> generatePawnPseudoMoves pos side 
         generator bitRef lookups
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =

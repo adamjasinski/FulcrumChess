@@ -14,7 +14,7 @@ module Zobrist =
         |]
 
     let enPassantHashes = [| for i in 0..7 -> rnd.NextUInt64() |]
-    let castlingRightsHashes = [| for i in 0..4 -> rnd.NextUInt64() |]
+    let castlingRightsHashes = [| for i in 0..8 -> rnd.NextUInt64() |]
     let sideHash = rnd.NextUInt64()
 
     //let inline getEmptyFieldHash bitRef = chessmenHashes.[0].[bitRef]
@@ -43,8 +43,8 @@ module Zobrist =
             let fileIdx = enPassantTargetBitRef / 8 
             enPassantHashes.[fileIdx]
 
-    let inline getCastlingRightsHash (castlingRights:CastlingRights) =
-        castlingRightsHashes.[int(castlingRights)]
+    let inline getCastlingRightsHash (castlingRightsWhite:CastlingRights, castlingRightsBlack:CastlingRights) =
+        castlingRightsHashes.[int(castlingRightsWhite)] ^^^ castlingRightsHashes.[4+int(castlingRightsBlack)]
 
     let getSideToPlayHash = function
         | White -> 0UL
