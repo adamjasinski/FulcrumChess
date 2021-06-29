@@ -454,16 +454,15 @@ module MoveGenerationLookupFunctions =
         let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let moves = generatePseudoMoves lookups pos bitRef
 
-        if pos.EnPassantTarget > 0 then
-            let enpassants = 
-                match chessman with
-                | Pawn -> generateEnPassantMoves side pos.EnPassantTarget
-                | _ -> [||]
-            Array.append moves enpassants
-        elif chessman = Pawn then
-            moves |> convertLastRankPawnMovesToPromotionIfApplicable side
-        else moves
-
+        match chessman with
+        | Pawn -> 
+            let movesWithMaybeEnPassant =
+                if pos.EnPassantTarget > 0 then
+                    let enpassants = generateEnPassantMoves side pos.EnPassantTarget
+                    Array.append moves enpassants
+                else moves
+            movesWithMaybeEnPassant |> convertLastRankPawnMovesToPromotionIfApplicable side
+        | _ -> moves
 
     let generateAttacks (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos

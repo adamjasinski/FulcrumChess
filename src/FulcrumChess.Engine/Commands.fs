@@ -91,6 +91,7 @@ module CommandHandler =
         | Display -> 
             state.CurrentPosition |> Position.prettyPrint |> output "%s"
             state.CurrentPosition |> FenParsing.toFen |> output "Fen: %s"
+            state.CurrentPosition.HashKey |> output "Key: %X"
             Ok
         | Uknown s -> 
             output "Uknown command: %s" s

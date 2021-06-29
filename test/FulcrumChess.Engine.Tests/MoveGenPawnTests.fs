@@ -79,8 +79,9 @@ type MoveGenPawnTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
     static member PromotionTestCasesBlack() =
         seq {
-            yield ("4k3/8/8/8/P7/8/6p1/4K3 w - - 0 1", 9, ["g1q"; "g1r"; "g1b"; "g1n" ]); //g2
-            yield ("4k3/8/8/8/P7/8/6p1/4K2R w - - 0 1", 9, ["g1q"; "g1r"; "g1b"; "g1n"; "h1q"; "h1r"; "h1b"; "h1n" ]); //g2
+            yield ("4k3/8/8/8/P7/8/6p1/4K3 b - - 0 1", 9, ["g1q"; "g1r"; "g1b"; "g1n" ]); //g2
+            yield ("4k3/8/8/8/P7/8/6p1/4K2R b - - 0 1", 9, ["g1q"; "g1r"; "g1b"; "g1n"; "h1q"; "h1r"; "h1b"; "h1n" ]); //g2
+            yield ("r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q2/1PPBBPpP/1R2K2R b Kkq a3 0 2", 9, ["g1q"; "g1r"; "g1b"; "g1n"; "h1q"; "h1r"; "h1b"; "h1n" ]); //g2; both en passant and promition possible for Black
         } 
 
     [<Theory; MemberDataEx("PromotionTestCasesWhite")>]
