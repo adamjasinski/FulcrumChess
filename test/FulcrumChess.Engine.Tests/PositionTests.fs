@@ -72,6 +72,16 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     [<Category("Zobrist")>]
     member __.``should calculate Zobrist hash for the initial position`` () =
         let pos = Position.initialPosition
-        let hashKey = pos |> Position.calculateZobristHash
-        printfn "Hash: %d" hashKey
-        test <@ hashKey = 6346835357807462450UL @> //previously calculated value
+        let freshlyCalculatedHashKey = pos |> Position.calculateZobristHash
+        printfn "Hash: %X" freshlyCalculatedHashKey
+        test <@ freshlyCalculatedHashKey = pos.HashKey @>
+        test <@ freshlyCalculatedHashKey = 6346835357807462450UL @> //previously calculated value
+
+    [<Theory>]
+    [<Category("Zobrist")>]
+    [<InlineDataEx("8/8/8/8/8/8/8/8 w - - 0 1")>]
+    member __.``should calculate Zobrist hash for empty position`` (fen) =
+        let pos = FenParsing.parseToPosition fen
+        let freshlyCalculatedHashKey = pos |> Position.calculateZobristHash
+        printfn "Hash: %X" freshlyCalculatedHashKey
+        test <@ freshlyCalculatedHashKey = pos.HashKey @>

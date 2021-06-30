@@ -95,7 +95,7 @@ module Perft =
                 |> Array.map ( fun move ->
                     let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
                     pos'
-                    |> Option.map (assertHashCalculation move pos)
+                    //|> Option.map (assertHashCalculation move pos)
                     |> Option.map ( fun p -> (move, p))
                 )
                 |> Array.choose id

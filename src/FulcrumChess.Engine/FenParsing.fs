@@ -109,13 +109,10 @@ let parseToPosition (fen:string) : Position =
             match piece with
             | ' ' -> (counter+1,pos)
             | pc -> 
-                let pos' = pos |> Position.setFenPiece piece counter
+                let pos' = pos |> Position.setFenPiece pc counter
                 (counter+1, pos') 
         )
-    //TODO - Test only. Replace with incremental calculation
-    let pos'' = mapped |> snd
-    { pos'' with HashKey = Position.calculateZobristHash pos'' }
-    //mapped |> snd
+    mapped |> snd
 
 let toFen (pos:Position) =
     let boardArray = Position.dumpPosition pos

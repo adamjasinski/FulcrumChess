@@ -122,23 +122,23 @@ module Position =
     let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())
         let candidate:Bitboard = 0UL |> BitUtils.setBit bitRef
-        let updateWithTargetChessmanHash pc = 
+        let updateWithTargetChessmanHash pcAndSide = 
             //printfn "XORing with pc hash %A %d" (pc, pos.SideToPlay) bitRef
-            pos.HashKey ^^^ Zobrist.getChessmanHash (pc, pos.SideToPlay) bitRef
+            pos.HashKey ^^^ Zobrist.getChessmanHash pcAndSide bitRef
         let pos' = 
             match piece with
-            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Pawn }
-            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Knight  }
-            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Bishop  }
-            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Rook  }
-            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Queen  }
-            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.King  }
-            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Pawn  }
-            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Knight  }
-            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Bishop  }
-            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Rook  }
-            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.Queen  }
-            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate; HashKey=updateWithTargetChessmanHash Chessmen.King  }
+            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Pawn, Side.Black) }
+            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Knight, Side.Black) }
+            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Bishop, Side.Black) }
+            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Rook, Side.Black) }
+            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Queen, Side.Black) }
+            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.King, Side.Black) }
+            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Pawn, Side.White) }
+            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Knight, Side.White) }
+            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Bishop, Side.White) }
+            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Rook, Side.White) }
+            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Queen, Side.White)}
+            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.King, Side.White)}
             | _ -> invalidArg "piece" ("parameter has invalid value: " + piece.ToString())
         pos'
 
@@ -293,7 +293,7 @@ module Position =
             |> Seq.collect (fun (bb, pcAndSide) ->
                     let bitRefs = BitUtils.getSetBits_u64 bb
                     bitRefs |> Array.map (Zobrist.getChessmanHash pcAndSide))
-            |> Seq.reduce (^^^)
+            |> Seq.fold (^^^) 0UL
         chessmenHash ^^^ castlingRightsHash ^^^ enPassantsHash ^^^ sideHash
 
     let private getEnPassantPotentialCaptorOfBlack dstBitRef =

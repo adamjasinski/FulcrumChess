@@ -111,6 +111,8 @@ module FenParsingTests =
         test <@ expectedAsBoard8x8 = actualResultAsBoard8x8 @>
 
     [<Fact>]
+    [<Category("FenParsing")>]
+    [<Category("Zobrist")>]
     let ``Parse specific position with en passant pawn`` () =
         let input = "rnbqkbnr/pp1ppppp/8/8/2pPP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3"
         let result = input |> FenParsing.parseToPosition
@@ -134,5 +136,7 @@ module FenParsingTests =
         test <@ CastlingRights.Both = result.BlackCastlingRights @>
         test <@ 20 = result.EnPassantTarget @>
         test <@ 3 = result.FullMoveNumber @>
+        let expectedHash = result |> Position.calculateZobristHash
+        test <@ expectedHash = result.HashKey @>
 
 
