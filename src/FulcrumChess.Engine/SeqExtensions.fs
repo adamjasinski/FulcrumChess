@@ -18,6 +18,13 @@ module Seq =
         seq { use en = s.GetEnumerator()
             yield! loop en  }
 
+    let tryPickValueOpt chooser (source : seq<'T>) =
+        use e = source.GetEnumerator()
+        let mutable res = ValueNone
+        while (ValueOption.isNone res && e.MoveNext()) do
+            res <- chooser e.Current
+        res
+
 module Tuple2 = 
   //Applies function f to each element of a tuple
   let map f (a, b) = (f a, f b)

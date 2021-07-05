@@ -11,15 +11,15 @@ namespace FulcrumChess.Engine
 module UciMove =
 
     let private determineEnPassant (positionBeforeMove:Position) (srcBitRef, dstBitRef) =
-        positionBeforeMove |> Some
-        |> Option.filter (fun pos -> pos.EnPassantTarget > 0)
-        |> Option.bind (Position.getChessmanAndSide srcBitRef)
-        |> Option.map ( fun struct(chessman,side) ->
+        positionBeforeMove |> ValueSome
+        |> ValueOption.filter (fun pos -> pos.EnPassantTarget > 0)
+        |> ValueOption.bind (Position.getChessmanAndSide srcBitRef)
+        |> ValueOption.map ( fun struct(chessman,side) ->
             match chessman with
             | Pawn -> 
                 positionBeforeMove.EnPassantTarget = dstBitRef
             | _ -> false)
-        |> Option.exists ( (=) true)
+        |> ValueOption.exists ( (=) true)
 
 
     let fromLongAlgebraicNotationToMove (positionBeforeMove:Position) (moveLongAlgNotation:string) =

@@ -402,7 +402,7 @@ module MoveGenerationLookupFunctions =
         conventionalMoves ||| castlingSpecial
 
     let private generatePseudoMovesBitboard (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
-        let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
+        let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get
         let friendlyPieces = pos |> getBitboardForSide side
         let allPieces = pos |> bothSidesBitboard
 
@@ -451,7 +451,7 @@ module MoveGenerationLookupFunctions =
                     AllPromotionTypes |> Array.map (Move.createSpecialFromExisting m))
             | (_, _)                -> failwithf "Invalid case: generated both promotions and non-promotions moves for the same pawn: %d" bitRef
 
-        let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
+        let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get
         let moves = generatePseudoMoves lookups pos bitRef
 
         match chessman with
