@@ -20,7 +20,7 @@ module Zobrist =
     //let inline getEmptyFieldHash bitRef = chessmenHashes.[0].[bitRef]
     //let inline getEmptyFieldHash bitRef = 0UL
 
-    let getChessmanHash (chessman, side) bitRef =
+    let getChessmanHash struct(chessman, side) bitRef =
         let idx = 
             match (chessman, side) with
             | (Chessmen.King, Side.White) -> 1

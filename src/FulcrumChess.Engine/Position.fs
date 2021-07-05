@@ -125,37 +125,38 @@ module Position =
         let updateWithTargetChessmanHash pcAndSide = 
             //printfn "XORing with pc hash %A %d" (pc, pos.SideToPlay) bitRef
             pos.HashKey ^^^ Zobrist.getChessmanHash pcAndSide bitRef
+        let a= struct(Chessmen.Pawn, Side.Black)
         let pos' = 
             match piece with
-            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Pawn, Side.Black) }
-            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Knight, Side.Black) }
-            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Bishop, Side.Black) }
-            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Rook, Side.Black) }
-            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Queen, Side.Black) }
-            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.King, Side.Black) }
-            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Pawn, Side.White) }
-            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Knight, Side.White) }
-            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Bishop, Side.White) }
-            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Rook, Side.White) }
-            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.Queen, Side.White)}
-            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate; HashKey=updateWithTargetChessmanHash (Chessmen.King, Side.White)}
+            | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Pawn, Side.Black)}
+            | 'n' -> {pos with BlackKnights=pos.BlackKnights ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Knight, Side.Black) }
+            | 'b' -> {pos with BlackBishops=pos.BlackBishops ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Bishop, Side.Black) }
+            | 'r' -> {pos with BlackRooks=pos.BlackRooks ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Rook, Side.Black) }
+            | 'q' -> {pos with BlackQueen=pos.BlackQueen ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Queen, Side.Black) }
+            | 'k' -> {pos with BlackKing=pos.BlackKing ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.King, Side.Black) }
+            | 'P' -> {pos with WhitePawns=pos.WhitePawns ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Pawn, Side.White) }
+            | 'N' -> {pos with WhiteKnights=pos.WhiteKnights ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Knight, Side.White) }
+            | 'B' -> {pos with WhiteBishops=pos.WhiteBishops ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Bishop, Side.White) }
+            | 'R' -> {pos with WhiteRooks=pos.WhiteRooks ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Rook, Side.White) }
+            | 'Q' -> {pos with WhiteQueen=pos.WhiteQueen ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Queen, Side.White)}
+            | 'K' -> {pos with WhiteKing=pos.WhiteKing ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.King, Side.White)}
             | _ -> invalidArg "piece" ("parameter has invalid value: " + piece.ToString())
         pos'
 
     let asBitboardSequence (pos:Position) =
         seq {
-            yield (pos.BlackPawns, (Chessmen.Pawn, Black))
-            yield (pos.BlackRooks, (Chessmen.Rook, Black))
-            yield (pos.BlackKnights, (Chessmen.Knight, Black))
-            yield (pos.BlackBishops, (Chessmen.Bishop, Black))
-            yield (pos.BlackQueen, (Chessmen.Queen, Black))
-            yield (pos.BlackKing, (Chessmen.King, Black))
-            yield (pos.WhiteRooks, (Chessmen.Rook, White))
-            yield (pos.WhiteKnights, (Chessmen.Knight, White))
-            yield (pos.WhiteBishops, (Chessmen.Bishop, White))
-            yield (pos.WhiteQueen, (Chessmen.Queen, White))
-            yield (pos.WhiteKing, (Chessmen.King, White))
-            yield (pos.WhitePawns, (Chessmen.Pawn, White))
+            yield struct(pos.BlackPawns, struct(Chessmen.Pawn, Black))
+            yield struct(pos.BlackRooks, struct(Chessmen.Rook, Black))
+            yield struct(pos.BlackKnights, struct(Chessmen.Knight, Black))
+            yield struct(pos.BlackBishops, struct(Chessmen.Bishop, Black))
+            yield struct(pos.BlackQueen, struct(Chessmen.Queen, Black))
+            yield struct(pos.BlackKing, struct(Chessmen.King, Black))
+            yield struct(pos.WhiteRooks, struct(Chessmen.Rook, White))
+            yield struct(pos.WhiteKnights, struct(Chessmen.Knight, White))
+            yield struct(pos.WhiteBishops, struct(Chessmen.Bishop, White))
+            yield struct(pos.WhiteQueen, struct(Chessmen.Queen, White))
+            yield struct(pos.WhiteKing, struct(Chessmen.King, White))
+            yield struct(pos.WhitePawns, struct(Chessmen.Pawn, White))
         }
 
     let getKingBitboard (side:Side) (pos:Position) =
@@ -168,17 +169,17 @@ module Position =
         | Side.White -> pos.WhiteRooks
         | Side.Black -> pos.BlackRooks
 
-    let getChessmanAndSide (bitRef:int) (pos:Position) : (Chessmen*Side) option =
+    let getChessmanAndSide (bitRef:int) (pos:Position) : struct(Chessmen*Side) option =
         let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
         let res =
             pos
             |> asBitboardSequence
-            |> Seq.tryFind (fun (bb,_) -> bb |> hasBitRef)
-
-        res |> Option.map snd
+            |> Seq.tryFind (fun struct(bb,_) -> bb |> hasBitRef)
+        
+        res |> Option.map (fun struct(_, pcAndSide) -> pcAndSide)
 
     let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
-        let (chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
+        let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> Option.get
         let opponentPieces = pos |> getBitboardForSide (opposite side) 
         movesBitboard &&& opponentPieces
 
@@ -190,8 +191,8 @@ module Position =
     //     |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
     //     arr
 
-    let private setPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
-        let fenLetter = (piece, side) |> PieceFenLetters.getLetter
+    let private setPieceInternal struct(piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
+        let fenLetter = struct(piece, side) |> PieceFenLetters.getLetter
         pos |> setFenPiece fenLetter bitRef
 
     let private clearPieceInternal (piece:Chessmen, side:Side) (bitRef:int) (pos:Position) =
@@ -199,7 +200,7 @@ module Position =
         let clearBitRef = BitUtils.clearBit bitRef
         //let updatedHash = pos.HashKey ^^^ Zobrist.getEmptyFieldHash bitRef
         //printfn "XORing with pc hash %A %d" (piece, side) bitRef
-        let updatedHash = pos.HashKey ^^^ Zobrist.getChessmanHash (piece, side) bitRef
+        let updatedHash = pos.HashKey ^^^ Zobrist.getChessmanHash struct(piece, side) bitRef
 
         let pos' = 
             match piece,side with
@@ -290,7 +291,7 @@ module Position =
         let chessmenHash = 
             pos 
             |> asBitboardSequence
-            |> Seq.collect (fun (bb, pcAndSide) ->
+            |> Seq.collect (fun struct(bb, pcAndSide) ->
                     let bitRefs = BitUtils.getSetBits_u64 bb
                     bitRefs |> Array.map (Zobrist.getChessmanHash pcAndSide))
             |> Seq.fold (^^^) 0UL
@@ -324,7 +325,7 @@ module Position =
  
     let tryMakeMoveInternal (getAttacks:GetAttacks) (move:Move) (pos:Position) =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
-        let (chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
+        let struct(chessman, side) = pos |> getChessmanAndSide srcBitRef |> Option.get
 
         // NB - this function is intended to be used for pseudo moves that have been previously generated by the engine
         // Therefore we skip full validation and focus on check validation and special moves
@@ -350,7 +351,7 @@ module Position =
             let dstSquare = pos |> getChessmanAndSide dstBitRef
             if dstSquare |> Option.isNone then p
             else
-                let (opponentPiece,opponentSide) = dstSquare |> Option.get
+                let struct(opponentPiece,opponentSide) = dstSquare |> Option.get
                 if(opponentSide <> (side |> opposite)) then illegalMove "Error: Move destination targets a friendly piece"
                 p |> clearPieceInternal (opponentPiece, opponentSide) dstBitRef
 
@@ -488,7 +489,7 @@ module Position =
         let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         
         let sideToPlayPredicate p = 
-            let (_, side) = p |> getChessmanAndSide srcBitRef |> Option.get  
+            let struct(_, side) = p |> getChessmanAndSide srcBitRef |> Option.get  
             side = p.SideToPlay
         
         let possibleMovePredicate p =

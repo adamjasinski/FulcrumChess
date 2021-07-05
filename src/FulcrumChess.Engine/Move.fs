@@ -2,8 +2,10 @@
 
 type Move = uint16
 
+[<Struct>]
 type PromotionType = |KnightProm|BishopProm|RookProm|QueenProm //:D (piece types only were confusing the compiler with Chessmen type)
 
+[<Struct>]
 type SpecialMoveType = |Conventional|Promotion of PromotionType|EnPassant|Castling
 
 module Move =

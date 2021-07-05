@@ -14,7 +14,7 @@ module UciMove =
         positionBeforeMove |> Some
         |> Option.filter (fun pos -> pos.EnPassantTarget > 0)
         |> Option.bind (Position.getChessmanAndSide srcBitRef)
-        |> Option.map ( fun (chessman,_) -> 
+        |> Option.map ( fun struct(chessman,side) ->
             match chessman with
             | Pawn -> 
                 positionBeforeMove.EnPassantTarget = dstBitRef

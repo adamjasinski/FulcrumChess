@@ -2,8 +2,10 @@
 
 type SquareFenValue = |Fen of char|Blank|Invalid
 
+[<Struct>]
 type Chessmen = |Rook|Knight|Bishop|Queen|King|Pawn
 
+[<Struct>]
 type SlidingPiece = |Rook|Bishop //an 'elementary' sliding piece (Queen not included)
 
 module Pieces =
@@ -58,7 +60,7 @@ module PieceFenLetters =
     [<Literal>]
     let BlackPawn = 'p'
 
-    let getLetter (pc, side) =
+    let getLetter struct(pc, side) =
         match (pc, side) with
         | (Chessmen.King, Side.White) -> WhiteKing
         | (Chessmen.Queen, Side.White) -> WhiteQueen

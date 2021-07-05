@@ -2,8 +2,10 @@
 
 type Board8x8Array = char list list
 
+[<Struct>]
 type Direction = |N|NE|E|SE|S|SW|W|NW
 
+[<Struct>]
 type Side = |White|Black
 
 // Bit ordering: 0=h1 .. 63=a8;

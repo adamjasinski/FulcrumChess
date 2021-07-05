@@ -9,7 +9,7 @@ let private bitboardToLerbefArray (bitboard:Bitboard) =
     |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
     arr
 
-let private bitboardToLerbefCharArray (bb:Bitboard) (pc:Chessmen, side:Side) =
+let private bitboardToLerbefCharArray (bb:Bitboard) struct(pc:Chessmen, side:Side) =
     let arr = bb |> bitboardToLerbefArray
     let letter =  PieceFenLetters.getLetter (pc,side)
     arr
@@ -48,7 +48,7 @@ let fromPosition (pos:Position) =
     let allBitboards = pos |> Position.asBitboardSequence
     let allArrays = 
         allBitboards
-        |> Seq.map (fun x -> x ||> bitboardToLerbefCharArray)
+        |> Seq.map (fun struct(bb, struct(pc, side)) -> bitboardToLerbefCharArray bb struct(pc,side))
         |> Array.ofSeq
 
     let allArraysCombined = 
