@@ -79,12 +79,12 @@ module Perft =
             //     gen (s,p)
 
             let generateAttacks (s:Side) (p:Position) = 
-                let gen = PerftCache.memoize PerftCache.cacheAttacks (Position.calculateZobristHash) <| fun (p:Position) ->
+                let gen = PerftCache.memoize PerftCache.cacheAttacks (fun p -> p.HashKey) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAttacks lookups s p
                 gen p
 
             let generateAllPseudoMovesForSide (s:Side) (p:Position) =
-                let gen = PerftCache.memoize PerftCache.cachePseudoMoves (Position.calculateZobristHash) <| fun (p:Position) ->
+                let gen = PerftCache.memoize PerftCache.cachePseudoMoves (fun p -> p.HashKey) <| fun (p:Position) ->
                     MoveGenerationLookupFunctions.generateAllPseudoMovesForSide lookups s p
                 gen p
 
