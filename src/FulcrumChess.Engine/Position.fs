@@ -171,10 +171,20 @@ module Position =
 
     let getChessmanAndSide (bitRef:int) (pos:Position) : struct(Chessmen*Side) voption =
         let hasBitRef (bitboard:Bitboard) = bitboard |> BitUtils.hasBitSet bitRef
-        pos
-        |> asBitboardSequence
-        |> Seq.tryPickValueOpt (fun struct(bb, pcAndSide) -> if bb |> hasBitRef then ValueSome(pcAndSide) else ValueNone)
-
+        if pos.BlackPawns |> hasBitRef then struct(Chessmen.Pawn, Black) |> ValueSome
+        elif pos.WhitePawns  |> hasBitRef then struct(Chessmen.Pawn, White)  |> ValueSome
+        elif pos.BlackQueen |> hasBitRef then  struct(Chessmen.Queen, Black)  |> ValueSome
+        elif pos.WhiteQueen  |> hasBitRef then  struct(Chessmen.Queen, White)  |> ValueSome
+        elif pos.BlackRooks |> hasBitRef then struct(Chessmen.Rook, Black)  |> ValueSome
+        elif pos.WhiteRooks  |> hasBitRef then  struct(Chessmen.Rook, White)  |> ValueSome
+        elif pos.BlackKnights |> hasBitRef then struct(Chessmen.Knight, Black)  |> ValueSome
+        elif pos.WhiteKnights  |> hasBitRef then  struct(Chessmen.Knight, White)  |> ValueSome
+        elif pos.BlackBishops |> hasBitRef then struct(Chessmen.Bishop, Black)  |> ValueSome
+        elif pos.WhiteBishops  |> hasBitRef then  struct(Chessmen.Bishop, White)  |> ValueSome
+        elif pos.BlackKing  |> hasBitRef then  struct(Chessmen.King, Black)  |> ValueSome
+        elif pos.WhiteKing  |> hasBitRef then  struct(Chessmen.King, White)  |> ValueSome
+        else ValueNone
+       
     let getCapturesFromPseudoMoves (movesBitboard:Bitboard) (bitRef:int) (pos:Position) =
         let struct(_, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get
         let opponentPieces = pos |> getBitboardForSide (opposite side) 

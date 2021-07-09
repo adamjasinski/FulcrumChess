@@ -18,14 +18,15 @@ module Seq =
         seq { use en = s.GetEnumerator()
             yield! loop en  }
 
-    let tryPickValueOpt chooser (source : seq<'T>) =
-        use e = source.GetEnumerator()
-        let mutable res = ValueNone
-        while (ValueOption.isNone res && e.MoveNext()) do
-            res <- chooser e.Current
-        res
+module Array =
+    // Returns elements of array of options where isSome
+    let chooseWhereSome (arr:'a option[]) =
+        let res = ResizeArray<'a>(arr.Length)
+        for i in 0..arr.Length-1 do
+            if arr.[i] |> Option.isSome then res.Add(arr.[i].Value)
+        res.ToArray()
 
 module Tuple2 = 
-  //Applies function f to each element of a tuple
-  let map f (a, b) = (f a, f b)
-  let mapFirst f (a, b) = (f a, b)
+    //Applies function f to each element of a tuple
+    let map f (a, b) = (f a, f b)
+    let mapFirst f (a, b) = (f a, b)
