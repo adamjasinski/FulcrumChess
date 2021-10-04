@@ -18,6 +18,7 @@
     <Compile Include="Move.fs" />
     <Compile Include="Zobrist.fs" />
     <Compile Include="Position.fs" />
+    <Compile Include="PositionBuilder.fs" />
     <Compile Include="Board8x8Funcs.fs" />
     <Compile Include="Notation.fs" />
     <Compile Include="UciMove.fs" />

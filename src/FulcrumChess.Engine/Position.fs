@@ -1,45 +1,9 @@
 ﻿namespace FulcrumChess.Engine
 
-type Position = {
-    WhiteKing:Bitboard;
-    WhiteQueen:Bitboard;
-    WhiteRooks:Bitboard;
-    WhiteBishops:Bitboard;
-    WhiteKnights:Bitboard;
-    WhitePawns:Bitboard;
-    BlackKing:Bitboard;
-    BlackQueen:Bitboard;
-    BlackRooks:Bitboard;
-    BlackBishops:Bitboard;
-    BlackKnights:Bitboard;
-    BlackPawns:Bitboard;
-
-    WhiteCastlingRights:CastlingRights;
-    BlackCastlingRights:CastlingRights;
-    SideToPlay:Side;
-    EnPassantTarget:int;
-    HalfMoveClock:int;
-    FullMoveNumber:int;
-    HashKey:uint64;
-}
-
-type CastlingLookup = {
-    InitialPositionKing:Bitboard;
-    InitialPositionKingsRook:Bitboard;
-    InitialPositionQueensRook:Bitboard;
-    BlockersKingsRook:Bitboard;
-    BlockersQueensRook:Bitboard;
-    PathNonUnderCheckKing:Bitboard;
-    PathNonUnderCheckQueen:Bitboard;
-    DestinationBitRefKingSideCastling:int;
-    DestinationBitRefQueenSideCastling:int;
-    DestinationKingSideCastling:Bitboard;
-    DestinationQueenSideCastling:Bitboard;
-}
-
 type GetAttacks = Side->Position->Bitboard
 type GetMovesForSide = Position->Move array
-    
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Position =
     let emptyBitboard = {
         Position.WhiteKing=0UL;WhiteQueen=0UL;WhiteRooks=0UL;WhiteBishops=0UL;WhiteKnights=0UL;WhitePawns=0UL;
@@ -125,7 +89,7 @@ module Position =
         let updateWithTargetChessmanHash pcAndSide = 
             //printfn "XORing with pc hash %A %d" (pc, pos.SideToPlay) bitRef
             pos.HashKey ^^^ Zobrist.getChessmanHash pcAndSide bitRef
-        let a= struct(Chessmen.Pawn, Side.Black)
+        //let a= struct(Chessmen.Pawn, Side.Black)
         let pos' = 
             match piece with
             | 'p' -> {pos with BlackPawns=pos.BlackPawns ||| candidate; HashKey=updateWithTargetChessmanHash struct(Chessmen.Pawn, Side.Black)}

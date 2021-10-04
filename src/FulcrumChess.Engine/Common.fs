@@ -48,3 +48,40 @@ module EngineConstants =
 type EngineOptions = 
     { RookMagicFilePath:string
       BishopMagicFilePath:string }
+
+type Position = {
+    WhiteKing:Bitboard;
+    WhiteQueen:Bitboard;
+    WhiteRooks:Bitboard;
+    WhiteBishops:Bitboard;
+    WhiteKnights:Bitboard;
+    WhitePawns:Bitboard;
+    BlackKing:Bitboard;
+    BlackQueen:Bitboard;
+    BlackRooks:Bitboard;
+    BlackBishops:Bitboard;
+    BlackKnights:Bitboard;
+    BlackPawns:Bitboard;
+
+    WhiteCastlingRights:CastlingRights;
+    BlackCastlingRights:CastlingRights;
+    SideToPlay:Side;
+    EnPassantTarget:int;
+    HalfMoveClock:int;
+    FullMoveNumber:int;
+    HashKey:uint64;
+}
+
+type CastlingLookup = {
+    InitialPositionKing:Bitboard;
+    InitialPositionKingsRook:Bitboard;
+    InitialPositionQueensRook:Bitboard;
+    BlockersKingsRook:Bitboard;
+    BlockersQueensRook:Bitboard;
+    PathNonUnderCheckKing:Bitboard;
+    PathNonUnderCheckQueen:Bitboard;
+    DestinationBitRefKingSideCastling:int;
+    DestinationBitRefQueenSideCastling:int;
+    DestinationKingSideCastling:Bitboard;
+    DestinationQueenSideCastling:Bitboard;
+}
