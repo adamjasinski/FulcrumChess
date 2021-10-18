@@ -98,7 +98,8 @@ module Perft =
                     //|> Option.map (assertHashCalculation move pos)
                     |> Option.map ( fun p -> (move, p))
                 )
-                |> Array.chooseWhereSome
+                //|> Array.chooseWhereSome
+                |> Array.choose id
 
             let stats = 
                 if depth < totalDepth then
