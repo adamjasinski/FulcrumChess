@@ -201,3 +201,6 @@ RookMagicNumbers.json
 
 #Visual Studio Code
 .ionide
+
+#BechmarkDotNet
+BechmarkDotNet.Artifacts

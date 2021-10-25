@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{EDFE4161-D
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FulcrumChess.Engine.Tests", "test\FulcrumChess.Engine.Tests\FulcrumChess.Engine.Tests.fsproj", "{8ED1C22C-50FA-4289-975C-543576B1E68A}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FulcrumChess.Engine.Benchmarks", "test\FulcrumChess.Engine.Benchmarks\FulcrumChess.Engine.Benchmarks.fsproj", "{CC60FD94-2E10-487E-B820-00C7E427EF02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,9 +50,22 @@ Global
 		{8ED1C22C-50FA-4289-975C-543576B1E68A}.Release|x64.Build.0 = Release|Any CPU
 		{8ED1C22C-50FA-4289-975C-543576B1E68A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8ED1C22C-50FA-4289-975C-543576B1E68A}.Release|x86.Build.0 = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|x64.Build.0 = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC60FD94-2E10-487E-B820-00C7E427EF02}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{43E2EF74-BA1C-4D59-848A-C3DBE76AA2D1} = {E5F7FD1F-4C98-496E-B53A-1D1F4B877BBD}
 		{8ED1C22C-50FA-4289-975C-543576B1E68A} = {EDFE4161-DDEE-474E-86FB-99EB4D6AECCB}
+		{CC60FD94-2E10-487E-B820-00C7E427EF02} = {EDFE4161-DDEE-474E-86FB-99EB4D6AECCB}
 	EndGlobalSection
 EndGlobal

@@ -42,6 +42,15 @@ Easy way:
 Binaries built through `dotnet publish` (see above):
 `src/FulcrumChess.Engine/bin/Release/linux-x64/FulcrumChess.Engine`
 
+## Perf testing the engine with .NET trace
+
+`dotnet trace collect -p <PID> --format Speedscope`
+
+## Running dedicated benchmarks
+`dotnet run -p test/FulcrumChess.Engine.Benchmarks --filter *Suite*`
+OR
+`dotnet fake run build.fsx -t Benchmark`
+
 ## References
 
 ### Magic bitboards

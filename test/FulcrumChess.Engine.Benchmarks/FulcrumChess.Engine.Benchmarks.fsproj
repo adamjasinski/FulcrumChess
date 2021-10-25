@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>FulcrumChess.Engine.Benchmarks</RootNamespace>
+    <TargetFramework>net50</TargetFramework>
+    <GenerateProgramFile>true</GenerateProgramFile>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MagicSuite.fs" />
+    <Compile Include="PerftSuite.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+  </ItemGroup>
+</Project>

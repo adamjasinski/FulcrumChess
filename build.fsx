@@ -44,6 +44,15 @@ Target.create "SlowTest" (fun _ ->
         opt with Filter=Some("Category=Slow")}))
 )
 
+// Explicit "Benchmark" target
+Target.create "Benchmark" (fun _ ->
+    Trace.trace " --- Running benchmarks --- "
+    !! "test/*Benchmarks/*.*proj"
+    |> Seq.iter (fun proj -> 
+        let args = $"-c Release -p {proj} --filter *Suite*"
+        DotNet.exec (fun opt -> opt) "run" args |> ignore)
+)
+
 Target.create "Publish" (fun _ ->
     Trace.trace " --- Publishing the app artifacts --- "
     !! "test/**/*.*proj"
@@ -64,5 +73,10 @@ Target.create "All" ignore
   ==> "Test"
   ==> "Publish"
   ==> "All"
+
+"Clean"
+  ==> "Build"
+  ==> "Test"
+  ==> "Benchmark"
 
 Target.runOrDefault "QuickBVT"
