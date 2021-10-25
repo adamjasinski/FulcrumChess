@@ -272,6 +272,8 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
             let currentBitRefAttackSet = occupancyAttackSets.[bitRef]
             let mutable candidateCount = 0
 
+            let buffers = System.Buffers.ArrayPool<uint64>.Shared
+
             let magicNumberDoesNotClashWithAnotherOccupancyVariationAttackSet (magicNumber:uint64) =
                 candidateCount <- candidateCount + 1
                 #if DIAG
@@ -280,16 +282,23 @@ let generateMagicNumbersAndShifts (occupancyMasks:uint64[]) (occupancyVariations
                 //magicAttemptsPerBitCount.[bitRef] <- candidateCount
                 #endif
 
-                let mutable usedBy = Array.zeroCreate<uint64> (1 <<< bitCount)
-                let variations = [|0..variationCount-1|]
+                let usedBy = buffers.Rent(variationCount)
+                for i in 0..usedBy.Length-1 do
+                    usedBy.[i] <- 0UL
 
-                let noClashes = 
-                    variations |> Array.forall (fun i -> 
+                let rec checkThatDoesNotClash i =
+                    if i >= variationCount then true
+                    else
                         let attackSet = currentBitRefAttackSet.[i]
                         let index:int = multiplyAndShift currentBitRefOccupancyVariations.[i] magicNumber magicShift
                         let collision = usedBy.[index] <> 0UL && usedBy.[index] <> attackSet
                         usedBy.[index] <- attackSet
-                        not collision )
+
+                        not collision && checkThatDoesNotClash (i+1)
+                        
+                let noClashes = checkThatDoesNotClash 0
+                   
+                buffers.Return(usedBy)
                 noClashes
 
             let goodMagicPredicate m =
