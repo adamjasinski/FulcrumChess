@@ -7,6 +7,18 @@
       "commands": [
         "fake"
       ]
+    },
+    "dotnet-counters": {
+      "version": "5.0.251802",
+      "commands": [
+        "dotnet-counters"
+      ]
+    },
+    "dotnet-trace": {
+      "version": "5.0.251802",
+      "commands": [
+        "dotnet-trace"
+      ]
     }
   }
 }

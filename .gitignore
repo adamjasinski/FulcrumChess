@@ -203,4 +203,4 @@ RookMagicNumbers.json
 .ionide
 
 #BechmarkDotNet
-BechmarkDotNet.Artifacts
+BenchmarkDotNet.Artifacts

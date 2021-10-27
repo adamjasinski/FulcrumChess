@@ -36,20 +36,28 @@ OR:
 
 ## Running the engine
 
-Easy way:
+Easy way, with compilation if needed:
 `dotnet run -p src/FulcrumChess.Engine`
+OR, if built already:
+`./run.sh`
 
-Binaries built through `dotnet publish` (see above):
+Run the binary from artifacts built through `dotnet publish` (see above):
 `src/FulcrumChess.Engine/bin/Release/linux-x64/FulcrumChess.Engine`
 
-## Perf testing the engine with .NET trace
+## Running dedicated benchmarks suites
+`dotnet run -c Release -p test/FulcrumChess.Engine.Benchmarks --filter *Suite*`
+OR
+`dotnet fake run build.fsx -t Benchmark`
+
+## Ad-hoc perf testing 
+### With .NET trace
 
 `dotnet trace collect -p <PID> --format Speedscope`
 
-## Running dedicated benchmarks
-`dotnet run -p test/FulcrumChess.Engine.Benchmarks --filter *Suite*`
-OR
-`dotnet fake run build.fsx -t Benchmark`
+### With .NET performance counters
+Example:
+`dotnet dotnet-counters collect --counters time-in-gc -p 8935`
+
 
 ## References
 
