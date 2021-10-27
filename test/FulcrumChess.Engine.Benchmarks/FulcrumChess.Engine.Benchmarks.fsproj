@@ -4,11 +4,16 @@
     <TargetFramework>net50</TargetFramework>
     <GenerateProgramFile>true</GenerateProgramFile>
     <OutputType>Exe</OutputType>
+    <DefineConstants>FAST_32BIT_MULT;USE_INTRINSIC_POPCNT;USE_INTRINSIC_BMI</DefineConstants>
+    <OtherFlags>$(OtherFlags) --optimize+ --platform:x64</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Prototypes\BitUtilsPrototypes.fs" />
+    <Compile Include="Prototypes\SpanT.fs" />
+    <Compile Include="BitUtilsSuite.fs" />
     <Compile Include="MagicSuite.fs" />
     <Compile Include="PerftSuite.fs" />
     <Compile Include="Program.fs" />

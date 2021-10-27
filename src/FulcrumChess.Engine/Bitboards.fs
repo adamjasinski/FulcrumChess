@@ -22,7 +22,7 @@ let generateOccupancyVariations (occupancyMasks:uint64[]) =
             [|
                 for i = 0 to variationCount-1 do
                     // Find bits set in index "i" and map them to bits in the 64 bit "occupancyVariation"
-                    let setBitsInIndex = BitUtils.getSetBits i 
+                    let setBitsInIndex = BitUtils.getSetBits_32 i 
                     let variation = 
                         setBitsInIndex
                         |>  Array.fold(fun acc setBitNumber ->
@@ -32,7 +32,7 @@ let generateOccupancyVariations (occupancyMasks:uint64[]) =
             |]
         for bitRef = 0 to 63 do
             let occupancyMask = occupancyMasks.[bitRef]
-            let setBitsInOccupancyMask = BitUtils.getSetBits occupancyMask
+            let setBitsInOccupancyMask = BitUtils.getSetBits_u64 occupancyMask
             let variationCount = 1 <<< (BitUtils.countSetBits occupancyMask)
             let variationsForBitRef = setBitsInOccupancyMask |> generateVariationsForBitRef variationCount 
             yield variationsForBitRef
@@ -480,11 +480,10 @@ module MoveGenerationLookupFunctions =
         |> Array.map (generatePseudoMovesBitboard lookups pos)
         |> Array.reduce (|||)
     
-
     let generateAllPseudoMovesForSide (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
         let bbForSide = getBitboardForSide side pos
-        let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
-        srcBitRefs 
+        bbForSide 
+        |> BitUtils.getSetBits_u64
         |> Array.collect (generatePseudoMovesWithSpecial lookups pos)
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat

@@ -5,7 +5,7 @@ open FulcrumChess.Engine.Tests
 [<AutoOpen>]
 module MoveGenTestHelper =
    let setBitsToAlgebraicNotations (bitboard:Bitboard) =
-        let targetBitRefs = bitboard |> BitUtils.getSetBits
+        let targetBitRefs = bitboard |> BitUtils.getSetBits_u64
         targetBitRefs |> Array.map Notation.bitRefToAlgebraicNotation
 
    let private promotionOptToLetter (promotionTypeOpt) =

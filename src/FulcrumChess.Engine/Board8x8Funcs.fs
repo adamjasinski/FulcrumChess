@@ -5,7 +5,7 @@ open FulcrumChess.Engine
 let private bitboardToLerbefArray (bitboard:Bitboard) =
     let arr = Array.zeroCreate<byte> 64
     bitboard 
-    |> BitUtils.getSetBits
+    |> BitUtils.getSetBits_u64
     |> Array.iter( fun bitRef -> arr.[bitRef] <- 1uy)
     arr
 

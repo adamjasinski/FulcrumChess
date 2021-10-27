@@ -21,7 +21,7 @@ module BitboardTests =
     let ``quick test of getSetBits (1)`` () =
         let input = 2017
         let expectedResult = [|0;5;6;7;8;9;10|]
-        let result = input |> BitUtils.getSetBits
+        let result = input |> BitUtils.getSetBits_32
         printfn "%s:  %d elements" "GetSetBits found something" result.Length
         printfn "%A" result
         test <@ (result |> Array.length) > 0 @>

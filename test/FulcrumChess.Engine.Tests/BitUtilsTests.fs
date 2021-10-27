@@ -34,14 +34,23 @@
     let ``getSetBits for zero returns empty array`` () =
         let input = 0
         let expectedResult:int[] = [||]
-        let result = input |> BitUtils.getSetBits
+        let result = input |> BitUtils.getSetBits_32
         test <@ expectedResult = result  @>
 
     [<Fact>]
     let ``getSetBits for large number returns expected result`` () =
         let input = 1266637395197952UL
         let expectedResult:int[] = [|47; 50|]
-        let result = input |> BitUtils.getSetBits
+        let result = input |> BitUtils.getSetBits_u64
+        test <@ expectedResult = result  @>
+
+    [<Theory>]
+    [<InlineDataEx(1UL, 1)>]
+    [<InlineDataEx(3UL, 2)>]
+    [<InlineDataEx(141UL, 4)>]
+    [<InlineDataEx(2017UL, 7)>]
+    let ``countSetBits returns expected result`` (input:uint64, expectedResult:int) =
+        let result = input |> BitUtils.countSetBits
         test <@ expectedResult = result  @>
 
     [<Theory>]
@@ -51,13 +60,4 @@
     [<InlineDataEx(2017UL, 7)>]
     let ``Hamming.popcount returns expected result`` (input:uint64, expectedResult:int) =
         let result = input |> BitUtils.Hamming.popcount_64
-        test <@ expectedResult = result  @>
-
-    [<Theory>]
-    [<InlineDataEx(1UL, 1)>]
-    [<InlineDataEx(3UL, 2)>]
-    [<InlineDataEx(141UL, 4)>]
-    [<InlineDataEx(2017UL, 7)>]
-    let ``Slow bitcount returns expected result`` (input:uint64, expectedResult:int) =
-        let result = input |> BitUtils.countBits_slow
         test <@ expectedResult = result  @>
