@@ -32,5 +32,5 @@ module UciMove =
             | (_, Some promType) -> SpecialMoveType.Promotion promType
             | (_, _) -> SpecialMoveType.Conventional
 
-        // TODO - determine castling
-        Move.createSpecial (srcBitRef, dstBitRef) specialFlags
+        // TODO - determine castling and capture
+        Move.createSpecial (srcBitRef, dstBitRef) false specialFlags

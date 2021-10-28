@@ -118,6 +118,9 @@ module Position =
 
     let getBitboardForSideToPlay (pos:Position) =
         pos |> getBitboardForSide pos.SideToPlay
+
+    let getBitboardForOppositeSide (pos:Position) =
+        pos |> getBitboardForSide (opposite pos.SideToPlay)
         
     let setFenPiece (piece:char) (bitRef:int) (pos:Position) =
         if bitRef < 0 || bitRef > 63 then invalidArg "bitRef" ("parameter has invalid value: " + bitRef.ToString())

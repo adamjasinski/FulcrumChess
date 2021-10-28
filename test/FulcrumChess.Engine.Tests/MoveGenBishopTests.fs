@@ -9,6 +9,8 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
     let magicNumbersAndShifts = magicGenerationSetupFixture.Lookups.MagicNumbersAndShifts.MagicNumbersAndShiftsBishop
 
+    let bitboardToConventionalMoves startBitRef = Bitboards.bitboardToConventionalMoves startBitRef Position.initialPosition //ignore the actual position
+    
     [<Fact>]
     [<Category("MagicGeneration")>]
     [<BoardRef("8/5p2/p7/8/2B5/8/4P3/8 w - -", "https://lichess.org/editor/8/5p2/p7/8/2B5/8/4P3/8_w_-_-")>]
@@ -27,7 +29,7 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
 
         let result = 
             Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
-            |> Bitboards.bitboardToConventionalMoves startBitRef
+            |> bitboardToConventionalMoves startBitRef
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
@@ -50,7 +52,7 @@ type MoveGenBishopTests(magicGenerationSetupFixture:MagicGenerationSetupFixture)
         let allOccupancy = opponentOccupancy ||| friendlyOccupancy
         let result = 
             Bitboards.generateMovesForPosition SlidingPiece.Bishop movesDb allOccupancy friendlyOccupancy startBitRef magicNumbersAndShifts
-            |> Bitboards.bitboardToConventionalMoves startBitRef
+            |> bitboardToConventionalMoves startBitRef
         test <@ Array.isEmpty result @>
 
     interface IAssemblyFixture<MagicGenerationSetupFixture>

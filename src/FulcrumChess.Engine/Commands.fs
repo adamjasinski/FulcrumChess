@@ -62,7 +62,7 @@ module CommandHandler =
         let handlePerft totalDepth =
             debugInfo "Running perft for depth %d" totalDepth
             let perftDivideReport = 
-                Perft.generatePerftReport state.Lookups (0us, state.CurrentPosition) (1, totalDepth)
+                Perft.generatePerftReport state.Lookups (Move.nullMove, state.CurrentPosition) (1, totalDepth)
             
             perftDivideReport.InitialMovesNodeBreakdown
             |> Array.iter( fun (move,count) -> output "%s: %d" move count)

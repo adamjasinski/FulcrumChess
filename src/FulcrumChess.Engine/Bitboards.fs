@@ -211,12 +211,13 @@ let bootstrapBishopMagicMoves (magicNumbersAndShifts:(uint64*int)[]) =
     occupancyMasks  |>  
     (generateOccupancyVariations >> generateBishopMagicMoves occupancyMasks magicNumbersAndShifts) 
 
-let bitboardToConventionalMoves (srcIndex:int) (moveSquares:Bitboard) =
+let bitboardToConventionalMoves (srcIndex:int) (pos:Position) (moveSquares:Bitboard) =
+    let opponentPieces = pos |> Position.getBitboardForOppositeSide
     moveSquares 
     |> BitUtils.getSetBits_u64 
     |> Array.map (fun dst -> 
-        //let isCapture = allPieces |> BitUtils.hasBitSet dst
-        Move.create (srcIndex, dst))
+        let isCapture = opponentPieces |> BitUtils.hasBitSet dst
+        Move.create (srcIndex, dst) isCapture) 
 
 let generateMovesForPosition (pc:SlidingPiece) (magicMoves:uint64[][]) (bbAllPieces:Bitboard) (bbFriendlyPieces:Bitboard) (srcIndex:int) (magicNumbersAndShifts:(uint64*int)[])=
     let occupancyMasks = getOccupancyMask pc
@@ -427,7 +428,7 @@ module MoveGenerationLookupFunctions =
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         generatePseudoMovesBitboard lookups pos bitRef 
-        |> bitboardToConventionalMoves bitRef
+        |> bitboardToConventionalMoves bitRef pos
 
     let private AllPromotionTypes = [|
             SpecialMoveType.Promotion(PromotionType.QueenProm); 
@@ -445,7 +446,7 @@ module MoveGenerationLookupFunctions =
 
             diagonalMoves &&& enPassantTargets
             |> BitUtils.getSetBits_u64 
-            |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) SpecialMoveType.EnPassant)
+            |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) true SpecialMoveType.EnPassant)
 
         let convertLastRankPawnMovesToPromotionIfApplicable side moves =
             let isLastRankMovePredicate m =
