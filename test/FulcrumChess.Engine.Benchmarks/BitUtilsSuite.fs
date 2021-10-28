@@ -118,3 +118,19 @@ type BitUtilsSuite() =
             System.Buffers.ArrayPool<int>.Shared.Return(setBits)
             res |> ignore
         )
+
+    [<Benchmark>]
+    member this.getSetBits_u64_stackalloc_simple() = 
+        multiplicatedSamples |> Array.iter (fun input ->
+            let setBits = BitUtilsPrototypes.getSetBits_u64_stackalloc input
+            let res = Array.fold (fun acc x ->  acc ^^^ (x*2)) 0 setBits
+            res |> ignore
+        )
+
+    [<Benchmark>]
+    member this.getSetBits_u64_stackalloc_pur() = 
+        multiplicatedSamples |> Array.iter (fun input ->
+            let setBits:Span<int> = BitUtilsPrototypes.getSetBits_u64_stackalloc_pur input
+            let res = SpanT.fold (fun acc x ->  acc ^^^ (x*2)) 0 setBits
+            res |> ignore
+        )

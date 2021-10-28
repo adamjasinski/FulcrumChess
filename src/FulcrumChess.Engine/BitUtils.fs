@@ -60,7 +60,7 @@ module BitUtils =
         let mutable x = uint32(b)
         while x > 0u do
             let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.TrailingZeroCount x)
-            x <- x &&& (x-1u)
+            x <- System.Runtime.Intrinsics.X86.Bmi1.ResetLowestSetBit x
             arr.[i] <- lsb
             i <- i+1
         let res = Array.zeroCreate i
@@ -101,7 +101,7 @@ module BitUtils =
         let mutable x = b
         while x > 0UL do
             let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
-            x <- x &&& (x-1UL)
+            x <- System.Runtime.Intrinsics.X86.Bmi1.X64.ResetLowestSetBit x
             arr.[i] <- lsb
             i <- i+1
         let res = Array.zeroCreate i

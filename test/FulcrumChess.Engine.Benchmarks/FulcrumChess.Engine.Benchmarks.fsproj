@@ -11,8 +11,8 @@
     <ProjectReference Include="..\..\src\FulcrumChess.Engine\FulcrumChess.Engine.fsproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Prototypes\BitUtilsPrototypes.fs" />
     <Compile Include="Prototypes\SpanT.fs" />
+    <Compile Include="Prototypes\BitUtilsPrototypes.fs" />
     <Compile Include="BitUtilsSuite.fs" />
     <Compile Include="MagicSuite.fs" />
     <Compile Include="PerftSuite.fs" />

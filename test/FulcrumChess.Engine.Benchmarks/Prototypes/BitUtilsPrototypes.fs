@@ -179,13 +179,35 @@ module BitUtilsPrototypes =
         let mutable x = b
         while x > 0UL do
             let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
-            x <- x &&& (x-1UL)
+            x <- System.Runtime.Intrinsics.X86.Bmi1.X64.ResetLowestSetBit x
             arr.[i] <- lsb
             i <- i+1
         let res = Array.zeroCreate i
         System.Array.Copy(arr, res, i)
         sharedBuffers.Return(arr)
         res
+
+    let inline getSetBits_u64_stackalloc (b:uint64) =
+        let span = SpanT.createOnStack 64
+        let mutable i = 0
+        let mutable x = b
+        while x > 0UL do
+            let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
+            x <- System.Runtime.Intrinsics.X86.Bmi1.X64.ResetLowestSetBit x
+            span.[i] <- lsb
+            i <- i+1
+        span.Slice(0, i).ToArray()
+
+    let inline getSetBits_u64_stackalloc_pur (b:uint64) =
+        let span = SpanT.createOnStack 64
+        let mutable i = 0
+        let mutable x = b
+        while x > 0UL do
+            let lsb = int(System.Runtime.Intrinsics.X86.Bmi1.X64.TrailingZeroCount x)
+            x <- System.Runtime.Intrinsics.X86.Bmi1.X64.ResetLowestSetBit x
+            span.[i] <- lsb
+            i <- i+1
+        span.Slice(0, i)
 
     let inline getSetBits_u64_double_leased (b:uint64) =
         let arr = System.Buffers.ArrayPool<int>.Shared.Rent(64)

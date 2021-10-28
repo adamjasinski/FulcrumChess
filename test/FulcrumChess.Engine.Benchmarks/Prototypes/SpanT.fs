@@ -1,7 +1,14 @@
 namespace FulcrumChess.Engine.Benchmarks.Prototypes
 open System
 
+#nowarn "9"  //disable unsafe/unverifiable code warning
+
 module SpanT =
+
+    let inline createOnStack<'T> (count:int) =
+        let mem = FSharp.NativeInterop.NativePtr.stackalloc<int>(count) |> FSharp.NativeInterop.NativePtr.toVoidPtr
+        System.Span<'T>(mem, count)
+
     let iter f (span:Span<'T>) =
         for i in 0..span.Length-1 do
             span.[i] |> f
