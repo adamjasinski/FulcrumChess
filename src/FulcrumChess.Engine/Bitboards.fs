@@ -386,30 +386,8 @@ module MoveGenerationLookupFunctions =
         let rookMoves = generateMovesForPositionViaLookups Rook allPieces friendlyPieces bitRef lookups
         bishopMoves ||| rookMoves
 
-    let private generateKingPseudoMoves (pos:Position) (allPieces:Bitboard) (friendlyPieces:Bitboard) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
-        let castlingSpecial = 
-            let castlingLookup = Position.castlingLookups.[side]
-            let kingBitboard = Position.getKingBitboard side pos
-            if (kingBitboard &&&  castlingLookup.InitialPositionKing) > 0UL then
-                let rooksBitBoard = Position.getRooksBitboard side pos
-                let kingSideCastling = 
-                    (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && 
-                    (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL &&
-                    pos |> Position.hasCastlingRights CastlingType.KingSide side
-                let queensideCastling = 
-                    (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && 
-                    (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL &&
-                    pos |> Position.hasCastlingRights CastlingType.QueenSide side
-                match(kingSideCastling, queensideCastling) with
-                | (true, false) -> castlingLookup.DestinationKingSideCastling
-                | (false, true) -> castlingLookup.DestinationQueenSideCastling
-                | (true, true) -> castlingLookup.DestinationKingSideCastling ||| castlingLookup.DestinationQueenSideCastling
-                | (false, false) -> 0UL
-            else
-                0UL
-
-        let conventionalMoves = (lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces)
-        conventionalMoves ||| castlingSpecial
+    let private generateKingPseudoMovesConventional (pos:Position) (allPieces:Bitboard) (friendlyPieces:Bitboard) (side:Side) (bitRef:int) (lookups:MoveGenerationLookups) =
+        lookups.KingMovesDb.[bitRef] &&& ~~~friendlyPieces
 
     let private generatePseudoMovesBitboard (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
         let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get
@@ -423,7 +401,7 @@ module MoveGenerationLookupFunctions =
             | Chessmen.Bishop -> generateMovesForPositionViaLookups Bishop allPieces friendlyPieces
             | Chessmen.Rook -> generateMovesForPositionViaLookups Rook allPieces friendlyPieces
             | Queen -> generateQueenPseudoMoves allPieces friendlyPieces
-            | King -> generateKingPseudoMoves pos allPieces friendlyPieces side 
+            | King -> generateKingPseudoMovesConventional pos allPieces friendlyPieces side 
         generator bitRef lookups
 
     let generatePseudoMoves (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
@@ -437,7 +415,29 @@ module MoveGenerationLookupFunctions =
             SpecialMoveType.Promotion(PromotionType.KnightProm); 
         |]
 
-    let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
+    let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) :Move[] =
+        let generateCastlingMoves side = 
+            let allPieces = pos |> bothSidesBitboard
+            let castlingLookup = Position.castlingLookups.[side]
+            let kingBitboard = Position.getKingBitboard side pos
+            if (kingBitboard &&&  castlingLookup.InitialPositionKing) > 0UL then
+                let rooksBitBoard = Position.getRooksBitboard side pos
+                let kingSideCastling = 
+                    (rooksBitBoard &&& castlingLookup.InitialPositionKingsRook) > 0UL && 
+                    (allPieces &&& castlingLookup.BlockersKingsRook) = 0UL &&
+                    pos |> Position.hasCastlingRights CastlingType.KingSide side
+                let queensideCastling = 
+                    (rooksBitBoard &&& castlingLookup.InitialPositionQueensRook) > 0UL && 
+                    (allPieces &&& castlingLookup.BlockersQueensRook) = 0UL &&
+                    pos |> Position.hasCastlingRights CastlingType.QueenSide side
+                match(kingSideCastling, queensideCastling) with
+                | (true, false) -> [|castlingLookup.KingSideCastlingMove|]
+                | (false, true) -> [|castlingLookup.QueenSideCastlingMove|]
+                | (true, true) -> [|castlingLookup.KingSideCastlingMove; castlingLookup.QueenSideCastlingMove|]
+                | (false, false) -> [||]
+            else
+                [||]
+        
         let generateEnPassantMoves side enPassantTarget =
             let ((_, diagonalMoves), enPassantTargets) = 
                 match side with 
@@ -457,9 +457,9 @@ module MoveGenerationLookupFunctions =
             
             match moves |> Array.partition isLastRankMovePredicate with
             | ([||], nonPromotables) -> nonPromotables
-            | (promotables, [||])    -> promotables |> Array.collect (fun m -> 
-                    AllPromotionTypes |> Array.map (Move.createSpecialFromExisting m))
-            | (_, _)                -> failwithf "Invalid case: generated both promotions and non-promotions moves for the same pawn: %d" bitRef
+            | (promotables, [||]) -> promotables |> Array.collect (fun m -> 
+                    Array.map (Move.createSpecialFromExisting m) AllPromotionTypes)
+            | (_, _) -> failwithf "Invalid case: generated both promotions and non-promotions moves for the same pawn: %d" bitRef
 
         let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get
         let moves = generatePseudoMoves lookups pos bitRef
@@ -472,9 +472,13 @@ module MoveGenerationLookupFunctions =
                     Array.append moves enpassants
                 else moves
             movesWithMaybeEnPassant |> convertLastRankPawnMovesToPromotionIfApplicable side
+        | King -> 
+            let maybeCastlingMoves = generateCastlingMoves side
+            Array.append maybeCastlingMoves moves
         | _ -> moves
 
     let generateAttacks (lookups:MoveGenerationLookups) (side:Side) (pos:Position) =
+        // TODO - we might be missing an edge case with en passant moves, which are also attacks
         let bbForSide = getBitboardForSide side pos
         let srcBitRefs = bbForSide |> BitUtils.getSetBits_u64
         srcBitRefs 
@@ -489,15 +493,3 @@ module MoveGenerationLookupFunctions =
         // |> Array.map (generatePseudoMoves lookups pos)
         // |> Array.concat
         //|> Array.reduce (|||)
-
-    // let generatePseudoMovesFullInfo (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) =
-    //     let side = pos.SideToPlay
-    //     let opponentPieces = pos |> getBitboardForSide (opposite side)
-    //     let moves = generatePseudoMoves lookups pos bitRef
-    //     moves
-    //     // bitboardResult 
-    //     // |> BitUtils.getSetBits
-    //     // |> Array.map (fun dstBitRef ->
-    //     //     let isCapture = bitboardResult |> BitUtils.hasBitSet dstBitRef
-    //     //     Move.create (bitRef, dstBitRef) isCapture)
-

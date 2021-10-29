@@ -35,7 +35,8 @@ type CastlingLookup = {
     DestinationBitRefQueenSideCastling:int;
     DestinationKingSideCastling:Bitboard;
     DestinationQueenSideCastling:Bitboard;
-}
+    KingSideCastlingMove:Move;
+    QueenSideCastlingMove:Move; }
 
 type GetAttacks = Side->Position->Bitboard
 type GetMovesForSide = Position->Move array
@@ -86,6 +87,8 @@ module Position =
             DestinationBitRefQueenSideCastling = 5;
             DestinationKingSideCastling = (1UL <<< 1);
             DestinationQueenSideCastling = (1UL <<< 5);
+            KingSideCastlingMove = Move.createSpecial (3,1) false SpecialMoveType.Castling;
+            QueenSideCastlingMove = Move.createSpecial (3,5) false SpecialMoveType.Castling;
             };
         Side.Black, { 
             CastlingLookup.InitialPositionKing = 576460752303423488UL;
@@ -99,6 +102,8 @@ module Position =
             DestinationBitRefQueenSideCastling = 61;
             DestinationKingSideCastling = (1UL <<< 57);
             DestinationQueenSideCastling = (1UL <<< 61);
+            KingSideCastlingMove = Move.createSpecial (59,57) false SpecialMoveType.Castling;
+            QueenSideCastlingMove = Move.createSpecial (59,61) false SpecialMoveType.Castling;
             };
     ]
 
@@ -521,21 +526,3 @@ module Position =
 
         matchingMoveFromEngine
         |> Option.bind legalMoveFilter
-
-        // let possibleMovePredicate p =
-        //     let generatedPseudoMoves = 
-        //         generatePseudoMoves pos srcBitRef 
-        //         |> Array.map Move.getSrcAndDestBitRefs
-        //     // printfn "Got following pseudo moves: %A" generatedPseudoMoves
-        //     // printfn "Attempted move: %A" (srcBitRef,dstBitRef)
-        //     generatedPseudoMoves |> Array.exists (fun srcAndDest -> srcAndDest = (srcBitRef,dstBitRef))
-
-
-        // let sideToPlayPredicate p = 
-        //     let struct(_, side) = p |> getChessmanAndSide srcBitRef |> ValueOption.get  
-        //     side = p.SideToPlay
-     
-        // pos |> Some
-        // |> Option.filter sideToPlayPredicate
-        // |> Option.filter possibleMovePredicate
-        // |> Option.bind legalMoveFilter

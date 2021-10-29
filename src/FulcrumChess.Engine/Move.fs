@@ -20,24 +20,35 @@ module Move =
     /// - Queen side castling bits 12-15 are set
     /// bit 16: capture
     
-    let private captureMask = 1u <<< 16
+    module Masks =
+        let captureMask = 1u <<< 16
+        let [<Literal>] specialMoveProbe = 0xC000u
+        let [<Literal>] castling = 0xC000u
+        let [<Literal>] enPassant = 0x8000u
+        let [<Literal>] promGeneral = 0x4000u
+        let [<Literal>] queenProm = 0x3000u
+        let [<Literal>] rookProm = 0x2000u
+        let [<Literal>] bishopProm = 0x1000u
+        let [<Literal>] knightProm = 0x0u
+        let [<Literal>] srcBits = 0xFC0u
+        let [<Literal>] dstBits = 0x3Fu
 
     let inline create (srcBitRef:int, destBitRef:int) (isCapture:bool): Move =
-        let maybeCaptureMask = if isCapture then captureMask else 0u
-        uint32 (( srcBitRef <<< 6) ||| destBitRef) ||| maybeCaptureMask
+        let maybeCaptureMask = if isCapture then Masks.captureMask else 0u
+        uint32 ((srcBitRef <<< 6) ||| destBitRef) ||| maybeCaptureMask
 
     let createSpecialFromExisting (move:Move) (specialMoveType:SpecialMoveType) : Move =
         let basicBits = move
         let extraMask = 
             let promotionTypeToMask = function
-                | QueenProm -> 0x3000u
-                | RookProm -> 0x2000u
-                | BishopProm -> 0x1000u
-                | KnightProm -> 0x0u
+                | QueenProm -> Masks.queenProm
+                | RookProm -> Masks.rookProm
+                | BishopProm -> Masks.bishopProm
+                | KnightProm -> Masks.knightProm
             match specialMoveType with
-            | Promotion target -> 0x4000u ||| promotionTypeToMask target
-            | EnPassant -> 0x8000u
-            | Castling -> 0xC000u
+            | Promotion target -> Masks.promGeneral ||| promotionTypeToMask target
+            | EnPassant -> Masks.enPassant
+            | Castling -> Masks.castling
             | _ -> 0x0u
         basicBits ||| extraMask
 
@@ -45,7 +56,15 @@ module Move =
         let basicBits = create (srcBitRef, destBitRef) isCapture
         createSpecialFromExisting basicBits specialMoveType
 
-    let isCapture (move:Move) = move &&& captureMask > 0u
+    let inline isCapture (move:Move) = move &&& Masks.captureMask > 0u
+
+    let inline isCastling (move:Move) = move &&& Masks.specialMoveProbe = Masks.castling
+
+    let inline isEnPassant (move:Move) =
+        move &&& Masks.specialMoveProbe = Masks.enPassant
+
+    let inline isPromotion (move:Move) =
+        move &&& Masks.specialMoveProbe = Masks.promGeneral
 
     // let createCastling (castlingType:CastlingType) (side:Side) : Move =
     //     //uint16 ((srcBitRef <<< 6) ||| destBitRef)
@@ -54,10 +73,10 @@ module Move =
     //    | QueenSide -> castlingLookup
 
     let inline getDestBitRef (move:Move) =
-        int(move &&& 0x3Fu)
+        int(move &&& Masks.dstBits)
 
     let inline getSrcBitRef (move:Move) =
-        int((move &&& 0xFC0u) >>> 6)
+        int((move &&& Masks.srcBits) >>> 6)
 
     let getSrcAndDestBitRefs = 
         getSrcBitRef .&&&. getDestBitRef 
@@ -66,12 +85,9 @@ module Move =
         (0UL, moves) 
         ||> Array.fold (fun acc mv -> 
             acc |> BitUtils.setBit (getDestBitRef mv))
-
-    let isEnPassant (move:Move) =
-        move &&& 0x8000u > 0u
-
+    
     let getPromotionType (move:Move) =
-        if move &&& 0x4000u > 0u then
+        if move |> isPromotion then
             let promotionType = 
                 match (move &&& 0x3000u) >>> 12 with
                 | 0u -> PromotionType.KnightProm
@@ -105,3 +121,8 @@ module Castling =
         match chessman with
         | King -> determineCastlingTypeIfKingsMove side move
         | _ -> Option.None
+
+
+//  module MoveScore =
+//     let applyScore (move:Move) =
+//         let score1 m = m |>

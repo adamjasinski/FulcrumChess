@@ -55,13 +55,17 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     member __.``verify castling`` (fen:string, startBitRef:int, expectedSquares:string array) =
         let pos = FenParsing.parseToPosition fen
 
-        let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
+        let result = MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups pos startBitRef
 
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
         printfn "%A" (algNotations)
         let expectedSquaresSet = expectedSquares |> Set.ofArray
         test <@ expectedSquaresSet = (algNotations |> Set.ofArray) @>
+        let theCastlingMoveOpt = result |> Array.tryFind (fun m -> m |> Move.isCastling)
+        test <@ theCastlingMoveOpt.IsSome @>
+        let theCastlingMoveLongAlg = theCastlingMoveOpt.Value |> Notation.toAlgebraicNotation
+        <@ theCastlingMoveLongAlg.Substring(2)= expectedSquares.[1] @> // The 2nd move in expectedSquares is the castling
 
     [<Theory>]
     [<Category("Castling")>]
@@ -76,7 +80,7 @@ type MoveGenKingTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
     member __.``verify castling - no castling rights`` (fen:string, startBitRef:int, expectedSquares:string array) =
         let pos = FenParsing.parseToPosition fen
 
-        let result = MoveGenerationLookupFunctions.generatePseudoMoves lookups pos startBitRef
+        let result = MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups pos startBitRef
 
         test <@ not (Array.isEmpty result) @>
         let algNotations = result |> movesToAlgebraicNotations
