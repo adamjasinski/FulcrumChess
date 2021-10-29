@@ -6,31 +6,16 @@ namespace FulcrumChess.Engine
 //     A nullmove from the Engine to the GUI should be sent as 0000.
 //     Examples:  e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
 
-// type UciMove = { LongAlgebraic:string }
+type UciMove = { LongAlgebraic:string }
 
 module UciMove =
+    let create (moveLongAlgNotation:string) =
+        if moveLongAlgNotation |> Notation.validateLongAlgebraicNotation then 
+            Some { UciMove.LongAlgebraic=moveLongAlgNotation }
+        else None
 
-    let private determineEnPassant (positionBeforeMove:Position) (srcBitRef, dstBitRef) =
-        positionBeforeMove |> ValueSome
-        |> ValueOption.filter (fun pos -> pos.EnPassantTarget > 0)
-        |> ValueOption.bind (Position.getChessmanAndSide srcBitRef)
-        |> ValueOption.map ( fun struct(chessman,side) ->
-            match chessman with
-            | Pawn -> 
-                positionBeforeMove.EnPassantTarget = dstBitRef
-            | _ -> false)
-        |> ValueOption.exists ( (=) true)
-
-
-    let fromLongAlgebraicNotationToMove (positionBeforeMove:Position) (moveLongAlgNotation:string) =
-        let (srcBitRef, dstBitRef, promotionOpt) = Notation.fromLongAlgebraicNotationToBitRefs moveLongAlgNotation
-        let isEnPassant = determineEnPassant positionBeforeMove (srcBitRef, dstBitRef)
-
-        let specialFlags = 
-            match (isEnPassant, promotionOpt) with
-            | (true, _) -> SpecialMoveType.EnPassant
-            | (_, Some promType) -> SpecialMoveType.Promotion promType
-            | (_, _) -> SpecialMoveType.Conventional
-
-        // TODO - determine castling and capture
-        Move.createSpecial (srcBitRef, dstBitRef) false specialFlags
+    let createOrFail (moveLongAlgNotation:string) =
+        if (moveLongAlgNotation |> Notation.validateLongAlgebraicNotation) then 
+            { UciMove.LongAlgebraic=moveLongAlgNotation }
+        else 
+            failwithf "Invalid move from UCI input: %s" moveLongAlgNotation

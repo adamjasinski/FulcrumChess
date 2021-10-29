@@ -51,8 +51,9 @@ module CommandHandler =
                     Position.initialPosition
                 else fenPosition |> FenParsing.parseToPosition
             let makeMove pos moveAlg = 
-                let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlg
-                let posOpt = pos |> Position.tryMakeMoveWithFullValidation state.GeneratePseudoMoves state.GenerateAttacks move
+                let uciMove = UciMove.create moveAlg
+                if uciMove |> Option.isNone then illegalMove moveAlg
+                let posOpt = pos |> Position.tryMakeMoveWithFullValidation state.GeneratePseudoMoves state.GenerateAttacks uciMove.Value
                 match posOpt with
                 | Some p -> p
                 | None -> illegalMove moveAlg

@@ -9,6 +9,10 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
 
     let lookups = magicGenerationSetupFixture.Lookups
 
+    let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
+    let generatePseudoMoves = Bitboards.MoveGenerationLookupFunctions.generatePseudoMoves lookups
+    let tryMakeMoveWithFullValidation = Position.tryMakeMoveWithFullValidation generatePseudoMoves generateAttacks
+
     let verifyOccupancy (expectedOccupancy:int[]) (actualOccupancy:Bitboard) =
         let actualBitboardAsBitArray = (uint64(actualOccupancy) |> BitUtils.getSetBits_u64)
         test <@ actualBitboardAsBitArray = expectedOccupancy @>
@@ -50,9 +54,8 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
-        let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
+        let move = UciMove.createOrFail moveAlgNotation
+        let pos' = pos |> tryMakeMoveWithFullValidation move
 
         test <@ None = pos' @>
 
@@ -62,9 +65,8 @@ type PositionTests(magicGenerationSetupFixture:MagicGenerationSetupFixture) =
         //Try to make a move. It should be rejected as illegal, as the pawn is pinned
 
         let pos = FenParsing.parseToPosition fen
-        let move = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        let generateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups
-        let pos' = pos |> Position.tryMakeMoveInternal generateAttacks move
+        let move = UciMove.createOrFail moveAlgNotation
+        let pos' = pos |> tryMakeMoveWithFullValidation move
 
         test <@ None = pos' @>
 

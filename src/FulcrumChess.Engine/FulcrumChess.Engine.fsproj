@@ -16,12 +16,12 @@
     <Compile Include="Pieces.fs" />
     <Compile Include="Magic.fs" />
     <Compile Include="Move.fs" />
+    <Compile Include="Notation.fs" />
+    <Compile Include="UciMove.fs" />
     <Compile Include="Zobrist.fs" />
     <Compile Include="Position.fs" />
     <Compile Include="Eval.fs" />
     <Compile Include="Board8x8Funcs.fs" />
-    <Compile Include="Notation.fs" />
-    <Compile Include="UciMove.fs" />
     <Compile Include="FenParsing.fs" />
     <Compile Include="MagicCache.fs" />
     <Compile Include="Bitboards.fs" />

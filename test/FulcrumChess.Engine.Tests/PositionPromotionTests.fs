@@ -46,12 +46,11 @@ type PositionPromotionTests(magicGenerationSetupFixture:MagicGenerationSetupFixt
         let pos = FenParsing.parseToPosition fen
         test <@ pos.HashKey = (pos |> Position.calculateZobristHash) @>
 
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        printfn "Gota moove: %d <- %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        let uciMove = UciMove.createOrFail moveAlgNotation
 
         let generateAttacks' = generateAttacks lookups
         let generatePseudoMovesAdapter' = generatePseudoMovesAdapter lookups
-        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' actualMove
+        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' uciMove
         test <@ positionAfterMove |> Option.isSome @>
 
         let expectedHash = (positionAfterMove.Value |> Position.calculateZobristHash) 

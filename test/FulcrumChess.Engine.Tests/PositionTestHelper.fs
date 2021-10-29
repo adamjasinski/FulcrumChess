@@ -9,12 +9,11 @@ module PositionTestHelper =
     let verifyPositionAfterMoveWithFullValidation lookups fen moveAlgNotation expectedFen =
         let pos = FenParsing.parseToPosition fen
 
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        printfn "Gota moove: %d <- %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        let uciMove = UciMove.createOrFail moveAlgNotation
 
         let generateAttacks' = generateAttacks lookups
         let generatePseudoMovesAdapter' = generatePseudoMovesAdapter lookups
-        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' actualMove
+        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' uciMove
         test <@ positionAfterMove |> Option.isSome @>
 
         let posPrint = positionAfterMove.Value |> Position.prettyPrint
@@ -27,10 +26,9 @@ module PositionTestHelper =
     let verifyPositionAfterIllegalMove lookups fen moveAlgNotation =
         let pos = FenParsing.parseToPosition fen
 
-        let actualMove = UciMove.fromLongAlgebraicNotationToMove pos moveAlgNotation
-        printfn "Gota moove: %d - %d" (actualMove |> Move.getDestBitRef) (actualMove |> Move.getSrcBitRef)
+        let uciMove = UciMove.createOrFail moveAlgNotation
 
         let generateAttacks' = generateAttacks lookups
         let generatePseudoMovesAdapter' = generatePseudoMovesAdapter lookups
-        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' actualMove
+        let positionAfterMove = pos |> Position.tryMakeMoveWithFullValidation generatePseudoMovesAdapter' generateAttacks' uciMove
         test <@ positionAfterMove |> Option.isNone @>

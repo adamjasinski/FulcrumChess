@@ -17,7 +17,7 @@ module MovesTests =
     let ``getDestBitRef returns expected bit`` () =
         // b8-a6 == 62--47
         let move = (62u <<< 6 ||| 47u)
-        let (actualSrcBitRef,actualDestBitRef) = move |> Move.getSrcAndDestBitRefs
+        let struct(actualSrcBitRef,actualDestBitRef) = move |> Move.getSrcAndDestBitRefs
         test <@ 62 = actualSrcBitRef @>  
         test <@ 47 = actualDestBitRef @>       
 

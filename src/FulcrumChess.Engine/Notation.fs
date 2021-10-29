@@ -13,7 +13,7 @@ module Notation =
         sprintf "%c%d" fileLetters.[fileIndex] (rankIndex+1)
 
     let toAlgebraicNotation (move:Move) =
-        let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
+        let struct(srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         let maybeCaptureSuffix = if (move |> Move.isCapture) then "x" else ""
         if srcBitRef <> dstBitRef then
             sprintf "%s%s%s" (bitRefToAlgebraicNotation srcBitRef) (bitRefToAlgebraicNotation dstBitRef) maybeCaptureSuffix
@@ -28,9 +28,13 @@ module Notation =
         let rank = byte(s.[1]) - byte('1') |> int
         (rank*8+file)
 
+    let private longAlgPattern = "^[a-h][1-8][a-h][1-8][qrbn]?$"
+
+    let validateLongAlgebraicNotation (s:string) =
+        Regex.IsMatch(s, longAlgPattern)
+
     let fromLongAlgebraicNotationToBitRefs (s:string) =
-        let pattern = "^[a-h][1-8][a-h][1-8]"
-        if not <| Regex.IsMatch(s, pattern) then failwithf "Invalid long algebraic notation: %s" s
+        if not <| Regex.IsMatch(s, longAlgPattern) then failwithf "Invalid long algebraic notation: %s" s
       
         let srcBitRef = s.Substring(0,2) |> fromSquareNotationToBitRef
         let dstBitRef = s.Substring(2,2) |> fromSquareNotationToBitRef
@@ -43,4 +47,4 @@ module Notation =
             | "N" -> PromotionType.KnightProm |> Some
             | _ -> None
 
-        (srcBitRef, dstBitRef, promotionOpt)
+        struct(srcBitRef, dstBitRef, promotionOpt)

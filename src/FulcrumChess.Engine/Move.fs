@@ -87,7 +87,7 @@ type CastlingType = |KingSide|QueenSide
 
 module Castling =
     let private determineCastlingTypeIfKingsMove (side:Side) (move:Move) =
-        let (srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
+        let struct(srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
         match side with
         | Side.White -> 
             match (srcBitRef, dstBitRef) with
