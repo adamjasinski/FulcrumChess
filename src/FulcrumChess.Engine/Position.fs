@@ -87,8 +87,8 @@ module Position =
             DestinationBitRefQueenSideCastling = 5;
             DestinationKingSideCastling = (1UL <<< 1);
             DestinationQueenSideCastling = (1UL <<< 5);
-            KingSideCastlingMove = Move.createSpecial (3,1) false SpecialMoveType.Castling;
-            QueenSideCastlingMove = Move.createSpecial (3,5) false SpecialMoveType.Castling;
+            KingSideCastlingMove = Move.createCastling struct(White, CastlingType.KingSide);
+            QueenSideCastlingMove = Move.createCastling struct(White, CastlingType.QueenSide);
             };
         Side.Black, { 
             CastlingLookup.InitialPositionKing = 576460752303423488UL;
@@ -102,8 +102,8 @@ module Position =
             DestinationBitRefQueenSideCastling = 61;
             DestinationKingSideCastling = (1UL <<< 57);
             DestinationQueenSideCastling = (1UL <<< 61);
-            KingSideCastlingMove = Move.createSpecial (59,57) false SpecialMoveType.Castling;
-            QueenSideCastlingMove = Move.createSpecial (59,61) false SpecialMoveType.Castling;
+            KingSideCastlingMove = Move.createCastling struct(Black, CastlingType.KingSide);
+            QueenSideCastlingMove = Move.createCastling struct(Black, CastlingType.QueenSide);
             };
     ]
 

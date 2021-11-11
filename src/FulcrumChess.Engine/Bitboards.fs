@@ -408,12 +408,18 @@ module MoveGenerationLookupFunctions =
         generatePseudoMovesBitboard lookups pos bitRef 
         |> bitboardToConventionalMoves bitRef pos
 
+    // let private AllPromotionTypes = [|
+    //         SpecialMoveType.Promotion(PromotionType.QueenProm); 
+    //         SpecialMoveType.Promotion(PromotionType.RookProm); 
+    //         SpecialMoveType.Promotion(PromotionType.BishopProm); 
+    //         SpecialMoveType.Promotion(PromotionType.KnightProm); 
+    //     |]
     let private AllPromotionTypes = [|
-            SpecialMoveType.Promotion(PromotionType.QueenProm); 
-            SpecialMoveType.Promotion(PromotionType.RookProm); 
-            SpecialMoveType.Promotion(PromotionType.BishopProm); 
-            SpecialMoveType.Promotion(PromotionType.KnightProm); 
-        |]
+        PromotionType.QueenProm
+        PromotionType.RookProm
+        PromotionType.BishopProm
+        PromotionType.KnightProm
+    |]
 
     let generatePseudoMovesWithSpecial (lookups:MoveGenerationLookups) (pos:Position) (bitRef:int) :Move[] =
         let generateCastlingMoves side = 
@@ -446,7 +452,7 @@ module MoveGenerationLookupFunctions =
 
             diagonalMoves &&& enPassantTargets
             |> BitUtils.getSetBits_u64 
-            |> Array.map (fun dst -> Move.createSpecial (bitRef, dst) true SpecialMoveType.EnPassant)
+            |> Array.map (fun dst -> Move.createEnPassant struct(bitRef, dst))
 
         let convertLastRankPawnMovesToPromotionIfApplicable side moves =
             let isLastRankMovePredicate m =
@@ -458,7 +464,7 @@ module MoveGenerationLookupFunctions =
             match moves |> Array.partition isLastRankMovePredicate with
             | ([||], nonPromotables) -> nonPromotables
             | (promotables, [||]) -> promotables |> Array.collect (fun m -> 
-                    Array.map (Move.createSpecialFromExisting m) AllPromotionTypes)
+                    Array.map (Move.createPromotion m) AllPromotionTypes)
             | (_, _) -> failwithf "Invalid case: generated both promotions and non-promotions moves for the same pawn: %d" bitRef
 
         let struct(chessman, side) = pos |> getChessmanAndSide bitRef |> ValueOption.get

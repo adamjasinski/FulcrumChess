@@ -8,6 +8,10 @@ type PromotionType = |KnightProm|BishopProm|RookProm|QueenProm //:D (piece types
 [<Struct>]
 type SpecialMoveType = |Conventional|Promotion of PromotionType|EnPassant|Castling
 
+[<Struct>]
+type CastlingType = |KingSide|QueenSide
+
+
 module Move =
 
     /// bit  0- 5: destination square (from 0 to 63)
@@ -33,28 +37,27 @@ module Move =
         let [<Literal>] srcBits = 0xFC0u
         let [<Literal>] dstBits = 0x3Fu
 
-    let inline create (srcBitRef:int, destBitRef:int) (isCapture:bool): Move =
+    let inline create struct(srcBitRef:int, destBitRef:int) (isCapture:bool): Move =
         let maybeCaptureMask = if isCapture then Masks.captureMask else 0u
         uint32 ((srcBitRef <<< 6) ||| destBitRef) ||| maybeCaptureMask
 
-    let createSpecialFromExisting (move:Move) (specialMoveType:SpecialMoveType) : Move =
-        let basicBits = move
-        let extraMask = 
-            let promotionTypeToMask = function
-                | QueenProm -> Masks.queenProm
-                | RookProm -> Masks.rookProm
-                | BishopProm -> Masks.bishopProm
-                | KnightProm -> Masks.knightProm
-            match specialMoveType with
-            | Promotion target -> Masks.promGeneral ||| promotionTypeToMask target
-            | EnPassant -> Masks.enPassant
-            | Castling -> Masks.castling
-            | _ -> 0x0u
-        basicBits ||| extraMask
+    let createCastling = function
+        | struct(Side.White, CastlingType.KingSide) -> Masks.castling ||| create struct(3,1) false
+        | struct(Side.White, CastlingType.QueenSide) -> Masks.castling ||| create struct(3,5) false
+        | struct(Side.Black, CastlingType.KingSide) -> Masks.castling ||| create struct(59,57) false
+        | struct(Side.Black, CastlingType.QueenSide) -> Masks.castling ||| create struct(59,61) false
 
-    let createSpecial (srcBitRef:int, destBitRef:int) (isCapture:bool) (specialMoveType:SpecialMoveType) : Move =
-        let basicBits = create (srcBitRef, destBitRef) isCapture
-        createSpecialFromExisting basicBits specialMoveType
+    let createEnPassant struct(srcBitRef:int, destBitRef:int) =
+        Masks.enPassant ||| create (srcBitRef, destBitRef) true
+
+    let createPromotion (move:Move) (promotionType:PromotionType) =
+        let promotionTypeMask = 
+            match promotionType with
+            | QueenProm -> Masks.queenProm
+            | RookProm -> Masks.rookProm
+            | BishopProm -> Masks.bishopProm
+            | KnightProm -> Masks.knightProm
+        move ||| Masks.promGeneral ||| promotionTypeMask
 
     let inline isCapture (move:Move) = move &&& Masks.captureMask > 0u
 
@@ -65,12 +68,6 @@ module Move =
 
     let inline isPromotion (move:Move) =
         move &&& Masks.specialMoveProbe = Masks.promGeneral
-
-    // let createCastling (castlingType:CastlingType) (side:Side) : Move =
-    //     //uint16 ((srcBitRef <<< 6) ||| destBitRef)
-    //    let castlingLookup = Position.castlingLookups.[side]
-    //    let dst = match castlingLookup with
-    //    | QueenSide -> castlingLookup
 
     let inline getDestBitRef (move:Move) =
         int(move &&& Masks.dstBits)
@@ -99,8 +96,6 @@ module Move =
 
     let nullMove = 0u
 
-type CastlingType = |KingSide|QueenSide
-
 module Castling =
     let private determineCastlingTypeIfKingsMove (side:Side) (move:Move) =
         let struct(srcBitRef, dstBitRef) = move |> Move.getSrcAndDestBitRefs
@@ -126,3 +121,4 @@ module Castling =
 //  module MoveScore =
 //     let applyScore (move:Move) =
 //         let score1 m = m |>
+    //Capture, Promotions, Castling?, 

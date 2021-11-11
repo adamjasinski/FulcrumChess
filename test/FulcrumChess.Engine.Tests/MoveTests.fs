@@ -8,7 +8,7 @@ module MovesTests =
     [<Fact>]
     let ``creates sets expected bit mask`` () =
         // e2-e4
-        let move = Move.create (11,27) false
+        let move = Move.create struct(11,27) false
 
         test <@ 731us = uint16(move) @>       
 
@@ -25,7 +25,7 @@ module MovesTests =
     [<Fact>]
     let ``can roundtrip`` () =
         // e2-e4
-        let move = Move.create (11,27) true
+        let move = Move.create struct(11,27) true
 
         let actualSrcBitRef = move |> Move.getSrcBitRef
         let actualDestBitRef = move |> Move.getDestBitRef
@@ -46,7 +46,7 @@ module MovesTests =
     [<Fact>]
     let ``toAlgebraicNotation returns expected value with capture`` () =
        // e2-e4
-       let move = Move.create (11,27) true
+       let move = Move.create struct(11,27) true
 
        let actualNotation = move |> Notation.toAlgebraicNotation
        test <@ "e2e4x" = actualNotation @>
