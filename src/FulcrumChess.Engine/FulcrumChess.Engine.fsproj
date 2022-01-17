@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net50</TargetFramework>
+    <TargetFramework>net60</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>FulcrumChess.Engine</RootNamespace>
     <DefineConstants>FAST_32BIT_MULT;USE_INTRINSIC_POPCNT;USE_INTRINSIC_BMI</DefineConstants>

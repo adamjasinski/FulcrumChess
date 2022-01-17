@@ -10,7 +10,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/FulcrumChess.Engine/bin/Debug/net50/FulcrumChess.Engine.dll",
+            "program": "${workspaceFolder}/src/FulcrumChess.Engine/bin/Debug/net60/FulcrumChess.Engine.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/FulcrumChess.Engine",
             "console": "internalConsole",
