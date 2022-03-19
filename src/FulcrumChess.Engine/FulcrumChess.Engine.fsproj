@@ -7,27 +7,32 @@
     <OtherFlags>$(OtherFlags) --optimize+ --platform:x64</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Arrow.fs" />
-    <Compile Include="BitUtils.fs" />
-    <Compile Include="SeqExtensions.fs" />
-    <Compile Include="Randomness.fs" />
-    <Compile Include="Common.fs" />
-    <Compile Include="Exceptions.fs" />
-    <Compile Include="Pieces.fs" />
-    <Compile Include="Magic.fs" />
-    <Compile Include="Move.fs" />
-    <Compile Include="Notation.fs" />
-    <Compile Include="UciMove.fs" />
-    <Compile Include="Zobrist.fs" />
-    <Compile Include="Position.fs" />
-    <Compile Include="Eval.fs" />
-    <Compile Include="Board8x8Funcs.fs" />
-    <Compile Include="FenParsing.fs" />
-    <Compile Include="MagicCache.fs" />
-    <Compile Include="Bitboards.fs" />
-    <Compile Include="Perft.fs" />
-    <Compile Include="Commands.fs" />
-    <Compile Include="Uci.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Arrow.fs"/>
+    <Compile Include="BitUtils.fs"/>
+    <Compile Include="SeqExtensions.fs"/>
+    <Compile Include="Randomness.fs"/>
+    <Compile Include="Common.fs"/>
+    <Compile Include="Exceptions.fs"/>
+    <Compile Include="Pieces.fs"/>
+    <Compile Include="Magic.fs"/>
+    <Compile Include="Move.fs"/>
+    <Compile Include="Notation.fs"/>
+    <Compile Include="UciMove.fs"/>
+    <Compile Include="Zobrist.fs"/>
+    <Compile Include="Position.fs"/>
+    <Compile Include="Eval.fs"/>
+    <Compile Include="TranspositionTable.fs"/>
+    <Compile Include="Search.fs"/>
+    <Compile Include="Board8x8Funcs.fs"/>
+    <Compile Include="FenParsing.fs"/>
+    <Compile Include="MagicCache.fs"/>
+    <Compile Include="Bitboards.fs"/>
+    <Compile Include="Perft.fs"/>
+    <Compile Include="Commands.fs"/>
+    <Compile Include="Uci.fs"/>
+    <Compile Include="Program.fs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1"/>
   </ItemGroup>
 </Project>

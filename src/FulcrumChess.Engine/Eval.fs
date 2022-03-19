@@ -22,7 +22,7 @@ module Eval =
         let black = (BitUtils.countSetBits bbB |> float)
         weight * (white - black)
         
-    let naiveEval (generateAllPseudoMovesForSide:FulcrumChess.Engine.GetMovesForSide) (getAttacks:GetAttacks) (pos:Position) =
+    let naiveEval (generateLegalMoves:GetMovesForSide)(pos:Position) =
         let sideToPlay = pos.SideToPlay
 
         let getLegalMovesCount (side:Side) =
@@ -30,10 +30,7 @@ module Eval =
                 if side = pos.SideToPlay then pos 
                 else { pos with SideToPlay=opposite pos.SideToPlay}
 
-            let pseudoMoves = generateAllPseudoMovesForSide pos'
-            pseudoMoves
-            |> Array.choose( fun m -> Position.tryMakeMoveInternal getAttacks m pos')
-            |> Array.length
+            generateLegalMoves pos' |> Array.length
 
         let legalMovesCountSideToPlay = sideToPlay |> getLegalMovesCount
 

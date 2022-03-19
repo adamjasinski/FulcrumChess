@@ -74,7 +74,7 @@ module Position =
          FullMoveNumber=1; 
          HashKey=6346835357807462450UL }
 
-    let castlingLookups = dict[
+    let castlingLookups = dict [
         Side.White, { 
             CastlingLookup.InitialPositionKing = 8UL;
             InitialPositionKingsRook = 1UL;

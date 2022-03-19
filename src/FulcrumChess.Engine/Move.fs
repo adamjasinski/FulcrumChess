@@ -117,8 +117,21 @@ module Castling =
         | King -> determineCastlingTypeIfKingsMove side move
         | _ -> Option.None
 
+type ScoredMove = { Move:Move; Score:int }
 
-//  module MoveScore =
-//     let applyScore (move:Move) =
-//         let score1 m = m |>
-    //Capture, Promotions, Castling?, 
+module MoveScore =
+    
+    let private initScoredMove m = { Move=m; Score=0 }
+    let inline private getMove (sm:ScoredMove) = sm.Move
+    let inline private scoreFun score predicate sm = if sm |> getMove |> predicate then { sm with Score=sm.Score+score} else sm
+    let private applyPromotionScore = scoreFun 1000 Move.isPromotion
+    let private applyCaptureScore = scoreFun 100 Move.isCapture
+    let private applyCastlingScore = scoreFun 50 Move.isCastling
+
+    let private applyStandardScores = applyPromotionScore >> applyCaptureScore >> applyCastlingScore
+
+    let applyScore (move:Move) =
+        move |> initScoredMove |> applyStandardScores
+
+    let getScore (m:ScoredMove) = m.Score
+    let nullMove = { Move=Move.nullMove; Score=0}
