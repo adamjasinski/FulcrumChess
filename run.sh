@@ -1,2 +1,2 @@
-#dotnet run -p src/FulcrumChess.Engine
-src/FulcrumChess.Engine/bin/Release/net50/FulcrumChess.Engine 
+#dotnet run --project src/FulcrumChess.Engine
+src/FulcrumChess.Engine/bin/Release/net60/FulcrumChess.Engine 

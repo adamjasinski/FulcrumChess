@@ -49,7 +49,7 @@ Target.create "Benchmark" (fun _ ->
     Trace.trace " --- Running benchmarks --- "
     !! "test/*Benchmarks/*.*proj"
     |> Seq.iter (fun proj -> 
-        let args = $"-c Release -p {proj} --filter *Suite*"
+        let args = $"-c Release --project {proj} --filter *Suite*"
         DotNet.exec (fun opt -> opt) "run" args |> ignore)
 )
 

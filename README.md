@@ -15,14 +15,14 @@ FulcrumChess is a chess engine written in F#; still in an early phase of develop
 ### Building
 
 `dotnet build`
-`dotnet run -p src/FulcrumChess.Engine`
+`dotnet run --project src/FulcrumChess.Engine`
 
 or with Fake:
 `dotnet fake build`
 (also runs unit tests)
 
 or with building native binaries:
-`dotnet publish -c Release -r linux-x64 -p PublishReadyToRun:false`
+`dotnet publish -c Release -r linux-x64 --project PublishReadyToRun:false`
 
 ### Running tests
 
@@ -45,7 +45,7 @@ Run the binary from artifacts built through `dotnet publish` (see above):
 `src/FulcrumChess.Engine/bin/Release/linux-x64/FulcrumChess.Engine`
 
 ## Running dedicated benchmarks suites
-`dotnet run -c Release -p test/FulcrumChess.Engine.Benchmarks --filter *Suite*`
+`dotnet run -c Release --project test/FulcrumChess.Engine.Benchmarks --filter *Suite*`
 OR
 `dotnet fake run build.fsx -t Benchmark`
 
