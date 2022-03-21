@@ -34,7 +34,7 @@ module Search =
     //         let (score, bestMove) = pos |> negaMax generateAllPseudoMovesForSide tryMakeMoveInternal depth alpha beta
     //         { Score = score; Depth = depth; BestMove = bestMove } 
 
-    let rec quiescenceSearch (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Position->Move->Position option) (alpha:float) (beta:float)  =
+    let rec quiescenceSearch (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Move->Position->Position option) (alpha:float) (beta:float)  =
         //NB: score is the stand_pat
         let score =  pos |> Eval.naiveEval generateLegalMoves
         if score >= beta then
@@ -52,7 +52,7 @@ module Search =
                 else
                     sortNextBestMove qMoves i
                     let move = qMoves.[i].Move
-                    let pos' = move |> tryMakeMoveInternal pos |> Option.get 
+                    let pos' = pos |> tryMakeMoveInternal move |> Option.get 
                     let score' = -1. * (quiescenceSearch pos' generateLegalMoves tryMakeMoveInternal -beta -alpha)
 
                     if score' > alpha && score' >= beta then
@@ -65,9 +65,10 @@ module Search =
             checkQMoves 0 alpha' beta
             
         
-    let rec negaMax (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Position->Move->Position option) (depth:int) (alpha:float) (beta:float)  =
+    let rec negaMax (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Move->Position->Position option) (depth:int) (alpha:float) (beta:float)  =
         if depth <= 0 then
             let score = quiescenceSearch pos generateLegalMoves tryMakeMoveInternal alpha beta
+            //printfn $"Score from quiescenceSearch: {score}; Alpha: {alpha}; beta: {beta}"
             score
         elif alpha >= beta then
             alpha
@@ -80,7 +81,7 @@ module Search =
                 else
                     sortNextBestMove legalMoves i
                     let move = legalMoves.[i].Move
-                    let pos' = move |> tryMakeMoveInternal pos |> Option.get 
+                    let pos' = pos |> tryMakeMoveInternal move |> Option.get 
                     let score' = -1. * (negaMax pos' generateLegalMoves tryMakeMoveInternal (depth - 1) -beta -alpha)
 
                     if score' > alpha && score' >= beta then
@@ -94,7 +95,7 @@ module Search =
             let alpha' = checkLegalMoves 0 alpha beta
             alpha'
 
-    let rec negaMaxRoot (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Position->Move->Position option) (depth:int) (alpha:float) (beta:float)  =
+    let rec negaMaxRoot (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Move->Position->Position option) (depth:int) (alpha:float) (beta:float)  =
         let legalMoves = pos |> generateLegalMoves |> Array.map MoveScore.applyScore
 
         let rec checkLegalMoves i alpha beta bestMove : (float*Move) =
@@ -103,7 +104,7 @@ module Search =
             else
                 sortNextBestMove legalMoves i
                 let move = legalMoves.[i].Move
-                let pos' = move |> tryMakeMoveInternal pos |> Option.get 
+                let pos' = pos |> tryMakeMoveInternal move |> Option.get 
                 let score' = -1. * (negaMax pos' generateLegalMoves tryMakeMoveInternal (depth - 1) -beta -alpha)
 
                 if score' > alpha && score' >= beta then
@@ -119,7 +120,7 @@ module Search =
         (alpha',bestMove')
 
 
-    let goSearch (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Position->Move->Position option) (maxDepth:int) =
+    let goSearch (pos:Position) (generateLegalMoves:GetMovesForSide) (tryMakeMoveInternal:Move->Position->Position option) (maxDepth:int) =
         //TODO - set search settings
         let alpha = Int32.MinValue
         let beta = Int32.MaxValue

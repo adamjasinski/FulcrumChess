@@ -34,7 +34,7 @@ module Eval =
 
         let legalMovesCountSideToPlay = sideToPlay |> getLegalMovesCount
 
-        let isCheckMateForSideToPlay = legalMovesCountSideToPlay > 0
+        let isCheckMateForSideToPlay = legalMovesCountSideToPlay = 0
 
         if isCheckMateForSideToPlay then
             match sideToPlay with

@@ -30,6 +30,7 @@
     <Compile Include="MoveGenKnightTests.fs"/>
     <Compile Include="MoveGenPawnTests.fs"/>
     <Compile Include="PerftTests.fs"/>
+    <Compile Include="SearchByDepthTests.fs"/>
     <Compile Include="Program.fs"/>
   </ItemGroup>
   <ItemGroup>

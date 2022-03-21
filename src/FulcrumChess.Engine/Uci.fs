@@ -33,6 +33,7 @@ module Uci =
             Commands.SetPosition (fenToUse, moves)
         | CompiledMatch @"^go perft (\d+)$" [_; depth] -> Commands.Perft (System.Int32.Parse(depth.Value))
         | CompiledMatch @"^d$" [_] -> Commands.Display
+        | CompiledMatch @"^eval$" [_] -> Commands.Eval
         | CompiledMatch @"^help$" [_] -> Commands.Help
         | CompiledMatch @"^quit$" [_] -> Commands.Quit
         | s -> Commands.Uknown s

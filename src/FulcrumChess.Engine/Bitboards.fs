@@ -496,6 +496,13 @@ module MoveGenerationLookupFunctions =
         bbForSide 
         |> BitUtils.getSetBits_u64
         |> Array.collect (generatePseudoMovesWithSpecial lookups pos)
-        // |> Array.map (generatePseudoMoves lookups pos)
-        // |> Array.concat
-        //|> Array.reduce (|||)
+
+    let generateLegalMoves (lookups:MoveGenerationLookups) (pos:Position) =
+        let pseudoMoves = pos |> generateAllPseudoMovesForSide lookups pos.SideToPlay
+        let getAttacks = generateAttacks lookups 
+
+        let legalMoveFilter m = 
+            let pos' = tryMakeMoveInternal getAttacks m pos
+            pos' |> Option.isSome
+
+        pseudoMoves |> Array.filter legalMoveFilter

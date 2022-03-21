@@ -7,6 +7,7 @@ type Commands =
     | SetPosition of (string * string array)
     | Perft of int
     | Display
+    | Eval
     | Uknown of string
     | Help
     | Quit
@@ -18,6 +19,7 @@ type EngineState() =
     let lookups = lazy Bitboards.MoveGenerationLookupFunctions.bootstrapAll(Some options)
     //let mutable currentPosition:Position = Position.initialPosition
     let generatePseudoMovesAdapter pos bitRef = Bitboards.MoveGenerationLookupFunctions.generatePseudoMovesWithSpecial lookups.Value pos bitRef |> Seq.toArray
+    let generateLegalMoves = Bitboards.MoveGenerationLookupFunctions.generateLegalMoves lookups.Value
     //member __.IsInitialized = lookups.IsValueCreated
     member val CurrentPosition:Position = Position.initialPosition with get, set
     member val GenerateAttacks = Bitboards.MoveGenerationLookupFunctions.generateAttacks lookups.Value with get
@@ -25,6 +27,7 @@ type EngineState() =
     member __.EngineCpuArch = if System.Environment.Is64BitProcess then "x64" else "x86"
     member __.Lookups = lookups.Value
     member val GeneratePseudoMoves = generatePseudoMovesAdapter
+    member this.EvaluateCurrentPosition() = this.CurrentPosition |> Eval.naiveEval generateLegalMoves
     
 type CommandResult = | Ok | ExitSignal
 
@@ -71,6 +74,15 @@ module CommandHandler =
             output "\n"
             output "Nodes searched: %d" perftDivideReport.TotalNodes
 
+        let handleDisplay (state:EngineState) =
+            state.CurrentPosition |> Position.prettyPrint |> output "%s"
+            state.CurrentPosition |> FenParsing.toFen |> output "Fen: %s"
+            state.CurrentPosition.HashKey |> output "Key: %X"
+
+        let handleEval (state:EngineState) =
+            let score = state.EvaluateCurrentPosition()
+            score |> output "Evaluation: %f"
+
         match cmd with
         | Uci ->
             //output "id name %s %s by %s" EngineConstants.EngineName state.EngineCpuArch EngineConstants.AuthorName
@@ -90,9 +102,10 @@ module CommandHandler =
             TimeManager.runTimedFun (fun () -> handlePerft depth)
             Ok
         | Display -> 
-            state.CurrentPosition |> Position.prettyPrint |> output "%s"
-            state.CurrentPosition |> FenParsing.toFen |> output "Fen: %s"
-            state.CurrentPosition.HashKey |> output "Key: %X"
+            handleDisplay state
+            Ok
+        | Eval ->
+            handleEval state
             Ok
         | Uknown s -> 
             output "Uknown command: %s" s
