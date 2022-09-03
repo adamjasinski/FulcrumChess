@@ -1,0 +1,37 @@
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:02:17.37]     FulcrumChess.Engine.Tests.MoveGeneration.PerftTests.perft in specific positions should return known values(fen: "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/"..., depth: 4, expectedNodes: 4085603) [FAIL]
+  Failed FulcrumChess.Engine.Tests.MoveGeneration.PerftTests.perft in specific positions should return known values(fen: "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/"..., depth: 4, expectedNodes: 4085603) [2 m 7 s]
+  Error Message:
+   
+
+perftReport.TotalNodes = expectedNodes
+{ InitialMovesNodeBreakdown =
+                             [|("e5d7", 93907UL); ("e5f7", 88793UL);
+                               ("e2a6", 69328UL); ("e5c6", 83879UL);
+                               ("d5d6", 79545UL); ("d5e6", 97458UL);
+                               ("f3f6", 77832UL); ("e5g6", 83860UL);
+                               ("d2h6", 82317UL); ("c3b5", 81486UL);
+                               ("e2b5", 79733UL); ("f3f5", 104986UL);
+                               ("d2g5", 87945UL); ("f3h5", 95028UL);
+                               ("c3a4", 91441UL); ("a2a4", 90978UL);
+                               ("e5c4", 77746UL); ("e2c4", 84829UL);
+                               ("f3f4", 90482UL); ("d2f4", 84863UL);
+                               ("e5g4", 79906UL); ("f3g4", 92031UL);
+                               ("g2g4", 75677UL); ("a2a3", 94405UL);
+                               ("b2b3", 81060UL); ("f3d3", 83721UL);
+                               ("e2d3", 85113UL); ("e5d3", 77425UL);
+                               ("f3e3", 92499UL); ("d2e3", 90268UL);
+                               ("f3g3", 94455UL); ("g2g3", 77468UL);
+                               ("f3h3", 98524UL); ("g2h3", 82759UL);
+                               ("c3b1", 84761UL); ("a1b1", 83342UL);
+                               ("e1c1", 79797UL); ("a1c1", 83257UL);
+                               ("d2c1", 83031UL); ("a1d1", 79689UL);
+                               ("e2d1", 74957UL); ("e1d1", 79983UL);
+                               ("c3d1", 84770UL); ("e2f1", 88719UL);
+                               ("e1f1", 77887UL); ("h1f1", 81557UL);
+                               ("e1g1", 86972UL); ("h1g1", 84876UL)|]
+  TotalNodes = 4085345UL }.TotalNodes = 4085603UL
+4085345UL = 4085603UL
+false
